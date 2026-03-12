@@ -261,7 +261,7 @@ input,select,button,textarea{font-family:'Nunito',sans-serif}
 <body>
 
 <!-- ══ HOME ══ -->
-<div id="pg-home">
+<div id="pg-home" class="hidden">
   <div class="blob b1"></div><div class="blob b2"></div>
   <nav class="hnav">
     <div class="hlogo"><span style="font-size:28px">🥔</span><div class="hlogo-txt"><div class="nm">Khoai Tây Family</div><div class="sb">Finance OS v2</div></div></div>
@@ -291,13 +291,13 @@ input,select,button,textarea{font-family:'Nunito',sans-serif}
 </div>
 
 <!-- ══ LOGIN ══ -->
-<div id="pg-login" class="hidden">
+<div id="pg-login">
   <div class="lcard">
     <div class="ltop"><div class="lemoji">🥔</div><h2 class="ltitle">Khoai Tây Family</h2><p class="lsub">Hệ thống tài chính gia đình</p></div>
     <label class="llbl">Ai đang đăng nhập?</label>
     <div class="ubtns">
-      <button class="ubtn on" id="bu-jonny" onclick="selUser('jonny')"><span class="ue">👨</span>Jonny<span class="ur">Chồng</span></button>
-      <button class="ubtn" id="bu-linh" onclick="selUser('linh')"><span class="ue">👩</span>Linh<span class="ur">Vợ</span></button>
+      <button class="ubtn on" id="bu-jonny" onclick="selUser('jonny')"><span class="ue">👨</span>Ba Hảo<span class="ur">Chồng</span></button>
+      <button class="ubtn" id="bu-linh" onclick="selUser('linh')"><span class="ue">👩</span>Mẹ Ngân<span class="ur">Vợ</span></button>
     </div>
     <div class="pwrap">
       <label class="llbl">Mật khẩu</label>
@@ -306,7 +306,6 @@ input,select,button,textarea{font-family:'Nunito',sans-serif}
       <div class="perr hidden" id="perr">⚠️ Sai mật khẩu rồi! 😅</div>
     </div>
     <button class="bsign" onclick="doLogin()">Đăng nhập 🔑</button>
-    <button class="bback" onclick="goPage('home')">← Về trang chủ</button>
   </div>
 </div>
 
@@ -927,7 +926,7 @@ function showTab(t){
 function selUser(u){selU=u;["jonny","linh"].forEach(k=>document.getElementById("bu-"+k).classList.toggle("on",k===u));}
 function doLogin(){
   if(document.getElementById("pw").value==="khoaitay2024"){
-    const u=selU==="jonny"?{name:"Jonny",av:"👨"}:{name:"Linh",av:"👩"};
+    const u=selU==="jonny"?{name:"Ba Hảo",av:"👨"}:{name:"Mẹ Ngân",av:"👩"};
     document.getElementById("nav-badge").textContent=u.av+" "+u.name;
     document.getElementById("pw").value="";
     document.getElementById("perr").classList.add("hidden");
