@@ -302,6 +302,39 @@
   footer .footer-links a { color: rgba(255,255,255,0.6); text-decoration: none; font-size: 0.85rem; transition: color 0.2s; }
   footer .footer-links a:hover { color: var(--gold); }
 
+  /* ── GALLERY ── */
+  .gallery-section { padding: 100px 48px; background: var(--light); }
+  .slideshow-wrap { max-width: 900px; margin: 0 auto 60px; }
+  .slideshow { position: relative; border-radius: 24px; overflow: hidden; box-shadow: 0 20px 60px rgba(92,61,46,0.15); aspect-ratio: 16/9; background: var(--warm); }
+  .slide { position: absolute; inset: 0; opacity: 0; transition: opacity 0.7s ease; }
+  .slide.active { opacity: 1; }
+  .slide img { width: 100%; height: 100%; object-fit: cover; }
+  .slide-btn {
+    position: absolute; top: 50%; transform: translateY(-50%);
+    background: rgba(255,255,255,0.85); border: none; cursor: pointer;
+    width: 48px; height: 48px; border-radius: 50%;
+    font-size: 1.5rem; color: var(--brown);
+    display: flex; align-items: center; justify-content: center;
+    transition: all 0.2s; z-index: 10;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+  }
+  .slide-btn:hover { background: white; transform: translateY(-50%) scale(1.1); }
+  .prev { left: 16px; }
+  .next { right: 16px; }
+  .slide-dots { position: absolute; bottom: 16px; left: 50%; transform: translateX(-50%); display: flex; gap: 8px; }
+  .dot { width: 8px; height: 8px; border-radius: 50%; background: rgba(255,255,255,0.5); cursor: pointer; transition: all 0.2s; border: none; }
+  .dot.active { background: white; transform: scale(1.3); }
+  .masonry {
+    columns: 3; column-gap: 16px;
+    max-width: 1200px; margin: 0 auto;
+  }
+  .masonry-item { break-inside: avoid; margin-bottom: 16px; border-radius: 16px; overflow: hidden; cursor: pointer; }
+  .masonry-item img { width: 100%; display: block; transition: transform 0.4s; }
+  .masonry-item:hover img { transform: scale(1.04); }
+  .masonry-item.tall img { aspect-ratio: 3/4; object-fit: cover; }
+  .masonry-item:not(.tall) img { aspect-ratio: 4/3; object-fit: cover; }
+  @media (max-width: 768px) { .masonry { columns: 2; } .gallery-section { padding: 60px 24px; } }
+
   /* ── ANIMATIONS ── */
   @keyframes fadeUp {
     from { opacity: 0; transform: translateY(30px); }
@@ -418,29 +451,42 @@
       </div>
     </a>
 
+    <a class="trip-card reveal" href="https://www.youtube.com/watch?v=PF3QSyvbMe0" target="_blank">
+      <div class="trip-thumb">
+        <img src="https://img.youtube.com/vi/PF3QSyvbMe0/hqdefault.jpg" style="width:100%;height:100%;object-fit:cover;position:absolute;top:0;left:0;" alt="Nara Matcha Onsen">
+        <div class="trip-thumb-overlay"></div>
+        <div class="play-badge">▶ YouTube</div>
+      </div>
+      <div class="trip-info">
+        <div class="trip-vlog">Vlog 6 Part 7</div>
+        <div class="trip-title">Công viên Nara, Thủ phủ Matcha Uji & tắm Onsen Solaniwa</div>
+        <span class="trip-dest">🇯🇵 Nara · Uji · Nhật Bản</span>
+      </div>
+    </a>
+
     <a class="trip-card reveal" href="https://www.youtube.com/watch?v=ZO0K91N08MY" target="_blank">
       <div class="trip-thumb">
-        <img src="https://img.youtube.com/vi/ZO0K91N08MY/hqdefault.jpg" style="width:100%;height:100%;object-fit:cover;position:absolute;top:0;left:0;" alt="Kamakura Đại Phật Shibuya">
+        <img src="https://img.youtube.com/vi/ZO0K91N08MY/hqdefault.jpg" style="width:100%;height:100%;object-fit:cover;position:absolute;top:0;left:0;" alt="Kamakura Shibuya">
         <div class="trip-thumb-overlay"></div>
         <div class="play-badge">▶ YouTube</div>
       </div>
       <div class="trip-info">
         <div class="trip-vlog">Vlog 6 Part 3</div>
         <div class="trip-title">Khám phá Kamakura, Đại Phật, Chinatown & Giao lộ Shibuya</div>
-        <span class="trip-dest">📍 Kamakura · Shibuya · Nhật Bản</span>
+        <span class="trip-dest">🇯🇵 Kamakura · Shibuya · Nhật Bản</span>
       </div>
     </a>
 
     <a class="trip-card reveal" href="https://www.youtube.com/watch?v=Ua1hzJe2Vg0" target="_blank">
       <div class="trip-thumb">
-        <img src="https://img.youtube.com/vi/Ua1hzJe2Vg0/hqdefault.jpg" style="width:100%;height:100%;object-fit:cover;position:absolute;top:0;left:0;" alt="Núi Phú Sĩ Kawaguchiko Hakkai">
+        <img src="https://img.youtube.com/vi/Ua1hzJe2Vg0/hqdefault.jpg" style="width:100%;height:100%;object-fit:cover;position:absolute;top:0;left:0;" alt="Núi Phú Sĩ Kawaguchiko">
         <div class="trip-thumb-overlay"></div>
         <div class="play-badge">▶ YouTube</div>
       </div>
       <div class="trip-info">
         <div class="trip-vlog">Vlog 6 Part 4</div>
         <div class="trip-title">Khám phá núi Phú Sĩ, vườn đào, hồ Kawaguchiko, làng cổ Hakkai</div>
-        <span class="trip-dest">📍 Phú Sĩ · Kawaguchiko · Nhật Bản</span>
+        <span class="trip-dest">🇯🇵 Phú Sĩ · Kawaguchiko · Nhật Bản</span>
       </div>
     </a>
 
@@ -453,33 +499,20 @@
       <div class="trip-info">
         <div class="trip-vlog">Vlog 6 Part 5</div>
         <div class="trip-title">Trải nghiệm tàu Shinkansen, khám phá Osaka & khu Dontobori</div>
-        <span class="trip-dest">📍 Osaka · Nhật Bản</span>
+        <span class="trip-dest">🇯🇵 Osaka · Nhật Bản</span>
       </div>
     </a>
 
     <a class="trip-card reveal" href="https://www.youtube.com/watch?v=1Ieja34GJ4s" target="_blank">
       <div class="trip-thumb">
-        <img src="https://img.youtube.com/vi/1Ieja34GJ4s/hqdefault.jpg" style="width:100%;height:100%;object-fit:cover;position:absolute;top:0;left:0;" alt="Bảo tàng Osaka Shitennoji Kuromon">
+        <img src="https://img.youtube.com/vi/1Ieja34GJ4s/hqdefault.jpg" style="width:100%;height:100%;object-fit:cover;position:absolute;top:0;left:0;" alt="Osaka Shitennoji Kuromon">
         <div class="trip-thumb-overlay"></div>
         <div class="play-badge">▶ YouTube</div>
       </div>
       <div class="trip-info">
         <div class="trip-vlog">Vlog 6 Part 6</div>
         <div class="trip-title">Khám phá bảo tàng Osaka, Chùa Shitennoji & chợ cá Kuromon</div>
-        <span class="trip-dest">📍 Osaka · Nhật Bản</span>
-      </div>
-    </a>
-
-    <a class="trip-card reveal" href="https://www.youtube.com/watch?v=PF3QSyvbMe0" target="_blank">
-      <div class="trip-thumb">
-        <img src="https://img.youtube.com/vi/PF3QSyvbMe0/hqdefault.jpg" style="width:100%;height:100%;object-fit:cover;position:absolute;top:0;left:0;" alt="Nara Matcha Onsen">
-        <div class="trip-thumb-overlay"></div>
-        <div class="play-badge">▶ YouTube</div>
-      </div>
-      <div class="trip-info">
-        <div class="trip-vlog">Vlog 6 Part 7</div>
-        <div class="trip-title">Công viên Nara, Thủ phủ Matcha Uji & tắm Onsen Solaniwa</div>
-        <span class="trip-dest">🇯🇵 Nara · Uji · Nhật Bản</span>
+        <span class="trip-dest">🇯🇵 Osaka · Nhật Bản</span>
       </div>
     </a>
 
@@ -617,6 +650,46 @@
   </div>
 </section>
 
+<!-- GALLERY -->
+<section class="gallery-section" id="gallery">
+  <div class="section-header reveal">
+    <div class="section-tag">📸 Album ảnh</div>
+    <h2>Khoảnh khắc <em>gia đình</em></h2>
+    <p>Những kỷ niệm đẹp của Ba Hảo, Mẹ Ngân và Khoai Tây từ 2023 đến nay.</p>
+  </div>
+
+  <!-- SLIDESHOW -->
+  <div class="slideshow-wrap reveal">
+    <div class="slideshow">
+      <div class="slide active"><img src="https://lh3.googleusercontent.com/pw/AP1GczO0cFM3WNencXrLf80WT6NSjBDh18tpQ7qXKCBPsJDjskLbqWhKwNMapdLbGY9COeoKWNL3GxmUkW9tVri2XRFv5rbJA-dtofS-0qrNGjB-LCAzSfs=w1200-h800-no" alt="Khoai Tây Family"></div>
+      <div class="slide"><img src="https://lh3.googleusercontent.com/pw/AP1GczOnGcE0aAlL2K_UNaC8HIrcRX9UtFucb7OecIP_UiTVVaxqCuHkYJVI8bpsscq_8iwLRGdNOWTUY-BumGNl9pH8QsPfNUgGv_MC4YcQmuSo_IXhWPo=w1200-h800-no" alt="Khoai Tây Family"></div>
+      <div class="slide"><img src="https://lh3.googleusercontent.com/pw/AP1GczObcCcvNyDHUgmG5puuaLb11uiau2cTzxYcY9kjgyS_ubD2seyR8XrxhRJkHrl--a2sIQNqBLBcUOaA_U2cNBxooRoCpnCFn_s_9cwZ9wk8ECnU1F8=w1200-h800-no" alt="Khoai Tây Family"></div>
+      <div class="slide"><img src="https://lh3.googleusercontent.com/pw/AP1GczMxsTNbB4MOTukz-iSK3E0IJ1ITgGZuo-TKymioRT1kqKgHGhd8aczqeZLkgR-v-qfQmPeTp2lwZC0l7xhq-8iwLRGdNOWTUY-BumGNl9pH8QsPfNUgGv_MC4YcQmuSo_IXhWPo=w1200-h800-no" alt="Khoai Tây Family"></div>
+      <div class="slide"><img src="https://lh3.googleusercontent.com/pw/AP1GczOcfmiIHVatKzvRpjRgXrwehwQZV3GhcGsYm9LOFnyz4K1N_U-T31K6qr0ca5Cg6LODUokCydhoDqFvxyvchh9OhCAatZtwjQ5NeY_uunMGaQ5Yf38=w1200-h800-no" alt="Khoai Tây Family"></div>
+      <button class="slide-btn prev" onclick="changeSlide(-1)">‹</button>
+      <button class="slide-btn next" onclick="changeSlide(1)">›</button>
+      <div class="slide-dots" id="dots"></div>
+    </div>
+  </div>
+
+  <!-- MASONRY GRID -->
+  <div class="masonry reveal">
+    <div class="masonry-item tall"><img src="https://lh3.googleusercontent.com/pw/AP1GczO9C5GEIvbhMxx6ANxW3gKx0nF1Pjn-7Q4snQDt6qb8TjvHhkLXGXDcdS8BGVcqQBXLeu7x1EV7ftm7dKwMocpSs_cuswBGJBfOCsUB4JwXzoYwXV8=w600-h800-no" alt=""></div>
+    <div class="masonry-item"><img src="https://lh3.googleusercontent.com/pw/AP1GczMxsTNbB4MOTukz-iSK3E0IJ1ITgGZuo-TKymioRT1kqKgHGhd8aczqeZLkgR-v-qfQmPeTp2lwZC0l7xhq-8iwLRGdNOWTUY=w600-h400-no" alt=""></div>
+    <div class="masonry-item"><img src="https://lh3.googleusercontent.com/pw/AP1GczOBoSCdJrBh6UqAOAP3tpGCpus-WmZCrWtJR85O8kMl5wgrVwWtnoCp5izvAVoq7iTPjefCik-6Cyebf9D7yaFhMVez0RyXx4g0YjKiDHcZSGzlq98=w600-h400-no" alt=""></div>
+    <div class="masonry-item tall"><img src="https://lh3.googleusercontent.com/pw/AP1GczOZj8QNl3q_b8QpkFrC5uyE-bGoUhZNPYH0pDXyAR7aK1RX_fuInPDFvYUdxhEVDHHVfD-leGejJzoFwN3ZGsSsma3MzBmN4_vQ4xMxly79I6lujRA=w600-h800-no" alt=""></div>
+    <div class="masonry-item"><img src="https://lh3.googleusercontent.com/pw/AP1GczPhAl0qfTst3nXAM4_KIUm2t7nRopfnMueoCPSmbSpC2BywM4OL-oS6uDkesMwgQHHNp-eMvL4o09FFpxkwDn8FKSMxX5-IgXqPwLeu36MiEtv3GV4=w600-h400-no" alt=""></div>
+    <div class="masonry-item"><img src="https://lh3.googleusercontent.com/pw/AP1GczMV1oJTUaXHeWzr54hI8OjKB9duR171lhv3Y0p2T2ygtH8anBhx0WsNY__WWm405ofx2AiLnvYY34UMswe2l0FtL43jKfINss_gyIwwLeUt2UBuw-0=w600-h400-no" alt=""></div>
+    <div class="masonry-item tall"><img src="https://lh3.googleusercontent.com/pw/AP1GczPy99KBzsuinERIWILi7DiQ_a26T3JyhEE6YQmcQaGktVt0gTbRJwtEup55nLfLPaHWqqLViUR8_dqU-o28PWXG8NYRwr9wKBN3uHWm3mg5796MaIM=w600-h800-no" alt=""></div>
+    <div class="masonry-item"><img src="https://lh3.googleusercontent.com/pw/AP1GczOvKSfzex88dCiHuWGRSyZjq8LIPtfnI6VVbl5K6b5zGbaaGsMaWnvglPZH051gFMhm1v7XBnclajjVM36CsrtyNQADbMW2fWfY5N-Xc6rzqHBRy60=w600-h400-no" alt=""></div>
+    <div class="masonry-item"><img src="https://lh3.googleusercontent.com/pw/AP1GczN1GFppRYws3fkCETFIRt39skRi_XSQ4ULcd7BErEBqv3z6nHooEbtZiLkThHBVjJm-IgQE1159ykvBykXeWTNoW0mSQRoiPpzTQ7T4iP3DDM35-6I=w600-h400-no" alt=""></div>
+  </div>
+
+  <div style="text-align:center;margin-top:40px;" class="reveal">
+    <a href="https://photos.app.goo.gl/PoRNeF7XLQFphaeS9" target="_blank" class="btn-primary">📸 Xem toàn bộ album</a>
+  </div>
+</section>
+
 <!-- YOUTUBE CTA -->
 <section class="youtube-section">
   <div class="yt-box reveal">
@@ -642,6 +715,26 @@
 </footer>
 
 <script>
+  // Slideshow
+  let current = 0;
+  const slides = document.querySelectorAll('.slide');
+  const dotsContainer = document.getElementById('dots');
+  slides.forEach((_, i) => {
+    const dot = document.createElement('button');
+    dot.className = 'dot' + (i === 0 ? ' active' : '');
+    dot.onclick = () => goToSlide(i);
+    dotsContainer.appendChild(dot);
+  });
+  function goToSlide(n) {
+    slides[current].classList.remove('active');
+    document.querySelectorAll('.dot')[current].classList.remove('active');
+    current = (n + slides.length) % slides.length;
+    slides[current].classList.add('active');
+    document.querySelectorAll('.dot')[current].classList.add('active');
+  }
+  function changeSlide(dir) { goToSlide(current + dir); }
+  setInterval(() => changeSlide(1), 4000);
+
   // Scroll reveal
   const reveals = document.querySelectorAll('.reveal');
   const observer = new IntersectionObserver((entries) => {
