@@ -304,36 +304,80 @@
 
   /* ── GALLERY ── */
   .gallery-section { padding: 100px 48px; background: var(--light); }
-  .slideshow-wrap { max-width: 900px; margin: 0 auto 60px; }
-  .slideshow { position: relative; border-radius: 24px; overflow: hidden; box-shadow: 0 20px 60px rgba(92,61,46,0.15); aspect-ratio: 16/9; background: var(--warm); }
-  .slide { position: absolute; inset: 0; opacity: 0; transition: opacity 0.7s ease; }
-  .slide.active { opacity: 1; }
-  .slide img { width: 100%; height: 100%; object-fit: cover; }
-  .slide-btn {
-    position: absolute; top: 50%; transform: translateY(-50%);
-    background: rgba(255,255,255,0.85); border: none; cursor: pointer;
-    width: 48px; height: 48px; border-radius: 50%;
-    font-size: 1.5rem; color: var(--brown);
+
+  /* Album Banner */
+  .album-banner {
+    max-width: 1000px; margin: 0 auto 60px;
+    display: flex; align-items: center; gap: 32px;
+    background: var(--green); border-radius: 24px;
+    padding: 36px 40px; text-decoration: none;
+    transition: all 0.3s; cursor: pointer;
+    box-shadow: 0 10px 40px rgba(45,74,62,0.2);
+  }
+  .album-banner:hover { transform: translateY(-4px); box-shadow: 0 20px 60px rgba(45,74,62,0.3); }
+  .album-grid-preview {
+    display: grid; grid-template-columns: 1fr 1fr;
+    gap: 6px; width: 90px; height: 90px; flex-shrink: 0;
+    border-radius: 12px; overflow: hidden;
+  }
+  .album-grid-preview div {
     display: flex; align-items: center; justify-content: center;
-    transition: all 0.2s; z-index: 10;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    font-size: 1.4rem;
   }
-  .slide-btn:hover { background: white; transform: translateY(-50%) scale(1.1); }
-  .prev { left: 16px; }
-  .next { right: 16px; }
-  .slide-dots { position: absolute; bottom: 16px; left: 50%; transform: translateX(-50%); display: flex; gap: 8px; }
-  .dot { width: 8px; height: 8px; border-radius: 50%; background: rgba(255,255,255,0.5); cursor: pointer; transition: all 0.2s; border: none; }
-  .dot.active { background: white; transform: scale(1.3); }
-  .masonry {
-    columns: 3; column-gap: 16px;
-    max-width: 1200px; margin: 0 auto;
+  .album-banner-center { flex: 1; }
+  .album-icon { font-size: 2rem; margin-bottom: 8px; }
+  .album-banner-center h3 { font-family: 'Playfair Display', serif; font-size: 1.4rem; color: white; margin-bottom: 6px; }
+  .album-banner-center p { color: rgba(255,255,255,0.7); font-size: 0.9rem; margin-bottom: 12px; }
+  .album-tags { display: flex; gap: 8px; flex-wrap: wrap; }
+  .album-tags span {
+    background: rgba(255,255,255,0.12); color: rgba(255,255,255,0.85);
+    padding: 4px 12px; border-radius: 100px; font-size: 0.78rem;
   }
-  .masonry-item { break-inside: avoid; margin-bottom: 16px; border-radius: 16px; overflow: hidden; cursor: pointer; }
-  .masonry-item img { width: 100%; display: block; transition: transform 0.4s; }
-  .masonry-item:hover img { transform: scale(1.04); }
-  .masonry-item.tall img { aspect-ratio: 3/4; object-fit: cover; }
-  .masonry-item:not(.tall) img { aspect-ratio: 4/3; object-fit: cover; }
-  @media (max-width: 768px) { .masonry { columns: 2; } .gallery-section { padding: 60px 24px; } }
+  .album-banner-right { text-align: center; flex-shrink: 0; }
+  .album-open-btn {
+    background: var(--gold); color: white;
+    padding: 12px 24px; border-radius: 100px;
+    font-weight: 600; font-size: 0.9rem; margin-bottom: 6px;
+    white-space: nowrap;
+  }
+  .album-hint { color: rgba(255,255,255,0.5); font-size: 0.75rem; }
+
+  /* Preview Grid */
+  .gallery-preview {
+    max-width: 1000px; margin: 0 auto;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    grid-template-rows: repeat(3, 200px);
+    gap: 12px;
+  }
+  .gp-item {
+    border-radius: 16px; overflow: hidden;
+    position: relative; background: var(--warm);
+    display: flex; align-items: center; justify-content: center;
+  }
+  .gp-item img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.4s; display: block; }
+  .gp-item:hover img { transform: scale(1.05); }
+  .gp-big { grid-column: span 2; grid-row: span 2; }
+  .gp-fallback { font-size: 3rem; }
+  .gp-last { position: relative; }
+  .gp-more-overlay {
+    position: absolute; inset: 0;
+    background: rgba(45,74,62,0.85);
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    text-decoration: none; color: white;
+    transition: background 0.3s;
+  }
+  .gp-more-overlay:hover { background: rgba(45,74,62,0.95); }
+  .gp-more-num { font-family: 'Playfair Display', serif; font-size: 2.5rem; font-weight: 700; line-height: 1; }
+  .gp-more-text { font-size: 0.85rem; opacity: 0.8; margin-top: 4px; }
+
+  @media (max-width: 768px) {
+    .gallery-section { padding: 60px 24px; }
+    .album-banner { flex-direction: column; text-align: center; padding: 28px 24px; }
+    .album-tags { justify-content: center; }
+    .gallery-preview { grid-template-rows: repeat(3, 140px); gap: 8px; }
+  }
 
   /* ── ANIMATIONS ── */
   @keyframes fadeUp {
@@ -650,97 +694,82 @@
   </div>
 </section>
 
-<!-- GALLERY CAPTION STYLES -->
-<style>
-.masonry-item{position:relative;}
-.masonry-item img{width:100%;height:100%;object-fit:cover;display:block;}
-.masonry-cap{position:absolute;bottom:0;left:0;right:0;background:linear-gradient(to top,rgba(0,0,0,.65),transparent);color:#fff;font-size:11px;font-weight:700;padding:24px 12px 10px;letter-spacing:.3px;pointer-events:none}
-.slide img{width:100%;height:100%;object-fit:cover;}
-.slide-cap{position:absolute;bottom:0;left:0;right:0;padding:18px 28px 22px;background:linear-gradient(to top,rgba(0,0,0,.55),transparent);color:#fff;font-size:15px;font-weight:700;pointer-events:none;letter-spacing:.2px}
-</style>
-
 <!-- GALLERY -->
 <section class="gallery-section" id="gallery">
   <div class="section-header reveal">
     <div class="section-tag">📸 Album ảnh</div>
     <h2>Khoảnh khắc <em>gia đình</em></h2>
-    <p>Những kỷ niệm đẹp của Ba Hảo, Mẹ Ngân và Khoai Tây từ 2023 đến nay.</p>
+    <p>Những kỷ niệm đẹp của Ba Hảo, Mẹ Ngân và Khoai Tây từ 7/2023 đến nay.</p>
   </div>
 
-  <!-- SLIDESHOW -->
-  <div class="slideshow-wrap reveal">
-    <div class="slideshow">
-      <div class="slide active">
-        <img src="https://img.youtube.com/vi/J9017KNGqFA/maxresdefault.jpg" alt="Tokyo Nhật Bản">
-        <div class="slide-cap">🇯🇵 Tokyo · Hành trình đến Nhật Bản</div>
+  <!-- BANNER MỞ ALBUM -->
+  <a href="https://photos.app.goo.gl/PoRNeF7XLQFphaeS9" target="_blank" class="album-banner reveal">
+    <div class="album-banner-left">
+      <div class="album-grid-preview">
+        <div class="ag1" style="background:linear-gradient(135deg,#e8d5b7,#c9943a)">🥔</div>
+        <div class="ag2" style="background:linear-gradient(135deg,#2d4a3e,#7a9e8e)">👨‍👩‍👦</div>
+        <div class="ag3" style="background:linear-gradient(135deg,#c9943a,#5c3d2e)">✈️</div>
+        <div class="ag4" style="background:linear-gradient(135deg,#7a9e8e,#2d4a3e)">🇯🇵</div>
       </div>
-      <div class="slide">
-        <img src="https://img.youtube.com/vi/ZO0K91N08MY/maxresdefault.jpg" alt="Kamakura Shibuya">
-        <div class="slide-cap">📍 Kamakura · Đại Phật & Giao lộ Shibuya</div>
-      </div>
-      <div class="slide">
-        <img src="https://img.youtube.com/vi/Ua1hzJe2Vg0/maxresdefault.jpg" alt="Núi Phú Sĩ Kawaguchiko">
-        <div class="slide-cap">🗻 Phú Sĩ · Hồ Kawaguchiko & Làng cổ Hakkai</div>
-      </div>
-      <div class="slide">
-        <img src="https://img.youtube.com/vi/PF3QSyvbMe0/maxresdefault.jpg" alt="Nara Uji Onsen">
-        <div class="slide-cap">🦌 Nara · Công viên Hươu & Onsen Solaniwa</div>
-      </div>
-      <div class="slide">
-        <img src="https://img.youtube.com/vi/6CfHJzBwIFc/maxresdefault.jpg" alt="Osaka Shinkansen Dontobori">
-        <div class="slide-cap">🏯 Osaka · Shinkansen & Khu phố Dontobori</div>
-      </div>
-      <button class="slide-btn prev" onclick="changeSlide(-1)">‹</button>
-      <button class="slide-btn next" onclick="changeSlide(1)">›</button>
-      <div class="slide-dots" id="dots"></div>
     </div>
-  </div>
+    <div class="album-banner-center">
+      <div class="album-icon">📸</div>
+      <h3>Album Khoai Tây Family</h3>
+      <p>120+ khoảnh khắc từ tháng 7/2023 đến nay</p>
+      <div class="album-tags">
+        <span>👶 Khoai Tây lớn lên</span>
+        <span>✈️ 10+ chuyến đi</span>
+        <span>👨‍👩‍👦 Gia đình</span>
+      </div>
+    </div>
+    <div class="album-banner-right">
+      <div class="album-open-btn">Xem tất cả ảnh →</div>
+      <div class="album-hint">Mở Google Photos</div>
+    </div>
+  </a>
 
-  <!-- MASONRY GRID -->
-  <div class="masonry reveal">
-    <div class="masonry-item tall">
-      <img src="https://img.youtube.com/vi/eFHCUamHnhc/hqdefault.jpg" alt="Senso-ji Tokyo">
-      <div class="masonry-cap">🇯🇵 Senso-ji · Tokyo</div>
+  <!-- PREVIEW GRID 9 Ô -->
+  <div class="gallery-preview reveal">
+    <div class="gp-item gp-big">
+      <img src="https://lh3.googleusercontent.com/pw/AP1GczO0cFM3WNencXrLf80WT6NSjBDh18tpQ7qXKCBPsJDjskLbqWhKwNMapdLbGY9COeoKWNL3GxmUkW9tVri2XRFv5rbJA-dtofS-0qrNGjB-LCAzSfs=w600-h600-no" alt="Khoai Tây Family"
+        onerror="this.parentElement.style.background='linear-gradient(135deg,#f5e6cc,#c9943a)';this.style.display='none';this.parentElement.innerHTML+='<div class=gp-fallback>🥔</div>'">
     </div>
-    <div class="masonry-item">
-      <img src="https://img.youtube.com/vi/ZO0K91N08MY/hqdefault.jpg" alt="Kamakura Đại Phật">
-      <div class="masonry-cap">📍 Kamakura · Đại Phật</div>
+    <div class="gp-item">
+      <img src="https://lh3.googleusercontent.com/pw/AP1GczOnGcE0aAlL2K_UNaC8HIrcRX9UtFucb7OecIP_UiTVVaxqCuHkYJVI8bpsscq_8iwLRGdNOWTUY-BumGNl9pH8QsPfNUgGv_MC4YcQmuSo_IXhWPo=w400-h400-no" alt=""
+        onerror="this.parentElement.style.background='linear-gradient(135deg,#2d4a3e,#7a9e8e)';this.style.display='none';this.parentElement.innerHTML+='<div class=gp-fallback>👩</div>'">
     </div>
-    <div class="masonry-item" style="background:linear-gradient(135deg,#0d1f1a,#166534);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;text-align:center">
-      <div style="font-size:52px">🥔</div>
-      <div style="color:#4ade80;font-weight:900;font-size:14px;letter-spacing:1px">KHOAI TÂY</div>
-      <div style="color:rgba(255,255,255,.5);font-size:11px">Family · 2023–2026</div>
+    <div class="gp-item">
+      <img src="https://lh3.googleusercontent.com/pw/AP1GczObcCcvNyDHUgmG5puuaLb11uiau2cTzxYcY9kjgyS_ubD2seyR8XrxhRJkHrl--a2sIQNqBLBcUOaA_U2cNBxooRoCpnCFn_s_9cwZ9wk8ECnU1F8=w400-h400-no" alt=""
+        onerror="this.parentElement.style.background='linear-gradient(135deg,#c9943a,#5c3d2e)';this.style.display='none';this.parentElement.innerHTML+='<div class=gp-fallback>👶</div>'">
     </div>
-    <div class="masonry-item tall">
-      <img src="https://img.youtube.com/vi/Ua1hzJe2Vg0/hqdefault.jpg" alt="Núi Phú Sĩ">
-      <div class="masonry-cap">🗻 Phú Sĩ · Kawaguchiko</div>
+    <div class="gp-item">
+      <img src="https://lh3.googleusercontent.com/pw/AP1GczOcfmiIHVatKzvRpjRgXrwehwQZV3GhcGsYm9LOFnyz4K1N_U-T31K6qr0ca5Cg6LODUokCydhoDqFvxyvchh9OhCAatZtwjQ5NeY_uunMGaQ5Yf38=w400-h400-no" alt=""
+        onerror="this.parentElement.style.background='linear-gradient(135deg,#7a9e8e,#2d4a3e)';this.style.display='none';this.parentElement.innerHTML+='<div class=gp-fallback>🏖️</div>'">
     </div>
-    <div class="masonry-item">
-      <img src="https://img.youtube.com/vi/ms8ssaPkNoM/hqdefault.jpg" alt="Nha Trang VinWonder">
-      <div class="masonry-cap">🌊 Nha Trang · VinWonder</div>
+    <div class="gp-item">
+      <img src="https://lh3.googleusercontent.com/pw/AP1GczO9C5GEIvbhMxx6ANxW3gKx0nF1Pjn-7Q4snQDt6qb8TjvHhkLXGXDcdS8BGVcqQBXLeu7x1EV7ftm7dKwMocpSs_cuswBGJBfOCsUB4JwXzoYwXV8=w400-h400-no" alt=""
+        onerror="this.parentElement.style.background='linear-gradient(135deg,#e8d5b7,#c9943a)';this.style.display='none';this.parentElement.innerHTML+='<div class=gp-fallback>🎂</div>'">
     </div>
-    <div class="masonry-item">
-      <img src="https://img.youtube.com/vi/2bKUDq7lIH8/hqdefault.jpg" alt="Hội An Đà Nẵng">
-      <div class="masonry-cap">🏮 Hội An · Đà Nẵng</div>
+    <div class="gp-item">
+      <img src="https://lh3.googleusercontent.com/pw/AP1GczOBoSCdJrBh6UqAOAP3tpGCpus-WmZCrWtJR85O8kMl5wgrVwWtnoCp5izvAVoq7iTPjefCik-6Cyebf9D7yaFhMVez0RyXx4g0YjKiDHcZSGzlq98=w400-h400-no" alt=""
+        onerror="this.parentElement.style.background='linear-gradient(135deg,#5c3d2e,#c9943a)';this.style.display='none';this.parentElement.innerHTML+='<div class=gp-fallback>🌸</div>'">
     </div>
-    <div class="masonry-item tall" style="background:linear-gradient(160deg,#0ea5e9,#6366f1);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;text-align:center">
-      <div style="font-size:52px">👨‍👩‍👧</div>
-      <div style="color:#fff;font-weight:900;font-size:14px">Gia đình mình</div>
-      <div style="color:rgba(255,255,255,.65);font-size:11px">Yêu thương · Hạnh phúc</div>
+    <div class="gp-item">
+      <img src="https://lh3.googleusercontent.com/pw/AP1GczOZj8QNl3q_b8QpkFrC5uyE-bGoUhZNPYH0pDXyAR7aK1RX_fuInPDFvYUdxhEVDHHVfD-leGejJzoFwN3ZGsSsma3MzBmN4_vQ4xMxly79I6lujRA=w400-h400-no" alt=""
+        onerror="this.parentElement.style.background='linear-gradient(135deg,#2d4a3e,#c9943a)';this.style.display='none';this.parentElement.innerHTML+='<div class=gp-fallback>🗻</div>'">
     </div>
-    <div class="masonry-item">
-      <img src="https://img.youtube.com/vi/1Ieja34GJ4s/hqdefault.jpg" alt="Bảo tàng Osaka">
-      <div class="masonry-cap">🏯 Osaka · Bảo tàng & Kuromon</div>
+    <div class="gp-item">
+      <img src="https://lh3.googleusercontent.com/pw/AP1GczPhAl0qfTst3nXAM4_KIUm2t7nRopfnMueoCPSmbSpC2BywM4OL-oS6uDkesMwgQHHNp-eMvL4o09FFpxkwDn8FKSMxX5-IgXqPwLeu36MiEtv3GV4=w400-h400-no" alt=""
+        onerror="this.parentElement.style.background='linear-gradient(135deg,#7a9e8e,#5c3d2e)';this.style.display='none';this.parentElement.innerHTML+='<div class=gp-fallback>🌊</div>'">
     </div>
-    <div class="masonry-item" style="background:linear-gradient(135deg,#f59e0b,#ef4444);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;text-align:center">
-      <div style="font-size:48px">✈️</div>
-      <div style="color:#fff;font-weight:900;font-size:13px">Khám phá thế giới</div>
-      <div style="color:rgba(255,255,255,.75);font-size:11px">Nhật Bản · Việt Nam</div>
+    <div class="gp-item gp-last">
+      <img src="https://lh3.googleusercontent.com/pw/AP1GczMV1oJTUaXHeWzr54hI8OjKB9duR171lhv3Y0p2T2ygtH8anBhx0WsNY__WWm405ofx2AiLnvYY34UMswe2l0FtL43jKfINss_gyIwwLeUt2UBuw-0=w400-h400-no" alt=""
+        onerror="this.style.display='none'">
+      <a href="https://photos.app.goo.gl/PoRNeF7XLQFphaeS9" target="_blank" class="gp-more-overlay">
+        <span class="gp-more-num">120+</span>
+        <span class="gp-more-text">Xem tất cả</span>
+      </a>
     </div>
-  </div>
-
-  <div style="text-align:center;margin-top:40px;" class="reveal">
-    <a href="https://photos.app.goo.gl/PoRNeF7XLQFphaeS9" target="_blank" class="btn-primary">📸 Xem toàn bộ album</a>
   </div>
 </section>
 
@@ -769,26 +798,6 @@
 </footer>
 
 <script>
-  // Slideshow
-  let current = 0;
-  const slides = document.querySelectorAll('.slide');
-  const dotsContainer = document.getElementById('dots');
-  slides.forEach((_, i) => {
-    const dot = document.createElement('button');
-    dot.className = 'dot' + (i === 0 ? ' active' : '');
-    dot.onclick = () => goToSlide(i);
-    dotsContainer.appendChild(dot);
-  });
-  function goToSlide(n) {
-    slides[current].classList.remove('active');
-    document.querySelectorAll('.dot')[current].classList.remove('active');
-    current = (n + slides.length) % slides.length;
-    slides[current].classList.add('active');
-    document.querySelectorAll('.dot')[current].classList.add('active');
-  }
-  function changeSlide(dir) { goToSlide(current + dir); }
-  setInterval(() => changeSlide(1), 4000);
-
   // Scroll reveal
   const reveals = document.querySelectorAll('.reveal');
   const observer = new IntersectionObserver((entries) => {
