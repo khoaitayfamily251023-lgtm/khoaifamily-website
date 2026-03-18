@@ -650,6 +650,15 @@
   </div>
 </section>
 
+<!-- GALLERY CAPTION STYLES -->
+<style>
+.masonry-item{position:relative;}
+.masonry-item img{width:100%;height:100%;object-fit:cover;display:block;}
+.masonry-cap{position:absolute;bottom:0;left:0;right:0;background:linear-gradient(to top,rgba(0,0,0,.65),transparent);color:#fff;font-size:11px;font-weight:700;padding:24px 12px 10px;letter-spacing:.3px;pointer-events:none}
+.slide img{width:100%;height:100%;object-fit:cover;}
+.slide-cap{position:absolute;bottom:0;left:0;right:0;padding:18px 28px 22px;background:linear-gradient(to top,rgba(0,0,0,.55),transparent);color:#fff;font-size:15px;font-weight:700;pointer-events:none;letter-spacing:.2px}
+</style>
+
 <!-- GALLERY -->
 <section class="gallery-section" id="gallery">
   <div class="section-header reveal">
@@ -661,11 +670,26 @@
   <!-- SLIDESHOW -->
   <div class="slideshow-wrap reveal">
     <div class="slideshow">
-      <div class="slide active"><img src="https://lh3.googleusercontent.com/pw/AP1GczO0cFM3WNencXrLf80WT6NSjBDh18tpQ7qXKCBPsJDjskLbqWhKwNMapdLbGY9COeoKWNL3GxmUkW9tVri2XRFv5rbJA-dtofS-0qrNGjB-LCAzSfs=w1200-h800-no" alt="Khoai Tây Family"></div>
-      <div class="slide"><img src="https://lh3.googleusercontent.com/pw/AP1GczOnGcE0aAlL2K_UNaC8HIrcRX9UtFucb7OecIP_UiTVVaxqCuHkYJVI8bpsscq_8iwLRGdNOWTUY-BumGNl9pH8QsPfNUgGv_MC4YcQmuSo_IXhWPo=w1200-h800-no" alt="Khoai Tây Family"></div>
-      <div class="slide"><img src="https://lh3.googleusercontent.com/pw/AP1GczObcCcvNyDHUgmG5puuaLb11uiau2cTzxYcY9kjgyS_ubD2seyR8XrxhRJkHrl--a2sIQNqBLBcUOaA_U2cNBxooRoCpnCFn_s_9cwZ9wk8ECnU1F8=w1200-h800-no" alt="Khoai Tây Family"></div>
-      <div class="slide"><img src="https://lh3.googleusercontent.com/pw/AP1GczMxsTNbB4MOTukz-iSK3E0IJ1ITgGZuo-TKymioRT1kqKgHGhd8aczqeZLkgR-v-qfQmPeTp2lwZC0l7xhq-8iwLRGdNOWTUY-BumGNl9pH8QsPfNUgGv_MC4YcQmuSo_IXhWPo=w1200-h800-no" alt="Khoai Tây Family"></div>
-      <div class="slide"><img src="https://lh3.googleusercontent.com/pw/AP1GczOcfmiIHVatKzvRpjRgXrwehwQZV3GhcGsYm9LOFnyz4K1N_U-T31K6qr0ca5Cg6LODUokCydhoDqFvxyvchh9OhCAatZtwjQ5NeY_uunMGaQ5Yf38=w1200-h800-no" alt="Khoai Tây Family"></div>
+      <div class="slide active">
+        <img src="https://img.youtube.com/vi/J9017KNGqFA/maxresdefault.jpg" alt="Tokyo Nhật Bản">
+        <div class="slide-cap">🇯🇵 Tokyo · Hành trình đến Nhật Bản</div>
+      </div>
+      <div class="slide">
+        <img src="https://img.youtube.com/vi/ZO0K91N08MY/maxresdefault.jpg" alt="Kamakura Shibuya">
+        <div class="slide-cap">📍 Kamakura · Đại Phật & Giao lộ Shibuya</div>
+      </div>
+      <div class="slide">
+        <img src="https://img.youtube.com/vi/Ua1hzJe2Vg0/maxresdefault.jpg" alt="Núi Phú Sĩ Kawaguchiko">
+        <div class="slide-cap">🗻 Phú Sĩ · Hồ Kawaguchiko & Làng cổ Hakkai</div>
+      </div>
+      <div class="slide">
+        <img src="https://img.youtube.com/vi/PF3QSyvbMe0/maxresdefault.jpg" alt="Nara Uji Onsen">
+        <div class="slide-cap">🦌 Nara · Công viên Hươu & Onsen Solaniwa</div>
+      </div>
+      <div class="slide">
+        <img src="https://img.youtube.com/vi/6CfHJzBwIFc/maxresdefault.jpg" alt="Osaka Shinkansen Dontobori">
+        <div class="slide-cap">🏯 Osaka · Shinkansen & Khu phố Dontobori</div>
+      </div>
       <button class="slide-btn prev" onclick="changeSlide(-1)">‹</button>
       <button class="slide-btn next" onclick="changeSlide(1)">›</button>
       <div class="slide-dots" id="dots"></div>
@@ -674,15 +698,45 @@
 
   <!-- MASONRY GRID -->
   <div class="masonry reveal">
-    <div class="masonry-item tall"><img src="https://lh3.googleusercontent.com/pw/AP1GczO9C5GEIvbhMxx6ANxW3gKx0nF1Pjn-7Q4snQDt6qb8TjvHhkLXGXDcdS8BGVcqQBXLeu7x1EV7ftm7dKwMocpSs_cuswBGJBfOCsUB4JwXzoYwXV8=w600-h800-no" alt=""></div>
-    <div class="masonry-item"><img src="https://lh3.googleusercontent.com/pw/AP1GczMxsTNbB4MOTukz-iSK3E0IJ1ITgGZuo-TKymioRT1kqKgHGhd8aczqeZLkgR-v-qfQmPeTp2lwZC0l7xhq-8iwLRGdNOWTUY=w600-h400-no" alt=""></div>
-    <div class="masonry-item"><img src="https://lh3.googleusercontent.com/pw/AP1GczOBoSCdJrBh6UqAOAP3tpGCpus-WmZCrWtJR85O8kMl5wgrVwWtnoCp5izvAVoq7iTPjefCik-6Cyebf9D7yaFhMVez0RyXx4g0YjKiDHcZSGzlq98=w600-h400-no" alt=""></div>
-    <div class="masonry-item tall"><img src="https://lh3.googleusercontent.com/pw/AP1GczOZj8QNl3q_b8QpkFrC5uyE-bGoUhZNPYH0pDXyAR7aK1RX_fuInPDFvYUdxhEVDHHVfD-leGejJzoFwN3ZGsSsma3MzBmN4_vQ4xMxly79I6lujRA=w600-h800-no" alt=""></div>
-    <div class="masonry-item"><img src="https://lh3.googleusercontent.com/pw/AP1GczPhAl0qfTst3nXAM4_KIUm2t7nRopfnMueoCPSmbSpC2BywM4OL-oS6uDkesMwgQHHNp-eMvL4o09FFpxkwDn8FKSMxX5-IgXqPwLeu36MiEtv3GV4=w600-h400-no" alt=""></div>
-    <div class="masonry-item"><img src="https://lh3.googleusercontent.com/pw/AP1GczMV1oJTUaXHeWzr54hI8OjKB9duR171lhv3Y0p2T2ygtH8anBhx0WsNY__WWm405ofx2AiLnvYY34UMswe2l0FtL43jKfINss_gyIwwLeUt2UBuw-0=w600-h400-no" alt=""></div>
-    <div class="masonry-item tall"><img src="https://lh3.googleusercontent.com/pw/AP1GczPy99KBzsuinERIWILi7DiQ_a26T3JyhEE6YQmcQaGktVt0gTbRJwtEup55nLfLPaHWqqLViUR8_dqU-o28PWXG8NYRwr9wKBN3uHWm3mg5796MaIM=w600-h800-no" alt=""></div>
-    <div class="masonry-item"><img src="https://lh3.googleusercontent.com/pw/AP1GczOvKSfzex88dCiHuWGRSyZjq8LIPtfnI6VVbl5K6b5zGbaaGsMaWnvglPZH051gFMhm1v7XBnclajjVM36CsrtyNQADbMW2fWfY5N-Xc6rzqHBRy60=w600-h400-no" alt=""></div>
-    <div class="masonry-item"><img src="https://lh3.googleusercontent.com/pw/AP1GczN1GFppRYws3fkCETFIRt39skRi_XSQ4ULcd7BErEBqv3z6nHooEbtZiLkThHBVjJm-IgQE1159ykvBykXeWTNoW0mSQRoiPpzTQ7T4iP3DDM35-6I=w600-h400-no" alt=""></div>
+    <div class="masonry-item tall">
+      <img src="https://img.youtube.com/vi/eFHCUamHnhc/hqdefault.jpg" alt="Senso-ji Tokyo">
+      <div class="masonry-cap">🇯🇵 Senso-ji · Tokyo</div>
+    </div>
+    <div class="masonry-item">
+      <img src="https://img.youtube.com/vi/ZO0K91N08MY/hqdefault.jpg" alt="Kamakura Đại Phật">
+      <div class="masonry-cap">📍 Kamakura · Đại Phật</div>
+    </div>
+    <div class="masonry-item" style="background:linear-gradient(135deg,#0d1f1a,#166534);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;text-align:center">
+      <div style="font-size:52px">🥔</div>
+      <div style="color:#4ade80;font-weight:900;font-size:14px;letter-spacing:1px">KHOAI TÂY</div>
+      <div style="color:rgba(255,255,255,.5);font-size:11px">Family · 2023–2026</div>
+    </div>
+    <div class="masonry-item tall">
+      <img src="https://img.youtube.com/vi/Ua1hzJe2Vg0/hqdefault.jpg" alt="Núi Phú Sĩ">
+      <div class="masonry-cap">🗻 Phú Sĩ · Kawaguchiko</div>
+    </div>
+    <div class="masonry-item">
+      <img src="https://img.youtube.com/vi/ms8ssaPkNoM/hqdefault.jpg" alt="Nha Trang VinWonder">
+      <div class="masonry-cap">🌊 Nha Trang · VinWonder</div>
+    </div>
+    <div class="masonry-item">
+      <img src="https://img.youtube.com/vi/2bKUDq7lIH8/hqdefault.jpg" alt="Hội An Đà Nẵng">
+      <div class="masonry-cap">🏮 Hội An · Đà Nẵng</div>
+    </div>
+    <div class="masonry-item tall" style="background:linear-gradient(160deg,#0ea5e9,#6366f1);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;text-align:center">
+      <div style="font-size:52px">👨‍👩‍👧</div>
+      <div style="color:#fff;font-weight:900;font-size:14px">Gia đình mình</div>
+      <div style="color:rgba(255,255,255,.65);font-size:11px">Yêu thương · Hạnh phúc</div>
+    </div>
+    <div class="masonry-item">
+      <img src="https://img.youtube.com/vi/1Ieja34GJ4s/hqdefault.jpg" alt="Bảo tàng Osaka">
+      <div class="masonry-cap">🏯 Osaka · Bảo tàng & Kuromon</div>
+    </div>
+    <div class="masonry-item" style="background:linear-gradient(135deg,#f59e0b,#ef4444);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;text-align:center">
+      <div style="font-size:48px">✈️</div>
+      <div style="color:#fff;font-weight:900;font-size:13px">Khám phá thế giới</div>
+      <div style="color:rgba(255,255,255,.75);font-size:11px">Nhật Bản · Việt Nam</div>
+    </div>
   </div>
 
   <div style="text-align:center;margin-top:40px;" class="reveal">
