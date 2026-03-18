@@ -84,6 +84,10 @@ input,select,button,textarea{font-family:'Nunito',sans-serif}
 .nright{display:flex;align-items:center;gap:10px;flex-shrink:0}
 .nbadge{background:rgba(74,222,128,.1);border:1px solid rgba(74,222,128,.2);border-radius:20px;padding:4px 13px;font-size:12px;color:#4ade80}
 .nout{background:transparent;border:1px solid rgba(255,255,255,.15);color:rgba(255,255,255,.5);padding:5px 11px;border-radius:18px;cursor:pointer;font-size:12px}
+.nsync{background:rgba(74,222,128,.12);border:1px solid rgba(74,222,128,.3);color:#4ade80;padding:5px 13px;border-radius:18px;cursor:pointer;font-size:12px;font-weight:700;transition:all .2s}
+.nsync:hover{background:rgba(74,222,128,.22)}
+.nsync:disabled{opacity:.5;cursor:not-allowed}
+.sync-err-panel{position:fixed;bottom:70px;right:16px;background:#1a1a1a;border:1px solid #ef4444;border-radius:14px;padding:16px 18px;color:#fca5a5;font-size:13px;max-width:360px;z-index:9999;box-shadow:0 8px 30px rgba(0,0,0,.5)}
 .abody{max-width:1320px;margin:0 auto;padding:26px 18px 60px}
 .tpane{animation:fi .3s ease}
 @keyframes fi{from{opacity:0;transform:translateY(7px)}to{opacity:1;transform:translateY(0)}}
@@ -324,6 +328,8 @@ input,select,button,textarea{font-family:'Nunito',sans-serif}
       </div>
       <div class="nright">
         <div class="nbadge" id="nav-badge">👨 Jonny</div>
+        <span id="sync-status" style="font-size:11px"></span>
+        <button class="nsync" id="btn-sync" onclick="manualSyncAll()">☁️ Sync</button>
         <button class="nout" onclick="goPage('home')">Thoát</button>
       </div>
     </div>
@@ -890,6 +896,191 @@ let TASKS=[
   {title:"Thanh toán tiền nhà T3",assign:"👩 Linh",pri:"high",cat:"💰 Tài chính",due:"2026-03-05",status:"done",note:"Đã chuyển 9tr"},
 ];
 
+// ═══════════════════════════════════════════════════
+// GOOGLE SHEETS INTEGRATION
+// ═══════════════════════════════════════════════════
+const GS_SPREADSHEET_ID='1cnyS2piwP9HSrIiZgax8CdoL_jjY5SVtoIqAr6nQeeo';
+const GS_CLIENT_EMAIL='khoaitay@unique-terminus-490606-g8.iam.gserviceaccount.com';
+const GS_PRIVATE_KEY=`-----BEGIN PRIVATE KEY-----
+MIIEvgIBADANBgkqhkiG9w0BAQEFAASCBKgwggSkAgEAAoIBAQDiGW62jYMkFGtl
+UeJXKoXNCVMpJFhqtIrPZr1gzPFuB3ZQRyuluU6oynChOIfpSJJIhJFS3rLASs98
+hgfU7zABQgFWULvn9m2XM3vbQ9jQ/9XGUXknNvY0Q0d2prXXhxlM1SR0TmiEplUc
+rBrOADepdGhCSXEOpKQtmvkpKxPR+t7svnRAmlM5ikyu+VjDW5psj4RertxMye14
+NqDHbzNlC43Rct9MniLj5MCNgktngYd3w/qo8pX5mGyhbuBOllwlZDO1RoWi1OK2
+KFI2cH6JncjOPNTg3YWMQlwtrCAWhSacKq9tOz5tdxiOGhoAel3yQDckq9GFQ0sJ
+M/EYZ/RjAgMBAAECggEAOXEQqZxmNuJhLoqRIGgTOjYmRIuRUvqvUWXesxseMz/+
+FQMf2aisjUFxP+Rm0yO21mmnqhAeBbB76jz6/GQQJCGqyU0VkCcRTJqt2tTv3plA
+rHPCfe3+uuRk4YYVKL6P9O8ppcrNzvWbJf+rh66SdaC3ZC/YY0n81AFNT+I71NqX
+Mpk+tHpKAO+l2oKiau3CvBdft7NeeMN6wcbSaUgBMynRM7whUK2n8v4O9emgUFJs
+lNPCWeGCAz2aHQ2xocCGdL+csE8eero3dY97nAYoR7gydwJWTmXBgBDLOXDKtE/X
+k9HRdCZJzXUjQFUQtX7hc3VFgH9xFF0UZ3G0RaOkcQKBgQD6u2yI86nqEfRyEU4j
+/KHyWLzgLlmxjocv4/g0OR789mvTyHA6FZ4a9NxVFCy2qMVfnZmtMLSxi+pdeRx4
+8HnpTNaTEkozD1766n5RtE+nS4MEDQHnjf6hHXaCXCiGAMJmxc3sdF8w+2Qevkpd
+Aud5WHBdrWI23btSfFqREfLUZQKBgQDm2YURf0smGWJF12Fj3MVQ9nwkduOSL8sQ
+5PC2yWEOf+vEhzDg297nHNn0xslSyRYuE0t+zKedcbbVRkatXWbFHYavvIre9J9L
+CBsGFO+aql7g70hQbA35KVtIhHuyXHLEs4ATG+td/FiF65r0NdK/av+HdQ8XiUUb
+Yfsc7+slJwKBgAMNkS7BuMnu2gkhiNALXXVz+yjHp7Pvxlmg7v7Dy0rNPVbg0+0B
+ImG1pZEro7e9qlmVs69WLn0S9RGaTexzESj0FJDJ4jlo8IEhpdQc2/NvifLcra9C
+HV2c3DqOILgw/iz+L5m3eQlBpmBxdLpZNLRXjVa2q8F7RbKlbPzjOQ+5AoGBAJ+c
+rD3x1oLMMD978LF8Vs1o72LC9QwBkZTnxmuLh1jgJ6Klmq0OOOtw7l4pB8/+iyBm
+ZN+SHx5kHncN9RYvKzyE8rgVU6teVbkqLI0i8pvsylcZ+tToMS0iZCQavfAPrabF
+OXt85VsBfC90PJo3kLSbBXyh+kJavfZ144sZc2snAoGBAM73yb5NHjjJCB7XFVnu
+81bhQWuFizf1BAqus/YdVhmma543FmAiXilEEW+SWGiElK+sFrzXs58y7qdtMuP5
+HvfPQZtDDlJoyZUY3NbGVFBoqkFEog/yN452d2xGZAXKuKUtAmBLecuyLlD/u1ZU
+kfchclHNRkXln7ajoAV78zc+
+-----END PRIVATE KEY-----`;
+let _gsToken=null,_gsTokenExp=0;
+
+function _pemToBuf(pem){
+  const b64=pem.replace(/-----BEGIN PRIVATE KEY-----|-----END PRIVATE KEY-----|\r?\n/g,'');
+  const bin=atob(b64);const buf=new ArrayBuffer(bin.length);const u8=new Uint8Array(buf);
+  for(let i=0;i<bin.length;i++)u8[i]=bin.charCodeAt(i);return buf;
+}
+function _b64url(str){
+  // encode a plain ASCII/JSON string to base64url (no unicode needed for JWT header/payload)
+  return btoa(str).replace(/=/g,'').replace(/\+/g,'-').replace(/\//g,'_');
+}
+function _b64urlBuf(buf){
+  const bytes=new Uint8Array(buf);
+  let bin='';for(let i=0;i<bytes.length;i++)bin+=String.fromCharCode(bytes[i]);
+  return btoa(bin).replace(/=/g,'').replace(/\+/g,'-').replace(/\//g,'_');
+}
+async function getGSToken(){
+  if(_gsToken&&Date.now()<_gsTokenExp)return _gsToken;
+  const now=Math.floor(Date.now()/1000);
+  // JWT Header + Payload phải là ASCII-safe JSON → dùng btoa trực tiếp
+  const hdr=_b64url(JSON.stringify({alg:'RS256',typ:'JWT'}));
+  const pay=_b64url(JSON.stringify({
+    iss:GS_CLIENT_EMAIL,
+    scope:'https://www.googleapis.com/auth/spreadsheets',
+    aud:'https://oauth2.googleapis.com/token',
+    exp:now+3600,iat:now
+  }));
+  const sigInput=new TextEncoder().encode(hdr+'.'+pay);
+  let key;
+  try{
+    key=await crypto.subtle.importKey('pkcs8',_pemToBuf(GS_PRIVATE_KEY),{name:'RSASSA-PKCS1-v1_5',hash:'SHA-256'},false,['sign']);
+  }catch(e){throw new Error('Không thể đọc Private Key: '+e.message);}
+  const sig=await crypto.subtle.sign('RSASSA-PKCS1-v1_5',key,sigInput);
+  const jwt=hdr+'.'+pay+'.'+_b64urlBuf(sig);
+  let resp,data;
+  try{
+    resp=await fetch('https://oauth2.googleapis.com/token',{method:'POST',headers:{'Content-Type':'application/x-www-form-urlencoded'},body:'grant_type=urn%3Aietf%3Aparams%3Aoauth%3Agrant-type%3Ajwt-bearer&assertion='+jwt});
+    data=await resp.json();
+  }catch(e){throw new Error('Lỗi mạng khi lấy token: '+e.message);}
+  if(!data.access_token){
+    const reason=data.error_description||data.error||JSON.stringify(data);
+    throw new Error('Xác thực thất bại: '+reason);
+  }
+  _gsToken=data.access_token;_gsTokenExp=Date.now()+(data.expires_in-60)*1000;
+  return _gsToken;
+}
+async function gsRead(range){
+  const tok=await getGSToken();
+  const url='https://sheets.googleapis.com/v4/spreadsheets/'+GS_SPREADSHEET_ID+'/values/'+encodeURIComponent(range);
+  const r=await fetch(url,{headers:{Authorization:'Bearer '+tok}});
+  const d=await r.json();
+  if(d.error)throw new Error('Đọc Sheet "'+range+'" lỗi: '+d.error.message);
+  return d.values||[];
+}
+async function gsWrite(range,values){
+  const tok=await getGSToken();
+  const url='https://sheets.googleapis.com/v4/spreadsheets/'+GS_SPREADSHEET_ID+'/values/'+encodeURIComponent(range)+'?valueInputOption=RAW';
+  const r=await fetch(url,{method:'PUT',headers:{Authorization:'Bearer '+tok,'Content-Type':'application/json'},body:JSON.stringify({values})});
+  const d=await r.json();
+  if(d.error)throw new Error('Ghi Sheet "'+range+'" lỗi: '+d.error.message+' (code '+d.error.code+')');
+}
+async function syncTransactions(){
+  await gsWrite('Transactions!A1',[['date','type','cat','desc','amt'],...ALL_TX.map(t=>[t.date,t.type,t.cat,t.desc,t.amt])]);
+}
+async function syncAccounts(){
+  await gsWrite('Accounts!A1',[['name','type','bal','icon'],...ACCOUNTS.map(a=>[a.name,a.type,a.bal,a.icon])]);
+}
+async function syncAssets(){
+  await gsWrite('Assets!A1',[['name','cat','val','icon'],...ASSETS_DATA.map(a=>[a.name,a.cat,a.val,a.icon])]);
+}
+async function syncDebts(){
+  await gsWrite('Debts!A1',[['name','dir','amt','who','due','monthly','note'],...DEBTS.map(d=>[d.name,d.dir,d.amt,d.who,d.due,d.monthly,d.note])]);
+}
+async function syncGoals(){
+  await gsWrite('Goals!A1',[['name','cat','target','saved','monthly','deadline'],...GOALS.map(g=>[g.name,g.cat,g.target,g.saved,g.monthly,g.deadline])]);
+}
+async function syncTasks(){
+  await gsWrite('Tasks!A1',[['title','assign','pri','cat','due','note','status'],...TASKS.map(t=>[t.title,t.assign,t.pri,t.cat,t.due,t.note,t.status])]);
+}
+function _syncBg(fn){fn().catch(e=>console.warn('GS background sync:',e.message));}
+
+function _setSyncStatus(type,msg){
+  const el=document.getElementById('sync-status');if(!el)return;
+  const c=type==='ok'?'#4ade80':type==='err'?'#f87171':'#fbbf24';
+  el.innerHTML='<span style="color:'+c+';font-size:11px">'+msg+'</span>';
+  if(type==='ok'||type==='')setTimeout(()=>{if(el)el.innerHTML='';},4000);
+}
+function _showSyncError(title,detail){
+  const old=document.getElementById('gs-err-panel');if(old)old.remove();
+  const d=document.createElement('div');d.id='gs-err-panel';d.className='sync-err-panel';
+  d.innerHTML='<button onclick="this.parentElement.remove()" style="position:absolute;top:10px;right:12px;background:none;border:none;color:#94a3b8;cursor:pointer;font-size:18px;line-height:1">×</button>'
+    +'<div style="font-weight:800;margin-bottom:6px;padding-right:20px">❌ '+title+'</div>'
+    +'<div style="font-size:12px;color:#fca5a5;word-break:break-all;line-height:1.5">'+detail+'</div>'
+    +'<div style="font-size:11px;margin-top:10px;color:#6b7280;border-top:1px solid #333;padding-top:8px">'
+    +'💡 Kiểm tra: (1) Đã share Sheet với <b style="color:#e5e7eb">'+GS_CLIENT_EMAIL+'</b>? (2) Đã tạo đủ 6 tab sheet? (3) Xem Console (F12) để biết thêm.</div>';
+  document.body.appendChild(d);
+  setTimeout(()=>{if(d.parentElement)d.remove();},15000);
+}
+
+async function manualSyncAll(){
+  const btn=document.getElementById('btn-sync');
+  if(btn){btn.disabled=true;btn.textContent='🔄 Đang...';}
+  _setSyncStatus('warn','⏳ Đang kết nối...');
+  try{
+    // Bước 1: Test xác thực
+    _setSyncStatus('warn','🔑 Xác thực...');
+    await getGSToken();
+    // Bước 2: Ghi tất cả sheet
+    _setSyncStatus('warn','📤 Đang ghi...');
+    await syncTransactions();
+    await syncAccounts();
+    await syncAssets();
+    await syncDebts();
+    await syncGoals();
+    await syncTasks();
+    _setSyncStatus('ok','✅ Sync xong!');
+    showToast('✅ Đã sync toàn bộ lên Google Sheet!');
+    console.log('[GS] Manual sync thành công',new Date().toLocaleTimeString());
+  }catch(e){
+    console.error('[GS] Sync lỗi:',e);
+    _setSyncStatus('err','❌ Lỗi');
+    _showSyncError('Sync thất bại',e.message);
+    showToast('❌ Sync thất bại: '+e.message,false);
+  }finally{
+    if(btn){btn.disabled=false;btn.textContent='☁️ Sync';}
+  }
+}
+
+async function loadAllDataFromSheets(){
+  _setSyncStatus('warn','⏳ Đang tải...');
+  try{
+    await getGSToken();
+    const [txRows,accRows,assetRows,debtRows,goalRows,taskRows]=await Promise.all([
+      gsRead('Transactions!A:E'),gsRead('Accounts!A:D'),gsRead('Assets!A:D'),
+      gsRead('Debts!A:G'),gsRead('Goals!A:F'),gsRead('Tasks!A:G')
+    ]);
+    if(txRows.length>1)ALL_TX=txRows.slice(1).filter(r=>r[0]).map(r=>({date:r[0]||'',type:r[1]||'chi',cat:r[2]||'',desc:r[3]||'',amt:parseFloat(r[4])||0}));
+    if(accRows.length>1)ACCOUNTS=accRows.slice(1).filter(r=>r[0]).map(r=>({name:r[0]||'',type:r[1]||'',bal:parseFloat(r[2])||0,icon:r[3]||'🏦'}));
+    if(assetRows.length>1)ASSETS_DATA=assetRows.slice(1).filter(r=>r[0]).map(r=>({name:r[0]||'',cat:r[1]||'',val:parseFloat(r[2])||0,icon:r[3]||'🏠'}));
+    if(debtRows.length>1)DEBTS=debtRows.slice(1).filter(r=>r[0]).map(r=>({name:r[0]||'',dir:r[1]||'owe',amt:parseFloat(r[2])||0,who:r[3]||'',due:r[4]||'',monthly:parseFloat(r[5])||0,note:r[6]||''}));
+    if(goalRows.length>1)GOALS=goalRows.slice(1).filter(r=>r[0]).map(r=>({name:r[0]||'',cat:r[1]||'',target:parseFloat(r[2])||0,saved:parseFloat(r[3])||0,monthly:parseFloat(r[4])||0,deadline:r[5]||''}));
+    if(taskRows.length>1)TASKS=taskRows.slice(1).filter(r=>r[0]).map(r=>({title:r[0]||'',assign:r[1]||'',pri:r[2]||'med',cat:r[3]||'',due:r[4]||'',note:r[5]||'',status:r[6]||'todo'}));
+    renderDashboard();renderTxTab();renderMonthly();renderGoals();renderWealth();renderTasks();
+    _setSyncStatus('ok','✅ Đã tải');
+    console.log('[GS] Load thành công — TX:'+ALL_TX.length+' Acc:'+ACCOUNTS.length);
+  }catch(e){
+    console.error('[GS] Load lỗi:',e);
+    _setSyncStatus('err','⚠️ Chưa kết nối');
+    _showSyncError('Tải dữ liệu thất bại',e.message);
+  }
+}
+
 let dashYear="2025",monthYear="2025",entryType="thu";
 let currentSubTab="transactions";
 let _editMode=null; // {type, index} — dùng chung cho mọi edit modal
@@ -925,7 +1116,7 @@ function showTab(t){
 }
 function selUser(u){selU=u;["jonny","linh"].forEach(k=>document.getElementById("bu-"+k).classList.toggle("on",k===u));}
 function doLogin(){
-  if(document.getElementById("pw").value==="khoaitay2024"){
+  if(document.getElementById("pw").value==="khoaitay2023"){
     const u=selU==="jonny"?{name:"Ba Hảo",av:"👨"}:{name:"Mẹ Ngân",av:"👩"};
     document.getElementById("nav-badge").textContent=u.av+" "+u.name;
     document.getElementById("pw").value="";
@@ -968,11 +1159,11 @@ function saveGoal(){
   var obj={name,cat,target,saved,monthly,deadline};
   if(_editMode&&_editMode.type==="goal"){GOALS[_editMode.index]=obj;showToast("✅ Đã cập nhật: "+name);}
   else{GOALS.push(obj);showToast("✅ Đã thêm: "+name);}
-  closeModal("modal-goal");renderGoals();renderDashboard();
+  closeModal("modal-goal");renderGoals();renderDashboard();_syncBg(syncGoals);
 }
 function deleteGoal(i){
   if(!confirm("Xóa mục tiêu này?"))return;
-  GOALS.splice(i,1);renderGoals();renderDashboard();showToast("🗑 Đã xóa mục tiêu");
+  GOALS.splice(i,1);renderGoals();renderDashboard();showToast("🗑 Đã xóa mục tiêu");_syncBg(syncGoals);
 }
 
 // ═══════════════════════
@@ -1009,13 +1200,13 @@ function saveTxModal(){
   var tx={date,type:entryType,cat,desc,amt};
   if(_editMode&&_editMode.type==="tx"){ALL_TX[_editMode.index]=tx;showToast("✅ Đã cập nhật giao dịch");}
   else{tx.isNew=true;NEW_TX.unshift(tx);ALL_TX.unshift(tx);showToast("✅ Đã lưu giao dịch");}
-  closeModal("modal-tx");renderTxTab();renderDashboard();renderNewList();
+  closeModal("modal-tx");renderTxTab();renderDashboard();renderNewList();_syncBg(syncTransactions);
 }
 function deleteTx(i){
   if(!confirm("Xóa giao dịch này?"))return;
   var tx=ALL_TX[i];
   var ni=NEW_TX.indexOf(tx);if(ni>=0)NEW_TX.splice(ni,1);
-  ALL_TX.splice(i,1);renderTxTab();renderDashboard();renderNewList();showToast("🗑 Đã xóa giao dịch");
+  ALL_TX.splice(i,1);renderTxTab();renderDashboard();renderNewList();showToast("🗑 Đã xóa giao dịch");_syncBg(syncTransactions);
 }
 
 // ═══════════════════════
@@ -1039,11 +1230,11 @@ function saveAccount(){
   var obj={name,type,bal,icon};
   if(_editMode&&_editMode.type==="acc"){ACCOUNTS[_editMode.index]=obj;showToast("✅ Đã cập nhật: "+name);}
   else{ACCOUNTS.push(obj);showToast("✅ Đã thêm: "+name);}
-  closeModal("modal-acc");renderWealth();renderDashboard();
+  closeModal("modal-acc");renderWealth();renderDashboard();_syncBg(syncAccounts);
 }
 function deleteAccount(i){
   if(!confirm("Xóa tài khoản này?"))return;
-  ACCOUNTS.splice(i,1);renderWealth();renderDashboard();showToast("🗑 Đã xóa tài khoản");
+  ACCOUNTS.splice(i,1);renderWealth();renderDashboard();showToast("🗑 Đã xóa tài khoản");_syncBg(syncAccounts);
 }
 
 // ═══════════════════════
@@ -1067,11 +1258,11 @@ function saveAsset(){
   var obj={name,cat,val,icon};
   if(_editMode&&_editMode.type==="asset"){ASSETS_DATA[_editMode.index]=obj;showToast("✅ Đã cập nhật: "+name);}
   else{ASSETS_DATA.push(obj);showToast("✅ Đã thêm: "+name);}
-  closeModal("modal-asset");renderWealth();
+  closeModal("modal-asset");renderWealth();_syncBg(syncAssets);
 }
 function deleteAsset(i){
   if(!confirm("Xóa tài sản này?"))return;
-  ASSETS_DATA.splice(i,1);renderWealth();showToast("🗑 Đã xóa tài sản");
+  ASSETS_DATA.splice(i,1);renderWealth();showToast("🗑 Đã xóa tài sản");_syncBg(syncAssets);
 }
 
 // ═══════════════════════
@@ -1100,11 +1291,11 @@ function saveDebt(){
   var obj={name,dir,amt,who,due,monthly,note};
   if(_editMode&&_editMode.type==="debt"){DEBTS[_editMode.index]=obj;showToast("✅ Đã cập nhật: "+name);}
   else{DEBTS.push(obj);showToast("✅ Đã thêm khoản nợ: "+name);}
-  closeModal("modal-debt");renderWealth();renderDashboard();
+  closeModal("modal-debt");renderWealth();renderDashboard();_syncBg(syncDebts);
 }
 function deleteDebt(i){
   if(!confirm("Xóa khoản nợ này?"))return;
-  DEBTS.splice(i,1);renderWealth();renderDashboard();showToast("🗑 Đã xóa khoản nợ");
+  DEBTS.splice(i,1);renderWealth();renderDashboard();showToast("🗑 Đã xóa khoản nợ");_syncBg(syncDebts);
 }
 
 // ═══════════════════════
@@ -1131,7 +1322,7 @@ function saveTask(){
   var obj={title,assign,pri,cat,due,note,status:(_editMode&&_editMode.type==="task")?TASKS[_editMode.index].status:"todo"};
   if(_editMode&&_editMode.type==="task"){TASKS[_editMode.index]=obj;showToast("✅ Đã cập nhật: "+title);}
   else{TASKS.unshift(obj);showToast("✅ Đã thêm: "+title);}
-  closeModal("modal-task");renderTasks();renderDashboard();
+  closeModal("modal-task");renderTasks();renderDashboard();_syncBg(syncTasks);
 }
 
 // ═══════════════════════════
@@ -1499,8 +1690,8 @@ function renderWealth(){
 // ═══════════════════════════
 // TASKS
 // ═══════════════════════════
-function moveTask(i,status){TASKS[i].status=status;renderTasks();renderDashboard();}
-function deleteTask(i){TASKS.splice(i,1);renderTasks();renderDashboard();showToast("🗑 Đã xóa");}
+function moveTask(i,status){TASKS[i].status=status;renderTasks();renderDashboard();_syncBg(syncTasks);}
+function deleteTask(i){TASKS.splice(i,1);renderTasks();renderDashboard();showToast("🗑 Đã xóa");_syncBg(syncTasks);}
 function renderTasks(){
   // Stats
   const total=TASKS.length,done=TASKS.filter(t=>t.status==="done").length,todo=TASKS.filter(t=>t.status==="todo").length,doing=TASKS.filter(t=>t.status==="doing").length;
@@ -1575,7 +1766,7 @@ function saveEditTx(){
   }
   document.getElementById("modal-edit-tx").classList.add("hidden");
   _editMode=null;
-  renderTxTab();renderDashboard();renderNewList();
+  renderTxTab();renderDashboard();renderNewList();_syncBg(syncTransactions);
 }
 function setEntryType(t){
   entryType=t;
@@ -1602,6 +1793,7 @@ function addEntry(){
   document.getElementById("en-amt").value="";document.getElementById("en-desc").value="";
   renderNewList();renderTxTab();renderDashboard();
   showToast("✅ "+(entryType==="thu"?"Thu":"Chi")+": "+desc+" · "+fmt(amt));
+  _syncBg(syncTransactions);
 }
 function renderNewList(){
   document.getElementById("new-count").textContent=NEW_TX.length;
@@ -1646,6 +1838,7 @@ function initApp(){
   var gd=document.getElementById("g-deadline");if(gd)gd.value="";
   renderDashboard();renderTxTab();renderMonthly();renderGoals();renderWealth();renderTasks();
   showTab("dashboard");
+  loadAllDataFromSheets();
 }
 window.onload=()=>{};
 </script>
