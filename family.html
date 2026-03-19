@@ -6,6 +6,7 @@
 <title>Khoai Tây Family Finance v2</title>
 <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&family=Playfair+Display:ital,wght@0,700;1,700&display=swap" rel="stylesheet"/>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <style>
 :root{
   --bg:#060e0b;--green:#4ade80;--gdark:#166534;--gmid:#15803d;
@@ -337,7 +338,7 @@ input,select,button,textarea{font-family:'Nunito',sans-serif}
         <div class="nbadge" id="nav-badge">👨 Jonny</div>
         <span id="sync-status" style="font-size:11px"></span>
         <button class="nsync" id="btn-sync" onclick="manualSyncAll()">☁️ Sync</button>
-        <button class="nout" onclick="goPage('home')">Thoát</button>
+        <button class="nout" onclick="doLogout()">Thoát</button>
       </div>
     </div>
   </nav>
@@ -428,6 +429,13 @@ input,select,button,textarea{font-family:'Nunito',sans-serif}
           <button class="fp-r" onclick="resetTxFilter()">↺ Reset</button>
         </div>
         <div class="g2e" style="margin-bottom:14px" id="tx-summary-cards"></div>
+        <div id="tx-bulk-bar" style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;padding:8px 14px;background:#fff;border-radius:12px;border:1px solid #e4e0d8">
+          <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-size:12px;font-weight:800;color:#374151">
+            <input type="checkbox" id="tx-select-all" onchange="txSelectAll(this.checked)" style="width:15px;height:15px;cursor:pointer;accent-color:#0d1f1a"/>
+            Chọn tất cả
+          </label>
+          <button id="tx-bulk-del-btn" class="hidden" onclick="deleteSelectedTx()" style="background:#ef4444;color:#fff;border:none;border-radius:10px;padding:6px 14px;font-size:12px;font-weight:900;cursor:pointer">🗑️ Xóa 0 dòng đã chọn</button>
+        </div>
         <div id="tx-list"></div>
       </div>
 
@@ -649,7 +657,7 @@ input,select,button,textarea{font-family:'Nunito',sans-serif}
 
           <!-- Step 1: Upload PDF -->
           <div style="margin-bottom:26px">
-            <div style="font-size:14px;font-weight:900;color:#0d1f1a;margin-bottom:12px">📋 Bước 1 — Tải lên file sao kê PDF</div>
+            <div style="font-size:14px;font-weight:900;color:#0d1f1a;margin-bottom:12px">📋 Bước 1 — Tải lên file sao kê</div>
             <div id="saoke-dropzone"
                  style="background:#f8f6f2;border:3px dashed #d4cfc5;border-radius:20px;padding:52px 32px;text-align:center;cursor:pointer;transition:all .25s"
                  ondragover="event.preventDefault();this.style.borderColor='#166534';this.style.background='#f0fdf4'"
@@ -657,10 +665,10 @@ input,select,button,textarea{font-family:'Nunito',sans-serif}
                  ondrop="handleSaoKeDrop(event)"
                  onclick="document.getElementById('saoke-pdf-file').click()">
               <div style="font-size:54px;margin-bottom:14px">🏦</div>
-              <div style="font-weight:900;font-size:17px;color:#0d1f1a;margin-bottom:6px">Kéo thả hoặc click để chọn file PDF</div>
-              <div style="font-size:13px;color:#94a3b8">Hỗ trợ sao kê ngân hàng định dạng PDF (Vietcombank, Techcombank, MB...)</div>
+              <div style="font-weight:900;font-size:17px;color:#0d1f1a;margin-bottom:6px">Kéo thả hoặc click — hỗ trợ PDF và Excel (.xlsx)</div>
+              <div style="font-size:13px;color:#94a3b8">Sao kê ngân hàng PDF hoặc Excel (Vietcombank, Techcombank, MB...)</div>
             </div>
-            <input type="file" id="saoke-pdf-file" accept=".pdf" style="display:none" onchange="handleSaoKeFileInput(this)"/>
+            <input type="file" id="saoke-pdf-file" accept=".pdf,.xlsx" style="display:none" onchange="handleSaoKeFileInput(this)"/>
             <div id="saoke-file-name" style="font-size:13px;color:#059669;font-weight:800;margin-top:10px;text-align:center"></div>
           </div>
 
@@ -1199,8 +1207,13 @@ function doLogin(){
     document.getElementById("nav-badge").textContent=u.av+" "+u.name;
     document.getElementById("pw").value="";
     document.getElementById("perr").classList.add("hidden");
+    localStorage.setItem("kf_session",JSON.stringify({user:selU,loginTime:Date.now()}));
     goPage("app");
   }else{document.getElementById("pw").classList.add("err");document.getElementById("perr").classList.remove("hidden");}
+}
+function doLogout(){
+  localStorage.removeItem("kf_session");
+  goPage("home");
 }
 function closeModal(id){document.getElementById(id).classList.add("hidden");_editMode=null;}
 
@@ -1285,6 +1298,35 @@ function deleteTx(i){
   var tx=ALL_TX[i];
   var ni=NEW_TX.indexOf(tx);if(ni>=0)NEW_TX.splice(ni,1);
   ALL_TX.splice(i,1);renderTxTab();renderDashboard();renderNewList();showToast("🗑 Đã xóa giao dịch");_syncBg(syncTransactions);
+}
+function txSelectAll(checked){
+  document.querySelectorAll(".tx-chk").forEach(function(cb){cb.checked=checked;});
+  onTxChkChange();
+}
+function onTxChkChange(){
+  var checked=document.querySelectorAll(".tx-chk:checked");
+  var all=document.querySelectorAll(".tx-chk");
+  var btn=document.getElementById("tx-bulk-del-btn");
+  var sa=document.getElementById("tx-select-all");
+  if(btn){
+    if(checked.length>0){btn.classList.remove("hidden");btn.textContent="🗑️ Xóa "+checked.length+" dòng đã chọn";}
+    else{btn.classList.add("hidden");}
+  }
+  if(sa)sa.checked=all.length>0&&checked.length===all.length;
+}
+function deleteSelectedTx(){
+  var checked=document.querySelectorAll(".tx-chk:checked");
+  if(!checked.length)return;
+  if(!confirm("Xóa "+checked.length+" giao dịch đã chọn?"))return;
+  var indices=[...checked].map(function(cb){return parseInt(cb.dataset.idx);}).sort(function(a,b){return b-a;});
+  indices.forEach(function(i){
+    var tx=ALL_TX[i];
+    var ni=NEW_TX.indexOf(tx);if(ni>=0)NEW_TX.splice(ni,1);
+    ALL_TX.splice(i,1);
+  });
+  renderTxTab();renderDashboard();renderNewList();
+  showToast("🗑 Đã xóa "+indices.length+" giao dịch");
+  _syncBg(syncTransactions);
 }
 
 // ═══════════════════════
@@ -1529,6 +1571,7 @@ function renderTxTab(){
 
 function renderTxList(list,elId){
   var el=document.getElementById(elId);if(!el)return;
+  var withChk=elId==="tx-list";
   if(!list.length){el.innerHTML='<div style="text-align:center;padding:32px;color:#94a3b8;font-size:13px">Không có giao dịch nào</div>';return;}
   el.innerHTML=list.map(function(tx){
     var i=ALL_TX.indexOf(tx);
@@ -1536,7 +1579,9 @@ function renderTxList(list,elId){
     var lbl=String(d.getDate()).padStart(2,"0")+"/"+String(d.getMonth()+1).padStart(2,"0");
     var editBtn=i>=0?'<button onclick="openEditTxModal('+i+')" style="background:transparent;border:1px solid #e4e0d8;border-radius:6px;padding:2px 6px;cursor:pointer;font-size:10px;color:#0ea5e9;margin-right:4px">✏️</button>':"";
     var delBtn=i>=0?'<button onclick="deleteTx('+i+')" style="background:transparent;border:none;color:#ccc;cursor:pointer;font-size:13px">🗑</button>':"";
+    var chk=withChk&&i>=0?'<input type="checkbox" class="tx-chk" data-idx="'+i+'" onchange="onTxChkChange()" style="width:15px;height:15px;flex-shrink:0;cursor:pointer;accent-color:#0d1f1a"/>':'' ;
     return '<div class="tx-item">'
+      +chk
       +'<div class="txico" style="background:'+(tx.type==="thu"?"#f0fdf4":"#fff5f5")+'">'+catIcon(tx.cat)+'</div>'
       +'<div class="txbd"><div class="txdesc">'+tx.desc+'</div><div class="txcat">'+tx.cat+' · '+lbl+'</div></div>'
       +'<div class="txrt">'
@@ -1967,16 +2012,37 @@ function _initSaoKeApiKey(){
     document.getElementById('saoke-apikey-section').style.display='none';
   }
 }
+function _routeSaoKeFile(file){
+  if(!file)return;
+  if(file.type==='application/pdf'||file.name.toLowerCase().endsWith('.pdf'))processSaoKePdf(file);
+  else if(file.name.toLowerCase().endsWith('.xlsx')||file.type==='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')processSaoKeXlsx(file);
+  else showToast('⚠️ Chỉ hỗ trợ file PDF hoặc Excel (.xlsx)!',false);
+}
 function handleSaoKeDrop(e){
   e.preventDefault();
   var dz=document.getElementById('saoke-dropzone');
   dz.style.borderColor='#d4cfc5';dz.style.background='#f8f6f2';
-  var file=e.dataTransfer.files[0];
-  if(file&&file.type==='application/pdf')processSaoKePdf(file);
-  else showToast('⚠️ Chỉ hỗ trợ file PDF!',false);
+  _routeSaoKeFile(e.dataTransfer.files[0]);
 }
 function handleSaoKeFileInput(input){
-  var file=input.files[0];if(file)processSaoKePdf(file);
+  _routeSaoKeFile(input.files[0]);
+}
+async function processSaoKeXlsx(file){
+  document.getElementById('saoke-file-name').textContent='⏳ Đang đọc '+file.name+'...';
+  document.getElementById('saoke-error').classList.add('hidden');
+  document.getElementById('saoke-review-section').classList.add('hidden');
+  try{
+    var ab=await file.arrayBuffer();
+    var wb=XLSX.read(ab,{type:'array'});
+    var ws=wb.Sheets[wb.SheetNames[0]];
+    var rows=XLSX.utils.sheet_to_json(ws,{header:1,defval:''});
+    var fullText=rows.map(function(row){return row.join('\t');}).join('\n');
+    _saoKeText=fullText;
+    document.getElementById('saoke-file-name').textContent='✅ '+file.name+' ('+rows.length+' dòng) — Sẵn sàng phân tích!';
+  }catch(err){
+    document.getElementById('saoke-file-name').textContent='';
+    _showSaoKeError('❌ Không đọc được file Excel: '+err.message);
+  }
 }
 async function processSaoKePdf(file){
   document.getElementById('saoke-file-name').textContent='⏳ Đang đọc '+file.name+'...';
@@ -2106,7 +2172,22 @@ function initApp(){
   showTab("dashboard");
   loadAllDataFromSheets();
 }
-window.onload=()=>{};
+window.onload=function(){
+  var s=localStorage.getItem("kf_session");
+  if(s){
+    try{
+      var sess=JSON.parse(s);
+      if(Date.now()-sess.loginTime<30*24*60*60*1000){
+        selU=sess.user||"jonny";
+        var u=selU==="jonny"?{name:"Ba Hảo",av:"👨"}:{name:"Mẹ Ngân",av:"👩"};
+        document.getElementById("nav-badge").textContent=u.av+" "+u.name;
+        goPage("app");
+        return;
+      }
+    }catch(e){}
+    localStorage.removeItem("kf_session");
+  }
+};
 </script>
 </body>
 </html>
