@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
 <title>Khoai Tây Family Finance v2</title>
 <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&family=Playfair+Display:ital,wght@0,700;1,700&display=swap" rel="stylesheet"/>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
 <style>
 :root{
   --bg:#060e0b;--green:#4ade80;--gdark:#166534;--gmid:#15803d;
@@ -249,6 +250,12 @@ input,select,button,textarea{font-family:'Nunito',sans-serif}
 .mnbtn{display:flex;flex-direction:column;align-items:center;gap:2px;padding:6px 8px;border:none;background:transparent;color:rgba(255,255,255,.4);cursor:pointer;font-size:10px;font-weight:700;border-radius:12px}
 .mnbtn .mni{font-size:20px;line-height:1}
 .mnbtn.on{color:#4ade80}
+
+/* ══ ENTRY SUB-TABS ══ */
+.entry-stab{padding:9px 18px;border-radius:12px;border:none;background:transparent;color:#666;cursor:pointer;font-weight:800;font-size:13px;transition:all .2s;font-family:'Nunito',sans-serif}
+.entry-stab.on{background:#0d1f1a;color:#fff}
+.entry-stab:hover:not(.on){background:#f0ede6;color:#0d1f1a}
+@keyframes spin{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}
 
 @media(max-width:768px){
   .h1{font-size:36px}.hstats{grid-template-columns:1fr}.module-grid{grid-template-columns:repeat(2,1fr)}
@@ -570,8 +577,16 @@ input,select,button,textarea{font-family:'Nunito',sans-serif}
     <!-- ══ ENTRY ══ -->
     <div id="tab-entry" class="tpane hidden">
       <div class="thead"><h1>Nhập Giao Dịch</h1><p>Thêm thu chi thủ công hoặc import CSV</p></div>
-      <div class="g2e">
-        <div class="card">
+      <!-- Entry sub-tabs -->
+      <div style="display:flex;gap:5px;margin-bottom:20px;background:#fff;border-radius:16px;padding:5px;border:1px solid #e4e0d8;width:fit-content">
+        <button class="entry-stab on" id="etab-btn-manual" onclick="showEntryTab('manual')">✏️ Nhập thủ công</button>
+        <button class="entry-stab" id="etab-btn-csv" onclick="showEntryTab('csv')">📄 Import CSV</button>
+        <button class="entry-stab" id="etab-btn-saoke" onclick="showEntryTab('saoke')">🏦 Import Sao Kê</button>
+      </div>
+
+      <!-- Panel: Nhập thủ công -->
+      <div id="etab-panel-manual">
+        <div class="card" style="max-width:540px">
           <div style="display:flex;align-items:center;gap:10px;margin-bottom:18px"><span style="font-size:24px">✏️</span><div><div class="ctitle">Nhập thủ công</div><div class="csub">Thêm 1 giao dịch</div></div></div>
           <label class="flabel">Loại</label>
           <div class="type-toggle">
@@ -597,7 +612,11 @@ input,select,button,textarea{font-family:'Nunito',sans-serif}
           <input class="finput" type="text" id="en-desc" placeholder="VD: Đi chợ sáng thứ 2..."/>
           <button class="btn-submit" onclick="addEntry()">💾 Lưu giao dịch</button>
         </div>
-        <div class="card">
+      </div>
+
+      <!-- Panel: Import CSV -->
+      <div id="etab-panel-csv" class="hidden">
+        <div class="card" style="max-width:540px">
           <div style="display:flex;align-items:center;gap:10px;margin-bottom:18px"><span style="font-size:24px">📄</span><div><div class="ctitle">Import CSV</div><div class="csub">Upload file CSV thu chi</div></div></div>
           <div style="background:#f8f6f2;border:2px dashed #d4cfc5;border-radius:16px;padding:28px;text-align:center;cursor:pointer;margin-bottom:12px" onclick="document.getElementById('csv-file').click()">
             <div style="font-size:36px;margin-bottom:8px">📄</div>
@@ -607,6 +626,60 @@ input,select,button,textarea{font-family:'Nunito',sans-serif}
           <input type="file" id="csv-file" accept=".csv" style="display:none" onchange="importCSV(this)"/>
           <div id="csv-status" style="font-size:12px;color:#94a3b8;text-align:center"></div>
           <div style="margin-top:18px"><div class="section-head" style="margin-bottom:10px"><div class="sec-title" style="font-size:13px">Vừa thêm (<span id="new-count">0</span>)</div><button onclick="clearNew()" style="background:transparent;border:1px solid #e4e0d8;border-radius:10px;padding:5px 12px;font-size:11px;color:#94a3b8;cursor:pointer">Xóa tất cả</button></div><div id="new-tx-list"><div style="text-align:center;padding:20px;color:#94a3b8;font-size:12px">Chưa có giao dịch nào.</div></div></div>
+        </div>
+      </div>
+
+      <!-- Panel: Import Sao Kê PDF -->
+      <div id="etab-panel-saoke" class="hidden">
+        <div class="card">
+          <!-- API Key config -->
+          <div id="saoke-apikey-section" style="background:#fffbeb;border:1px solid #fde68a;border-radius:14px;padding:16px;margin-bottom:22px">
+            <div style="font-size:12px;font-weight:800;color:#92400e;margin-bottom:8px">🔑 Claude API Key — chỉ cần nhập 1 lần</div>
+            <div style="display:flex;gap:8px">
+              <input id="saoke-apikey" type="password" class="finput" style="margin-bottom:0;flex:1" placeholder="sk-ant-api03-..."/>
+              <button onclick="saveSaoKeApiKey()" style="background:#0d1f1a;color:#fff;border:none;border-radius:12px;padding:10px 18px;font-size:12px;font-weight:900;cursor:pointer;white-space:nowrap">Lưu key</button>
+            </div>
+            <div style="font-size:11px;color:#a16207;margin-top:6px">Key được lưu trong trình duyệt, không gửi đi đâu khác.</div>
+          </div>
+
+          <!-- Step 1: Upload PDF -->
+          <div style="margin-bottom:26px">
+            <div style="font-size:14px;font-weight:900;color:#0d1f1a;margin-bottom:12px">📋 Bước 1 — Tải lên file sao kê PDF</div>
+            <div id="saoke-dropzone"
+                 style="background:#f8f6f2;border:3px dashed #d4cfc5;border-radius:20px;padding:52px 32px;text-align:center;cursor:pointer;transition:all .25s"
+                 ondragover="event.preventDefault();this.style.borderColor='#166534';this.style.background='#f0fdf4'"
+                 ondragleave="this.style.borderColor='#d4cfc5';this.style.background='#f8f6f2'"
+                 ondrop="handleSaoKeDrop(event)"
+                 onclick="document.getElementById('saoke-pdf-file').click()">
+              <div style="font-size:54px;margin-bottom:14px">🏦</div>
+              <div style="font-weight:900;font-size:17px;color:#0d1f1a;margin-bottom:6px">Kéo thả hoặc click để chọn file PDF</div>
+              <div style="font-size:13px;color:#94a3b8">Hỗ trợ sao kê ngân hàng định dạng PDF (Vietcombank, Techcombank, MB...)</div>
+            </div>
+            <input type="file" id="saoke-pdf-file" accept=".pdf" style="display:none" onchange="handleSaoKeFileInput(this)"/>
+            <div id="saoke-file-name" style="font-size:13px;color:#059669;font-weight:800;margin-top:10px;text-align:center"></div>
+          </div>
+
+          <!-- Step 2: Analyze -->
+          <div style="margin-bottom:26px">
+            <div style="font-size:14px;font-weight:900;color:#0d1f1a;margin-bottom:12px">🤖 Bước 2 — Để AI phân tích tự động</div>
+            <button id="saoke-analyze-btn" onclick="analyzeSaoKeWithAI()" style="width:100%;background:linear-gradient(135deg,#1e40af,#3b82f6);color:#fff;border:none;border-radius:16px;padding:18px;font-size:16px;font-weight:900;cursor:pointer;letter-spacing:.3px">
+              🤖 AI Phân Tích Tự Động
+            </button>
+            <div id="saoke-loading" class="hidden" style="text-align:center;padding:20px">
+              <div style="font-size:32px;animation:spin 1s linear infinite;display:inline-block">⏳</div>
+              <div style="font-size:13px;color:#94a3b8;margin-top:8px;font-weight:700">Đang phân tích sao kê... vui lòng chờ</div>
+            </div>
+          </div>
+
+          <!-- Step 3: Review table -->
+          <div id="saoke-review-section" class="hidden">
+            <div style="font-size:14px;font-weight:900;color:#0d1f1a;margin-bottom:12px">✅ Bước 3 — Xem lại & Xác nhận</div>
+            <div id="saoke-review-table" style="margin-bottom:16px"></div>
+            <button onclick="addAllSaoKe()" style="width:100%;background:linear-gradient(135deg,#059669,#10b981);color:#fff;border:none;border-radius:14px;padding:16px;font-size:15px;font-weight:900;cursor:pointer">✅ Thêm tất cả vào danh sách</button>
+          </div>
+
+          <!-- Error -->
+          <div id="saoke-error" class="hidden" style="background:#fff5f5;border:1px solid #fecaca;border-radius:12px;padding:14px;font-size:13px;color:#dc2626;margin-top:14px;font-weight:700"></div>
         </div>
       </div>
     </div>
@@ -1830,12 +1903,171 @@ function importCSV(input){
 }
 
 // ═══════════════════════════
+// ENTRY TABS
+// ═══════════════════════════
+function showEntryTab(tab){
+  ['manual','csv','saoke'].forEach(t=>{
+    document.getElementById('etab-panel-'+t).classList.toggle('hidden',t!==tab);
+    document.getElementById('etab-btn-'+t).classList.toggle('on',t===tab);
+  });
+}
+
+// ═══════════════════════════
+// IMPORT SAO KÊ
+// ═══════════════════════════
+var _saoKeText='';
+var _saoKeTxList=[];
+var _SAOKE_CATS=["Ăn uống - Đi chợ","Ăn uống - Ăn ngoài","Nhà cửa - Tiền nhà","Nhà cửa - Mua sắm","Nhà cửa - Phí DV","Con - Học phí","Con - Mua sắm","Con - Ăn uống","Hiếu hỉ - Biếu tặng","Hưởng thụ","Hưởng thụ - Du lịch","Đi lại - Di chuyển","Sức khoẻ - Bảo hiểm","Ngân hàng - Rút tiền","Tiền chồng chuyển vào","Tiền vợ chuyển vào","Thu khác","Chi Khác"];
+
+function saveSaoKeApiKey(){
+  var key=document.getElementById('saoke-apikey').value.trim();
+  if(!key){showToast('⚠️ Nhập API key trước!',false);return;}
+  localStorage.setItem('claude_api_key',key);
+  document.getElementById('saoke-apikey-section').style.display='none';
+  showToast('✅ Đã lưu API key');
+}
+function _initSaoKeApiKey(){
+  var saved=localStorage.getItem('claude_api_key');
+  if(saved){
+    document.getElementById('saoke-apikey').value=saved;
+    document.getElementById('saoke-apikey-section').style.display='none';
+  }
+}
+function handleSaoKeDrop(e){
+  e.preventDefault();
+  var dz=document.getElementById('saoke-dropzone');
+  dz.style.borderColor='#d4cfc5';dz.style.background='#f8f6f2';
+  var file=e.dataTransfer.files[0];
+  if(file&&file.type==='application/pdf')processSaoKePdf(file);
+  else showToast('⚠️ Chỉ hỗ trợ file PDF!',false);
+}
+function handleSaoKeFileInput(input){
+  var file=input.files[0];if(file)processSaoKePdf(file);
+}
+async function processSaoKePdf(file){
+  document.getElementById('saoke-file-name').textContent='⏳ Đang đọc '+file.name+'...';
+  document.getElementById('saoke-error').classList.add('hidden');
+  document.getElementById('saoke-review-section').classList.add('hidden');
+  try{
+    var pdfjsLib=window['pdfjs-dist/build/pdf'];
+    pdfjsLib.GlobalWorkerOptions.workerSrc='https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+    var ab=await file.arrayBuffer();
+    var pdf=await pdfjsLib.getDocument({data:ab}).promise;
+    var fullText='';
+    for(var i=1;i<=pdf.numPages;i++){
+      var page=await pdf.getPage(i);
+      var tc=await page.getTextContent();
+      fullText+=tc.items.map(function(s){return s.str;}).join(' ')+'\n';
+    }
+    _saoKeText=fullText;
+    document.getElementById('saoke-file-name').textContent='✅ '+file.name+' ('+pdf.numPages+' trang) — Sẵn sàng phân tích!';
+  }catch(err){
+    document.getElementById('saoke-file-name').textContent='';
+    _showSaoKeError('❌ Lỗi đọc PDF: '+err.message);
+  }
+}
+async function analyzeSaoKeWithAI(){
+  if(!_saoKeText){showToast('⚠️ Chưa chọn file PDF!',false);return;}
+  var apiKey=localStorage.getItem('claude_api_key')||document.getElementById('saoke-apikey').value.trim();
+  if(!apiKey){
+    showToast('⚠️ Chưa nhập Claude API key!',false);
+    document.getElementById('saoke-apikey-section').style.display='';
+    return;
+  }
+  var btn=document.getElementById('saoke-analyze-btn');
+  var loading=document.getElementById('saoke-loading');
+  btn.disabled=true;btn.style.opacity='.5';
+  loading.classList.remove('hidden');
+  document.getElementById('saoke-error').classList.add('hidden');
+  document.getElementById('saoke-review-section').classList.add('hidden');
+  var prompt='Dưới đây là nội dung text trích xuất từ file sao kê ngân hàng PDF. Hãy phân tích và trả về danh sách giao dịch dưới dạng JSON array thuần túy (không markdown, không giải thích thêm).\n\nDanh mục được phép dùng: '+_SAOKE_CATS.join(', ')+'\n\nFormat JSON:\n[{"date":"YYYY-MM-DD","type":"chi","amount":123456,"category":"Ăn uống - Đi chợ","desc":"mô tả ngắn"}]\n\nTrong đó:\n- date: ngày giao dịch YYYY-MM-DD\n- type: "chi" hoặc "thu"\n- amount: số tiền nguyên (không dấu phẩy, không đơn vị)\n- category: một trong các danh mục được phép ở trên\n- desc: mô tả ngắn về giao dịch\n\nNội dung sao kê:\n'+_saoKeText.slice(0,15000);
+  try{
+    var resp=await fetch('https://api.anthropic.com/v1/messages',{
+      method:'POST',
+      headers:{
+        'Content-Type':'application/json',
+        'x-api-key':apiKey,
+        'anthropic-version':'2023-06-01',
+        'anthropic-dangerous-direct-browser-access':'true'
+      },
+      body:JSON.stringify({
+        model:'claude-sonnet-4-20250514',
+        max_tokens:2000,
+        messages:[{role:'user',content:prompt}]
+      })
+    });
+    var data=await resp.json();
+    if(!resp.ok)throw new Error(data.error&&data.error.message?data.error.message:JSON.stringify(data));
+    var text=data.content[0].text.trim();
+    var jsonMatch=text.match(/\[[\s\S]*\]/);
+    if(!jsonMatch)throw new Error('AI không trả về JSON hợp lệ. Phản hồi: '+text.slice(0,200));
+    _saoKeTxList=JSON.parse(jsonMatch[0]);
+    renderSaoKeReview(_saoKeTxList);
+  }catch(err){
+    _showSaoKeError('❌ Lỗi phân tích: '+err.message);
+  }finally{
+    btn.disabled=false;btn.style.opacity='1';
+    loading.classList.add('hidden');
+  }
+}
+function renderSaoKeReview(list){
+  if(!list||!list.length){_showSaoKeError('⚠️ AI không tìm thấy giao dịch nào. Thử với file khác.');return;}
+  var catOpts=_SAOKE_CATS.map(function(c){return'<option>'+c+'</option>';}).join('');
+  var rows=list.map(function(tx,i){
+    var selOpts=_SAOKE_CATS.map(function(c){return'<option'+(c===tx.category?' selected':'')+'>'+c+'</option>';}).join('');
+    return'<tr id="saoke-row-'+i+'" style="border-bottom:1px solid #f0ede6">'
+      +'<td style="padding:10px 8px;font-size:12px;white-space:nowrap;font-weight:700;color:#0d1f1a">'+((tx.date||'').replace('T',' ').slice(0,10))+'</td>'
+      +'<td style="padding:10px 8px;font-size:12px;color:#374151;max-width:200px">'+escHtml(tx.desc||'')+'</td>'
+      +'<td style="padding:10px 8px;text-align:center"><span style="background:'+(tx.type==='thu'?'#f0fdf4':'#fff5f5')+';color:'+(tx.type==='thu'?'#059669':'#dc2626')+';border-radius:12px;padding:3px 10px;font-size:11px;font-weight:800">'+(tx.type==='thu'?'Thu':'Chi')+'</span></td>'
+      +'<td style="padding:10px 8px;text-align:right;font-weight:900;font-size:13px;color:'+(tx.type==='thu'?'#059669':'#dc2626')+'">'+fmt(tx.amount||0)+'</td>'
+      +'<td style="padding:10px 8px"><select onchange="_saoKeTxList['+i+'].category=this.value" style="border:1px solid #e4e0d8;border-radius:8px;padding:5px 8px;font-size:11px;background:#fff;max-width:165px;font-family:Nunito,sans-serif">'+selOpts+'</select></td>'
+      +'<td style="padding:10px 8px;text-align:center"><button onclick="document.getElementById(\'saoke-row-'+i+'\').remove();_saoKeTxList.splice('+i+',1)" style="background:transparent;border:1px solid #fecaca;border-radius:8px;padding:4px 9px;cursor:pointer;font-size:12px;color:#ef4444">🗑</button></td>'
+      +'</tr>';
+  }).join('');
+  document.getElementById('saoke-review-table').innerHTML=
+    '<div style="overflow-x:auto;border-radius:14px;border:1px solid #e4e0d8">'
+    +'<table style="width:100%;border-collapse:collapse">'
+    +'<thead><tr style="background:#f8f6f2">'
+    +'<th style="padding:10px 8px;font-size:10px;font-weight:800;color:#94a3b8;text-align:left;text-transform:uppercase;letter-spacing:.5px">Ngày</th>'
+    +'<th style="padding:10px 8px;font-size:10px;font-weight:800;color:#94a3b8;text-align:left;text-transform:uppercase;letter-spacing:.5px">Mô tả gốc</th>'
+    +'<th style="padding:10px 8px;font-size:10px;font-weight:800;color:#94a3b8;text-align:center;text-transform:uppercase;letter-spacing:.5px">Loại</th>'
+    +'<th style="padding:10px 8px;font-size:10px;font-weight:800;color:#94a3b8;text-align:right;text-transform:uppercase;letter-spacing:.5px">Số tiền</th>'
+    +'<th style="padding:10px 8px;font-size:10px;font-weight:800;color:#94a3b8;text-align:left;text-transform:uppercase;letter-spacing:.5px">Danh mục</th>'
+    +'<th style="padding:10px 8px;font-size:10px;font-weight:800;color:#94a3b8;text-align:center;text-transform:uppercase;letter-spacing:.5px">Xóa</th>'
+    +'</tr></thead>'
+    +'<tbody>'+rows+'</tbody></table></div>'
+    +'<div style="font-size:12px;color:#94a3b8;margin-top:8px;text-align:right">'+list.length+' giao dịch · Có thể sửa danh mục hoặc xóa dòng trước khi thêm</div>';
+  document.getElementById('saoke-review-section').classList.remove('hidden');
+}
+function addAllSaoKe(){
+  if(!_saoKeTxList.length){showToast('⚠️ Không có giao dịch nào!',false);return;}
+  var n=_saoKeTxList.length;
+  _saoKeTxList.forEach(function(tx){
+    var t={date:tx.date||'',type:tx.type||'chi',cat:tx.category||'Chi Khác',desc:tx.desc||'',amt:tx.amount||0,isNew:true};
+    NEW_TX.unshift(t);ALL_TX.unshift(t);
+  });
+  _saoKeTxList=[];_saoKeText='';
+  document.getElementById('saoke-review-section').classList.add('hidden');
+  document.getElementById('saoke-file-name').textContent='';
+  document.getElementById('saoke-pdf-file').value='';
+  renderTxTab();renderDashboard();renderNewList();
+  showToast('✅ Đã thêm '+n+' giao dịch từ sao kê!');
+  _syncBg(syncTransactions);
+}
+function _showSaoKeError(msg){
+  var el=document.getElementById('saoke-error');
+  if(el){el.textContent=msg;el.classList.remove('hidden');}
+}
+function escHtml(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+
+// ═══════════════════════════
 // INIT
 // ═══════════════════════════
 function initApp(){
   var td=new Date().toISOString().split("T")[0];
   var de=document.getElementById("en-date");if(de)de.value=td;
   var gd=document.getElementById("g-deadline");if(gd)gd.value="";
+  _initSaoKeApiKey();
   renderDashboard();renderTxTab();renderMonthly();renderGoals();renderWealth();renderTasks();
   showTab("dashboard");
   loadAllDataFromSheets();
