@@ -2066,6 +2066,16 @@ async function processSaoKePdf(file){
     _showSaoKeError('❌ Lỗi đọc PDF: '+err.message);
   }
 }
+function _parseSaoKeJSON(text){
+  var m=text.match(/\[[\s\S]*\]/);
+  if(!m)return null;
+  try{return JSON.parse(m[0]);}catch(e){}
+  // Try fixing truncated JSON: find last complete object before a broken one
+  var s=m[0];
+  var lastGood=s.lastIndexOf('},');
+  if(lastGood>0){try{return JSON.parse(s.slice(0,lastGood+1)+']');}catch(e2){}}
+  return null;
+}
 async function analyzeSaoKeWithAI(){
   if(!_saoKeText){showToast('⚠️ Chưa chọn file PDF!',false);return;}
   var apiKey=localStorage.getItem('claude_api_key')||document.getElementById('saoke-apikey').value.trim();
@@ -2080,29 +2090,47 @@ async function analyzeSaoKeWithAI(){
   loading.classList.remove('hidden');
   document.getElementById('saoke-error').classList.add('hidden');
   document.getElementById('saoke-review-section').classList.add('hidden');
-  var prompt='Dưới đây là nội dung text trích xuất từ file sao kê ngân hàng PDF. Hãy phân tích và trả về danh sách giao dịch dưới dạng JSON array thuần túy (không markdown, không giải thích thêm).\n\nDanh mục được phép dùng: '+_SAOKE_CATS.join(', ')+'\n\nFormat JSON:\n[{"date":"YYYY-MM-DD","type":"chi","amount":123456,"category":"Ăn uống - Đi chợ","desc":"mô tả ngắn"}]\n\nTrong đó:\n- date: ngày giao dịch YYYY-MM-DD\n- type: "chi" hoặc "thu"\n- amount: số tiền nguyên (không dấu phẩy, không đơn vị)\n- category: một trong các danh mục được phép ở trên\n- desc: mô tả ngắn về giao dịch\n\nNội dung sao kê:\n'+_saoKeText.slice(0,15000);
+  var promptBase='Dưới đây là nội dung text trích xuất từ file sao kê ngân hàng PDF. Hãy phân tích và trả về danh sách giao dịch dưới dạng JSON array thuần túy (không markdown, không giải thích thêm).\n\nDanh mục được phép dùng: '+_SAOKE_CATS.join(', ')+'\n\nFormat JSON:\n[{"date":"YYYY-MM-DD","type":"chi","amount":123456,"category":"Ăn uống - Đi chợ","desc":"mô tả ngắn"}]\n\nTrong đó:\n- date: ngày giao dịch YYYY-MM-DD\n- type: "chi" hoặc "thu"\n- amount: số tiền nguyên (không dấu phẩy, không đơn vị)\n- category: một trong các danh mục được phép ở trên\n- desc: mô tả ngắn về giao dịch\n\nNội dung sao kê:\n';
+  var allLines=_saoKeText.split('\n');
+  var batches=[];
+  for(var i=0;i<allLines.length;i+=60)batches.push(allLines.slice(i,i+60).join('\n'));
+  if(!batches.length)batches=[_saoKeText.slice(0,15000)];
+  var allTx=[];
+  var failedBatches=0;
   try{
-    var resp=await fetch('https://api.anthropic.com/v1/messages',{
-      method:'POST',
-      headers:{
-        'Content-Type':'application/json',
-        'x-api-key':apiKey,
-        'anthropic-version':'2023-06-01',
-        'anthropic-dangerous-direct-browser-access':'true'
-      },
-      body:JSON.stringify({
-        model:'claude-sonnet-4-20250514',
-        max_tokens:2000,
-        messages:[{role:'user',content:prompt}]
-      })
-    });
-    var data=await resp.json();
-    if(!resp.ok)throw new Error(data.error&&data.error.message?data.error.message:JSON.stringify(data));
-    var text=data.content[0].text.trim();
-    var jsonMatch=text.match(/\[[\s\S]*\]/);
-    if(!jsonMatch)throw new Error('AI không trả về JSON hợp lệ. Phản hồi: '+text.slice(0,200));
-    _saoKeTxList=JSON.parse(jsonMatch[0]);
-    renderSaoKeReview(_saoKeTxList);
+    for(var b=0;b<batches.length;b++){
+      var resp=await fetch('https://api.anthropic.com/v1/messages',{
+        method:'POST',
+        headers:{
+          'Content-Type':'application/json',
+          'x-api-key':apiKey,
+          'anthropic-version':'2023-06-01',
+          'anthropic-dangerous-direct-browser-access':'true'
+        },
+        body:JSON.stringify({
+          model:'claude-sonnet-4-20250514',
+          max_tokens:4000,
+          messages:[{role:'user',content:promptBase+batches[b]}]
+        })
+      });
+      var data=await resp.json();
+      if(!resp.ok)throw new Error(data.error&&data.error.message?data.error.message:JSON.stringify(data));
+      var text=data.content[0].text.trim();
+      var parsed=_parseSaoKeJSON(text);
+      if(parsed&&Array.isArray(parsed)){allTx=allTx.concat(parsed);}
+      else{failedBatches++;}
+    }
+    if(!allTx.length&&failedBatches>0){
+      _showSaoKeError('⚠️ AI không thể phân tích được giao dịch nào. Vui lòng thử lại.');
+    }else{
+      if(failedBatches>0){
+        var successBatches=batches.length-failedBatches;
+        var estRemaining=successBatches>0?Math.round(allTx.length/successBatches*failedBatches):failedBatches*10;
+        showToast('⚠️ AI phân tích được '+allTx.length+' giao dịch, khoảng '+estRemaining+' giao dịch còn lại cần xem lại',false);
+      }
+      _saoKeTxList=allTx;
+      renderSaoKeReview(_saoKeTxList);
+    }
   }catch(err){
     _showSaoKeError('❌ Lỗi phân tích: '+err.message);
   }finally{
