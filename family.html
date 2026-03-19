@@ -631,7 +631,12 @@ input,select,button,textarea{font-family:'Nunito',sans-serif}
 
       <!-- Panel: Import Sao Kê PDF -->
       <div id="etab-panel-saoke" class="hidden">
-        <div class="card">
+        <div class="card" style="position:relative">
+          <!-- Đổi API Key button -->
+          <div style="position:absolute;top:16px;right:16px">
+            <button onclick="toggleApiKeyPopup()" style="background:#fffbeb;border:1px solid #fde68a;border-radius:10px;padding:5px 12px;font-size:11px;font-weight:800;color:#92400e;cursor:pointer">🔑 Đổi API Key</button>
+          </div>
+
           <!-- API Key config -->
           <div id="saoke-apikey-section" style="background:#fffbeb;border:1px solid #fde68a;border-radius:14px;padding:16px;margin-bottom:22px">
             <div style="font-size:12px;font-weight:800;color:#92400e;margin-bottom:8px">🔑 Claude API Key — chỉ cần nhập 1 lần</div>
@@ -1919,6 +1924,35 @@ var _saoKeText='';
 var _saoKeTxList=[];
 var _SAOKE_CATS=["Ăn uống - Đi chợ","Ăn uống - Ăn ngoài","Nhà cửa - Tiền nhà","Nhà cửa - Mua sắm","Nhà cửa - Phí DV","Con - Học phí","Con - Mua sắm","Con - Ăn uống","Hiếu hỉ - Biếu tặng","Hưởng thụ","Hưởng thụ - Du lịch","Đi lại - Di chuyển","Sức khoẻ - Bảo hiểm","Ngân hàng - Rút tiền","Tiền chồng chuyển vào","Tiền vợ chuyển vào","Thu khác","Chi Khác"];
 
+function toggleApiKeyPopup(){
+  var existing=document.getElementById('saoke-apikey-popup');
+  if(existing){existing.remove();return;}
+  var popup=document.createElement('div');
+  popup.id='saoke-apikey-popup';
+  popup.style.cssText='position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);background:#fff;border:1px solid #e4e0d8;border-radius:18px;padding:24px;width:320px;max-width:90vw;z-index:9999;box-shadow:0 8px 32px rgba(0,0,0,.18)';
+  popup.innerHTML='<div style="font-size:14px;font-weight:900;color:#0d1f1a;margin-bottom:14px">🔑 Đổi Claude API Key</div>'
+    +'<input id="saoke-new-apikey" type="password" class="finput" style="width:100%;box-sizing:border-box;margin-bottom:10px" placeholder="sk-ant-api03-..."/>'
+    +'<div style="display:flex;gap:8px">'
+    +'<button onclick="saveNewSaoKeApiKey()" style="flex:1;background:#0d1f1a;color:#fff;border:none;border-radius:12px;padding:11px;font-size:13px;font-weight:900;cursor:pointer">Lưu</button>'
+    +'<button onclick="document.getElementById(\'saoke-apikey-popup\').remove()" style="flex:1;background:#f3f0eb;color:#374151;border:none;border-radius:12px;padding:11px;font-size:13px;font-weight:900;cursor:pointer">Huỷ</button>'
+    +'</div>'
+    +'<div style="font-size:11px;color:#94a3b8;margin-top:8px">Key lưu trong trình duyệt, không gửi đi đâu khác.</div>';
+  var overlay=document.createElement('div');
+  overlay.id='saoke-apikey-overlay';
+  overlay.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,.4);z-index:9998';
+  overlay.onclick=function(){popup.remove();overlay.remove();};
+  document.body.appendChild(overlay);
+  document.body.appendChild(popup);
+  document.getElementById('saoke-new-apikey').focus();
+}
+function saveNewSaoKeApiKey(){
+  var key=document.getElementById('saoke-new-apikey').value.trim();
+  if(!key){showToast('⚠️ Nhập API key trước!',false);return;}
+  localStorage.setItem('claude_api_key',key);
+  var p=document.getElementById('saoke-apikey-popup');if(p)p.remove();
+  var o=document.getElementById('saoke-apikey-overlay');if(o)o.remove();
+  showToast('✅ Đã lưu API key mới!');
+}
 function saveSaoKeApiKey(){
   var key=document.getElementById('saoke-apikey').value.trim();
   if(!key){showToast('⚠️ Nhập API key trước!',false);return;}
