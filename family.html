@@ -1071,6 +1071,9 @@ async function gsRead(range){
 }
 async function gsWrite(range,values){
   const tok=await getGSToken();
+  const sheetName=range.split('!')[0];
+  const clearUrl='https://sheets.googleapis.com/v4/spreadsheets/'+GS_SPREADSHEET_ID+'/values/'+encodeURIComponent(sheetName+'!A1:Z100000')+':clear';
+  await fetch(clearUrl,{method:'POST',headers:{Authorization:'Bearer '+tok,'Content-Type':'application/json'}});
   const url='https://sheets.googleapis.com/v4/spreadsheets/'+GS_SPREADSHEET_ID+'/values/'+encodeURIComponent(range)+'?valueInputOption=RAW';
   const r=await fetch(url,{method:'PUT',headers:{Authorization:'Bearer '+tok,'Content-Type':'application/json'},body:JSON.stringify({values})});
   const d=await r.json();
