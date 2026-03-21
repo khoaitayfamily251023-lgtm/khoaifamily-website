@@ -3,7 +3,30 @@
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
-<title>Khoai Tây Family Finance v2</title>
+<title>Khoai Tây Family 🥔</title>
+
+<!-- Favicon & App Icon -->
+<link rel="icon" type="image/jpeg" href="khoaitay-avatar.jpg"/>
+<link rel="apple-touch-icon" href="khoaitay-avatar.jpg"/>
+<meta name="apple-mobile-web-app-title" content="Khoai Tây"/>
+<meta name="apple-mobile-web-app-capable" content="yes"/>
+<meta name="theme-color" content="#1c3a2e"/>
+
+<!-- Open Graph — hiện khi share Zalo / Facebook / iMessage -->
+<meta property="og:type" content="website"/>
+<meta property="og:url" content="https://khoaifamily.com/family.html"/>
+<meta property="og:title" content="Khoai Tây Family 🥔"/>
+<meta property="og:description" content="Hệ thống tài chính & giao việc gia đình — Thu chi · Mục tiêu · Giao việc 🌿"/>
+<meta property="og:image" content="https://raw.githubusercontent.com/khoaitayfamily251023-lgtm/khoaifamily-website/main/khoaitay-avatar.jpg"/>
+<meta property="og:image:width" content="800"/>
+<meta property="og:image:height" content="800"/>
+<meta property="og:locale" content="vi_VN"/>
+
+<!-- Twitter / iMessage -->
+<meta name="twitter:card" content="summary_large_image"/>
+<meta name="twitter:title" content="Khoai Tây Family 🥔"/>
+<meta name="twitter:description" content="Hệ thống tài chính & giao việc gia đình"/>
+<meta name="twitter:image" content="https://raw.githubusercontent.com/khoaitayfamily251023-lgtm/khoaifamily-website/main/khoaitay-avatar.jpg"/>
 <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&family=Playfair+Display:ital,wght@0,700;1,700&display=swap" rel="stylesheet"/>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
@@ -201,8 +224,6 @@ input,select,button,textarea{font-family:'Nunito',sans-serif}
 .task-right{text-align:right;flex-shrink:0}
 .task-tag{border-radius:18px;padding:3px 10px;font-size:10px;font-weight:800}
 .task-del{background:transparent;border:none;color:#ccc;cursor:pointer;font-size:16px;margin-top:4px}
-.tfilter-btn{background:#fff;border:1.5px solid #e4e0d8;border-radius:20px;padding:6px 14px;font-size:13px;font-weight:600;color:#94a3b8;cursor:pointer;white-space:nowrap;font-family:inherit;transition:all .15s}
-.tfilter-btn.on{background:#1c1917;border-color:#1c1917;color:#fff}
 
 /* ══ COLUMN GROUP ══ */
 .col-group{background:#f8f6f2;border-radius:20px;padding:18px}
@@ -559,24 +580,29 @@ input,select,button,textarea{font-family:'Nunito',sans-serif}
 
     <!-- ══ TASKS ══ -->
     <div id="tab-tasks" class="tpane hidden">
-      <div class="thead"><h1>Giao việc</h1><p>Giao dịch · Theo dõi · Hoàn thành</p></div>
-
-      <!-- Stats row -->
-      <div class="g4" style="margin-bottom:18px" id="task-stats"></div>
-
-      <!-- Filter + Add -->
-      <div style="display:flex;gap:8px;margin-bottom:16px;align-items:center">
-        <div style="display:flex;gap:6px;flex:1;overflow-x:auto;scrollbar-width:none;padding-bottom:2px" id="task-filter-row">
-          <button class="tfilter-btn on" onclick="setTaskFilter('all',this)">Tất cả</button>
-          <button class="tfilter-btn" onclick="setTaskFilter('todo',this)">Cần làm</button>
-          <button class="tfilter-btn" onclick="setTaskFilter('doing',this)">Đang làm</button>
-          <button class="tfilter-btn" onclick="setTaskFilter('done',this)">Đã xong</button>
-        </div>
-        <button class="sec-btn" style="flex-shrink:0;white-space:nowrap" onclick="openTaskModal()">+ Thêm</button>
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;flex-wrap:wrap;gap:10px">
+        <div class="thead" style="margin-bottom:0"><h1>Giao việc gia đình</h1><p>Phân công · Theo dõi · Nhắc nhở</p></div>
+        <button class="sec-btn" onclick="openTaskModal()">+ Thêm việc</button>
       </div>
 
-      <!-- Task list -->
-      <div id="task-list-unified"></div>
+      <!-- Stats -->
+      <div class="g4" style="margin-bottom:18px" id="task-stats"></div>
+
+      <!-- Board: 3 columns -->
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:14px">
+        <div class="col-group">
+          <div class="col-group-title">🔴 Cần làm</div>
+          <div id="task-todo"></div>
+        </div>
+        <div class="col-group">
+          <div class="col-group-title">🟡 Đang làm</div>
+          <div id="task-doing"></div>
+        </div>
+        <div class="col-group">
+          <div class="col-group-title">✅ Xong rồi</div>
+          <div id="task-done"></div>
+        </div>
+      </div>
     </div>
 
     <!-- ══ ENTRY ══ -->
@@ -1813,16 +1839,10 @@ function renderWealth(){
 // ═══════════════════════════
 // TASKS
 // ═══════════════════════════
-let _taskFilter = "all";
-function setTaskFilter(f, btn) {
-  _taskFilter = f;
-  document.querySelectorAll(".tfilter-btn").forEach(b => b.classList.remove("on"));
-  if (btn) btn.classList.add("on");
-  renderTasks();
-}
 function moveTask(i,status){TASKS[i].status=status;renderTasks();renderDashboard();_syncBg(syncTasks);}
-function deleteTask(i){if(!confirm("Xóa việc này?"))return;TASKS.splice(i,1);renderTasks();renderDashboard();showToast("🗑 Đã xóa");_syncBg(syncTasks);}
+function deleteTask(i){TASKS.splice(i,1);renderTasks();renderDashboard();showToast("🗑 Đã xóa");_syncBg(syncTasks);}
 function renderTasks(){
+  // Stats
   const total=TASKS.length,done=TASKS.filter(t=>t.status==="done").length,todo=TASKS.filter(t=>t.status==="todo").length,doing=TASKS.filter(t=>t.status==="doing").length;
   const overdue=TASKS.filter(t=>t.status!=="done"&&t.due&&daysLeft(t.due)<0).length;
   document.getElementById("task-stats").innerHTML=[
@@ -1832,61 +1852,34 @@ function renderTasks(){
     {l:"Đã xong",v:done+" / "+total,c:"#059669",bg:"#f0fdf4",bc:"#bbf7d0"},
   ].map(k=>`<div class="kcard" style="background:${k.bg};border-color:${k.bc}"><div class="kl">${k.l}</div><div class="kv" style="color:${k.c}">${k.v}</div>${overdue&&k.l==="Cần làm"?`<div class="ks" style="color:#ef4444">⚠️ ${overdue} trễ hạn</div>`:""}</div>`).join("");
 
-  // Filter list
-  const filtered = _taskFilter==="all" ? TASKS
-    : TASKS.filter(t => t.status === _taskFilter);
-
-  if(!filtered.length){
-    document.getElementById("task-list-unified").innerHTML='<div style="text-align:center;padding:40px 20px;color:#94a3b8;font-size:13px">Không có việc nào</div>';
-    return;
-  }
-
-  // Status config
-  const sCfg = {
-    todo:  {dot:"#dc2626", label:"Cần làm",  bg:"#fff5f5"},
-    doing: {dot:"#d97706", label:"Đang làm", bg:"#fffbeb"},
-    done:  {dot:"#059669", label:"Đã xong",  bg:"#f0fdf4"},
-  };
-
-  document.getElementById("task-list-unified").innerHTML = filtered.map(function(t){
-    var i = TASKS.indexOf(t);
-    var dl = t.due ? daysLeft(t.due) : null;
-    var dlColor = dl===null?"#94a3b8":dl<0?"#ef4444":dl<=2?"#f59e0b":"#94a3b8";
-    var dlText = dl===null?"" : dl<0?"Trễ "+Math.abs(dl)+"ng" : dl===0?"Hôm nay!" : dl+"ng nữa";
-    var cfg = sCfg[t.status] || sCfg.todo;
-
-    // Action button
-    var actionBtn = t.status==="todo"
-      ? '<button onclick="moveTask('+i+',\'doing\')" style="font-size:11px;padding:5px 12px;border-radius:8px;border:1px solid #fde68a;background:#fffbeb;cursor:pointer;color:#d97706;font-weight:700">▶ Bắt đầu</button>'
-      : t.status==="doing"
-      ? '<button onclick="moveTask('+i+',\'done\')" style="font-size:11px;padding:5px 12px;border-radius:8px;border:none;background:#059669;cursor:pointer;color:#fff;font-weight:700">✓ Xong</button>'
-      : '<button onclick="moveTask('+i+',\'todo\')" style="font-size:11px;padding:5px 12px;border-radius:8px;border:1px solid #e4e0d8;background:#fff;cursor:pointer;color:#94a3b8;font-weight:600">↩ Mở lại</button>';
-
-    var priEmoji = t.pri==="high"?"🔴":t.pri==="med"?"🟡":"🟢";
-    var noteHtml = t.note ? '<div style="font-size:11px;color:#94a3b8;margin-top:4px">📝 '+t.note+'</div>' : "";
-
-    return '<div style="background:#fff;border-radius:14px;border:1.5px solid #ede9e0;padding:14px 16px;margin-bottom:10px;display:flex;gap:12px;align-items:flex-start'+(t.status==="done"?';opacity:.6':'')+'">'
-      // Status dot
-      +'<div style="width:10px;height:10px;border-radius:50%;background:'+cfg.dot+';flex-shrink:0;margin-top:5px"></div>'
-      // Body
-      +'<div style="flex:1;min-width:0">'
-        +'<div style="font-weight:700;font-size:14px;color:#1c1917;line-height:1.4;'+(t.status==="done"?"text-decoration:line-through;color:#94a3b8":"")+'">' + t.title + '</div>'
-        +'<div style="font-size:12px;color:#94a3b8;margin-top:3px">'+t.assign+' · '+t.cat+'</div>'
-        + noteHtml
-        +'<div style="display:flex;align-items:center;gap:8px;margin-top:8px;flex-wrap:wrap">'
-          + actionBtn
-          +'<span style="font-size:11px;background:'+cfg.bg+';color:'+cfg.dot+';padding:3px 9px;border-radius:20px;font-weight:600">'+cfg.label+'</span>'
-          +(dlText?'<span style="font-size:11px;color:'+dlColor+'">'+dlText+'</span>':"")
-          +'<span style="font-size:12px">'+priEmoji+'</span>'
-        +'</div>'
-      +'</div>'
-      // Edit / Delete
-      +'<div style="display:flex;flex-direction:column;gap:4px;flex-shrink:0">'
-        +'<button onclick="openTaskModal('+i+')" style="background:transparent;border:1px solid #bae6fd;border-radius:6px;padding:3px 7px;cursor:pointer;font-size:12px;color:#0ea5e9">✏️</button>'
-        +'<button onclick="deleteTask('+i+')" style="background:transparent;border:1px solid #fecaca;border-radius:6px;padding:3px 7px;cursor:pointer;font-size:12px;color:#ef4444">×</button>'
-      +'</div>'
-    +'</div>';
-  }).join("");
+  // Boards
+  ["todo","doing","done"].forEach(s=>{
+    document.getElementById("task-"+s).innerHTML=TASKS.filter(function(t){return t.status===s;}).map(function(t){
+      var i=TASKS.indexOf(t);
+      var dl=t.due?daysLeft(t.due):null;
+      var dlColor=dl===null?"#94a3b8":dl<0?"#ef4444":dl<=3?"#f59e0b":"#94a3b8";
+      var priColor=t.pri==="high"?"#dc2626":t.pri==="med"?"#d97706":"#059669";
+      var priBg=t.pri==="high"?"#fff5f5":t.pri==="med"?"#fffbeb":"#f0fdf4";
+      var actions=s==="todo"?'<button onclick="moveTask('+i+',\'doing\')" style="font-size:10px;padding:4px 9px;border-radius:8px;border:1px solid #e4e0d8;background:#fff;cursor:pointer;color:#d97706;font-weight:700">▶ Đang làm</button>'
+        :s==="doing"?'<button onclick="moveTask('+i+',\'done\')" style="font-size:10px;padding:4px 9px;border-radius:8px;border:none;background:#059669;cursor:pointer;color:#fff;font-weight:700">✓ Xong</button><button onclick="moveTask('+i+',\'todo\')" style="font-size:10px;padding:4px 9px;border-radius:8px;border:1px solid #e4e0d8;background:#fff;cursor:pointer;color:#666;font-weight:700;margin-left:4px">↩</button>'
+        :s==="done"?'<button onclick="moveTask('+i+',\'todo\')" style="font-size:10px;padding:4px 9px;border-radius:8px;border:1px solid #e4e0d8;background:#fff;cursor:pointer;color:#666;font-weight:700">↩ Mở lại</button>':"";
+      var noteHtml=t.note?'<div style="font-size:10px;color:#94a3b8;margin-top:3px;padding:4px 8px;background:#f8f6f2;border-radius:6px">'+t.note+'</div>':"";
+      var dlHtml=dl!==null?'<span style="font-size:10px;color:'+dlColor+'">'+(dl<0?"Trễ "+Math.abs(dl)+"ng":dl===0?"Hôm nay!":dl+"ng")+'</span>':"";
+      return '<div class="task-card '+(s==="done"?"done":"")+'"><div class="task-body">'
+        +'<div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:5px">'
+        +'<div class="task-title" style="'+(s==="done"?"text-decoration:line-through":"")+'">'+t.title+'</div>'
+        +'<div style="display:flex;gap:4px">'
+        +'<button onclick="openTaskModal('+i+')" style="background:transparent;border:1px solid #bae6fd;border-radius:6px;padding:2px 6px;cursor:pointer;font-size:11px;color:#0ea5e9">✏️</button>'
+        +'<button onclick="deleteTask('+i+')" class="task-del">×</button>'
+        +'</div></div>'
+        +'<div class="task-meta">'+t.assign+' · '+t.cat+'</div>'
+        +noteHtml
+        +'<div style="display:flex;align-items:center;justify-content:space-between;margin-top:8px">'
+        +'<div style="display:flex;gap:5px;align-items:center"><span class="task-tag" style="background:'+priBg+';color:'+priColor+'">'+(t.pri==="high"?"🔴":t.pri==="med"?"🟡":"🟢")+'</span>'+dlHtml+'</div>'
+        +'<div>'+actions+'</div>'
+        +'</div></div></div>';
+    }).join("")||'<div style="text-align:center;padding:24px;color:#94a3b8;font-size:12px">'+(s==="done"?"Chưa có việc nào xong":"Không có việc nào")+'</div>';
+  });
 }
 
 // ═══════════════════════════
