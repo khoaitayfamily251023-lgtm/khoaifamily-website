@@ -634,14 +634,60 @@ input,select,button,textarea{font-family:'Nunito',sans-serif}
           </div>
           <label class="flabel">Danh mục</label>
           <select class="fselect" id="en-cat">
-            <option>🥦 Ăn uống - Đi chợ</option><option>🍜 Ăn uống - Ăn ngoài</option>
-            <option>🏠 Nhà cửa - Tiền nhà</option><option>🛒 Nhà cửa - Mua sắm</option>
-            <option>🔧 Nhà cửa - Phí DV</option><option>🎓 Con - Học phí</option>
-            <option>👶 Con - Mua sắm</option><option>🍼 Con - Ăn uống</option>
-            <option>🎁 Hiếu hỉ - Biếu tặng</option><option>✈️ Hưởng thụ - Du lịch</option>
-            <option>🚗 Đi lại - Di chuyển</option><option>💊 Sức khoẻ - Bảo hiểm</option>
-            <option>🏦 Ngân hàng - Rút tiền</option><option>👨 Tiền chồng chuyển vào</option>
-            <option>👩 Tiền vợ chuyển vào</option><option>💰 Thu khác</option><option>💳 Chi Khác</option>
+            <optgroup label="── CHI ──" disabled></optgroup>
+            <optgroup label="Ăn uống">
+              <option>Ăn uống - Đi chợ &amp; Siêu thị</option>
+              <option>Ăn uống - Ăn ngoài &amp; Cafe</option>
+            </optgroup>
+            <optgroup label="Nhà cửa">
+              <option>Nhà cửa - Tiền thuê nhà</option>
+              <option>Nhà cửa - Điện nước internet</option>
+              <option>Nhà cửa - Mua sắm đồ dùng</option>
+              <option>Nhà cửa - Sửa chữa</option>
+              <option>Nhà cửa - Phí dịch vụ</option>
+            </optgroup>
+            <optgroup label="Con cái">
+              <option>Con cái - Học phí</option>
+              <option>Con cái - Mua sắm</option>
+              <option>Con cái - Sinh hoạt</option>
+            </optgroup>
+            <optgroup label="Du lịch">
+              <option>Du lịch - Trong nước</option>
+              <option>Du lịch - Nước ngoài</option>
+            </optgroup>
+            <optgroup label="Hưởng thụ">
+              <option>Hưởng thụ - Giải trí</option>
+              <option>Hưởng thụ - Mua sắm cá nhân</option>
+            </optgroup>
+            <optgroup label="Sức khoẻ">
+              <option>Sức khoẻ - Khám &amp; Thuốc</option>
+              <option>Sức khoẻ - Bảo hiểm</option>
+            </optgroup>
+            <optgroup label="Hiếu hỉ">
+              <option>Hiếu hỉ - Biếu tặng</option>
+              <option>Hiếu hỉ - Sự kiện</option>
+            </optgroup>
+            <optgroup label="Đi lại">
+              <option>Đi lại - Xăng xe</option>
+              <option>Đi lại - Grab &amp; Taxi</option>
+              <option>Đi lại - Phí gửi xe</option>
+            </optgroup>
+            <optgroup label="Ngân hàng">
+              <option>Ngân hàng - Rút tiền</option>
+              <option>Ngân hàng - Chuyển khoản</option>
+            </optgroup>
+            <option>Chi khác</option>
+            <optgroup label="── THU ──" disabled></optgroup>
+            <optgroup label="Thu nhập">
+              <option>Thu nhập - Lương Ba Hảo</option>
+              <option>Thu nhập - Lương Mẹ Ngân</option>
+              <option>Thu nhập - Thu nhập thêm</option>
+            </optgroup>
+            <optgroup label="Chuyển khoản">
+              <option>Chuyển khoản - Ba Hảo chuyển vào</option>
+              <option>Chuyển khoản - Mẹ Ngân chuyển vào</option>
+            </optgroup>
+            <option>Thu khác</option>
           </select>
           <label class="flabel">Mô tả</label>
           <input class="finput" type="text" id="en-desc" placeholder="VD: Đi chợ sáng thứ 2..."/>
@@ -916,14 +962,60 @@ input,select,button,textarea{font-family:'Nunito',sans-serif}
     </div>
     <label class="flabel">Danh mục</label>
     <select class="fselect" id="e-cat">
-      <option>🥦 Ăn uống - Đi chợ</option><option>🍜 Ăn uống - Ăn ngoài</option>
-      <option>🏠 Nhà cửa - Tiền nhà</option><option>🛒 Nhà cửa - Mua sắm</option>
-      <option>🔧 Nhà cửa - Phí DV</option><option>🎓 Con - Học phí</option>
-      <option>👶 Con - Mua sắm</option><option>🍼 Con - Ăn uống</option>
-      <option>🎁 Hiếu hỉ - Biếu tặng</option><option>✈️ Hưởng thụ - Du lịch</option>
-      <option>🚗 Đi lại - Di chuyển</option><option>💊 Sức khoẻ - Bảo hiểm</option>
-      <option>🏦 Ngân hàng - Rút tiền</option><option>👨 Tiền chồng chuyển vào</option>
-      <option>👩 Tiền vợ chuyển vào</option><option>💰 Thu khác</option><option>💳 Chi Khác</option>
+      <optgroup label="── CHI ──" disabled></optgroup>
+      <optgroup label="Ăn uống">
+        <option>Ăn uống - Đi chợ &amp; Siêu thị</option>
+        <option>Ăn uống - Ăn ngoài &amp; Cafe</option>
+      </optgroup>
+      <optgroup label="Nhà cửa">
+        <option>Nhà cửa - Tiền thuê nhà</option>
+        <option>Nhà cửa - Điện nước internet</option>
+        <option>Nhà cửa - Mua sắm đồ dùng</option>
+        <option>Nhà cửa - Sửa chữa</option>
+        <option>Nhà cửa - Phí dịch vụ</option>
+      </optgroup>
+      <optgroup label="Con cái">
+        <option>Con cái - Học phí</option>
+        <option>Con cái - Mua sắm</option>
+        <option>Con cái - Sinh hoạt</option>
+      </optgroup>
+      <optgroup label="Du lịch">
+        <option>Du lịch - Trong nước</option>
+        <option>Du lịch - Nước ngoài</option>
+      </optgroup>
+      <optgroup label="Hưởng thụ">
+        <option>Hưởng thụ - Giải trí</option>
+        <option>Hưởng thụ - Mua sắm cá nhân</option>
+      </optgroup>
+      <optgroup label="Sức khoẻ">
+        <option>Sức khoẻ - Khám &amp; Thuốc</option>
+        <option>Sức khoẻ - Bảo hiểm</option>
+      </optgroup>
+      <optgroup label="Hiếu hỉ">
+        <option>Hiếu hỉ - Biếu tặng</option>
+        <option>Hiếu hỉ - Sự kiện</option>
+      </optgroup>
+      <optgroup label="Đi lại">
+        <option>Đi lại - Xăng xe</option>
+        <option>Đi lại - Grab &amp; Taxi</option>
+        <option>Đi lại - Phí gửi xe</option>
+      </optgroup>
+      <optgroup label="Ngân hàng">
+        <option>Ngân hàng - Rút tiền</option>
+        <option>Ngân hàng - Chuyển khoản</option>
+      </optgroup>
+      <option>Chi khác</option>
+      <optgroup label="── THU ──" disabled></optgroup>
+      <optgroup label="Thu nhập">
+        <option>Thu nhập - Lương Ba Hảo</option>
+        <option>Thu nhập - Lương Mẹ Ngân</option>
+        <option>Thu nhập - Thu nhập thêm</option>
+      </optgroup>
+      <optgroup label="Chuyển khoản">
+        <option>Chuyển khoản - Ba Hảo chuyển vào</option>
+        <option>Chuyển khoản - Mẹ Ngân chuyển vào</option>
+      </optgroup>
+      <option>Thu khác</option>
     </select>
     <label class="flabel">Mô tả</label>
     <input class="finput" type="text" id="e-desc" placeholder="VD: Đi chợ sáng thứ 2..."/>
@@ -959,48 +1051,48 @@ const D26=[
   {m:"T3",thu:0,chi:4229551,top:["Rút NH 3tr","Đi chợ 45.9k"]},
 ];
 const CHI25=[
-  {name:"Con - Học phí",amt:106221818,icon:"🎓",color:"#8b5cf6"},
-  {name:"Nhà cửa - Tiền nhà",amt:98600000,icon:"🏠",color:"#0ea5e9"},
-  {name:"Du lịch Nhật Bản",amt:63698905,icon:"✈️",color:"#f59e0b"},
-  {name:"Ngân hàng - STK",amt:60100000,icon:"🏦",color:"#10b981"},
+  {name:"Con cái - Học phí",amt:106221818,icon:"🎓",color:"#8b5cf6"},
+  {name:"Nhà cửa - Tiền thuê nhà",amt:98600000,icon:"🏠",color:"#0ea5e9"},
+  {name:"Du lịch - Nước ngoài",amt:63698905,icon:"✈️",color:"#f59e0b"},
+  {name:"Ngân hàng - Chuyển khoản",amt:60100000,icon:"🏦",color:"#10b981"},
   {name:"Ngân hàng - Rút tiền",amt:39100000,icon:"💳",color:"#64748b"},
-  {name:"Du lịch trong nước",amt:29750000,icon:"🌴",color:"#06b6d4"},
+  {name:"Du lịch - Trong nước",amt:29750000,icon:"🌴",color:"#06b6d4"},
   {name:"Hiếu hỉ - Biếu tặng",amt:24017313,icon:"🎁",color:"#ec4899"},
-  {name:"Nhà cửa - Phí DV",amt:20828640,icon:"🔧",color:"#78716c"},
-  {name:"Bảo hiểm",amt:17500000,icon:"💊",color:"#ef4444"},
-  {name:"Nhà cửa - Mua sắm",amt:16846998,icon:"🛒",color:"#f97316"},
-  {name:"Ăn uống - Đi chợ",amt:14451109,icon:"🥦",color:"#22c55e"},
-  {name:"Ăn uống - Ăn ngoài",amt:13398099,icon:"🍜",color:"#eab308"},
+  {name:"Nhà cửa - Phí dịch vụ",amt:20828640,icon:"🔧",color:"#78716c"},
+  {name:"Sức khoẻ - Bảo hiểm",amt:17500000,icon:"💊",color:"#ef4444"},
+  {name:"Nhà cửa - Mua sắm đồ dùng",amt:16846998,icon:"🛒",color:"#f97316"},
+  {name:"Ăn uống - Đi chợ & Siêu thị",amt:14451109,icon:"🥦",color:"#22c55e"},
+  {name:"Ăn uống - Ăn ngoài & Cafe",amt:13398099,icon:"🍜",color:"#eab308"},
 ];
 let ALL_TX=[
-  {date:"2026-03-04",type:"chi",cat:"Ăn uống",desc:"Ốc hương",amt:376000},
-  {date:"2026-03-03",type:"chi",cat:"Con - Mua sắm",desc:"Bỉm, mũ BH, đồ con",amt:574651},
-  {date:"2026-03-03",type:"chi",cat:"Hưởng thụ",desc:"Mua sắm",amt:153000},
-  {date:"2026-03-02",type:"chi",cat:"Nhà cửa - Phí DV",desc:"Vệ sinh Btaskee",amt:80000},
-  {date:"2026-03-02",type:"chi",cat:"Ăn uống - Đi chợ",desc:"Đi chợ",amt:45900},
-  {date:"2026-03-01",type:"chi",cat:"Ngân hàng",desc:"Rút tiền",amt:3000000},
-  {date:"2026-02-27",type:"thu",cat:"Tiền vợ chuyển vào",desc:"Vợ chuyển vào",amt:14000000},
-  {date:"2026-02-27",type:"chi",cat:"Hưởng thụ - Du lịch",desc:"Du lịch Tết 2026",amt:1300000},
+  {date:"2026-03-04",type:"chi",cat:"Ăn uống - Đi chợ & Siêu thị",desc:"Ốc hương",amt:376000},
+  {date:"2026-03-03",type:"chi",cat:"Con cái - Mua sắm",desc:"Bỉm, mũ BH, đồ con",amt:574651},
+  {date:"2026-03-03",type:"chi",cat:"Hưởng thụ - Giải trí",desc:"Mua sắm",amt:153000},
+  {date:"2026-03-02",type:"chi",cat:"Nhà cửa - Phí dịch vụ",desc:"Vệ sinh Btaskee",amt:80000},
+  {date:"2026-03-02",type:"chi",cat:"Ăn uống - Đi chợ & Siêu thị",desc:"Đi chợ",amt:45900},
+  {date:"2026-03-01",type:"chi",cat:"Ngân hàng - Rút tiền",desc:"Rút tiền",amt:3000000},
+  {date:"2026-02-27",type:"thu",cat:"Chuyển khoản - Mẹ Ngân chuyển vào",desc:"Vợ chuyển vào",amt:14000000},
+  {date:"2026-02-27",type:"chi",cat:"Du lịch - Trong nước",desc:"Du lịch Tết 2026",amt:1300000},
   {date:"2026-02-24",type:"chi",cat:"Nhà cửa - Phí dịch vụ",desc:"Vệ sinh Btaskee",amt:210000},
-  {date:"2026-02-23",type:"chi",cat:"Hưởng thụ - Du lịch",desc:"Cọc KS Vĩnh Hy Tết",amt:4000000},
-  {date:"2026-02-22",type:"chi",cat:"Con - Ăn uống",desc:"Sữa cho con",amt:52100},
-  {date:"2026-02-20",type:"chi",cat:"Ăn uống",desc:"Ăn uống",amt:50000},
-  {date:"2026-02-19",type:"chi",cat:"Đi lại - Di chuyển",desc:"Di chuyển",amt:372000},
+  {date:"2026-02-23",type:"chi",cat:"Du lịch - Trong nước",desc:"Cọc KS Vĩnh Hy Tết",amt:4000000},
+  {date:"2026-02-22",type:"chi",cat:"Con cái - Sinh hoạt",desc:"Sữa cho con",amt:52100},
+  {date:"2026-02-20",type:"chi",cat:"Ăn uống - Đi chợ & Siêu thị",desc:"Ăn uống",amt:50000},
+  {date:"2026-02-19",type:"chi",cat:"Đi lại - Grab & Taxi",desc:"Di chuyển",amt:372000},
   {date:"2026-02-18",type:"chi",cat:"Hiếu hỉ - Biếu tặng",desc:"Lì xì ông cố",amt:2000000},
   {date:"2026-02-16",type:"chi",cat:"Hiếu hỉ - Biếu tặng",desc:"DT cho bà ngoại",amt:4500000},
-  {date:"2026-02-15",type:"chi",cat:"Ăn uống - Đi chợ",desc:"Đi chợ",amt:569250},
-  {date:"2026-02-13",type:"chi",cat:"Nhà cửa - Mua sắm",desc:"Bình hoa, Btaskee",amt:791500},
+  {date:"2026-02-15",type:"chi",cat:"Ăn uống - Đi chợ & Siêu thị",desc:"Đi chợ",amt:569250},
+  {date:"2026-02-13",type:"chi",cat:"Nhà cửa - Mua sắm đồ dùng",desc:"Bình hoa, Btaskee",amt:791500},
   {date:"2026-02-12",type:"chi",cat:"Nhà cửa - Phí dịch vụ",desc:"Giúp việc",amt:1650000},
-  {date:"2026-02-10",type:"thu",cat:"Tiền chồng chuyển vào",desc:"Chồng chuyển 10/2",amt:20000000},
-  {date:"2026-02-06",type:"chi",cat:"Nhà cửa - Mua sắm",desc:"Trang trí Tết, quà Bean",amt:428615},
+  {date:"2026-02-10",type:"thu",cat:"Chuyển khoản - Ba Hảo chuyển vào",desc:"Chồng chuyển 10/2",amt:20000000},
+  {date:"2026-02-06",type:"chi",cat:"Nhà cửa - Mua sắm đồ dùng",desc:"Trang trí Tết, quà Bean",amt:428615},
   {date:"2026-02-03",type:"chi",cat:"Nhà cửa - Phí dịch vụ",desc:"Giúp việc bà Năm",amt:5338000},
   {date:"2026-02-02",type:"chi",cat:"Ngân hàng - Rút tiền",desc:"Rút tiền",amt:6000000},
-  {date:"2026-02-01",type:"chi",cat:"Đi lại - Di chuyển",desc:"YEP công ty THG",amt:500000},
-  {date:"2026-01-31",type:"thu",cat:"Tiền vợ chuyển vào",desc:"Vợ chuyển vào",amt:18000000},
+  {date:"2026-02-01",type:"chi",cat:"Đi lại - Grab & Taxi",desc:"YEP công ty THG",amt:500000},
+  {date:"2026-01-31",type:"thu",cat:"Chuyển khoản - Mẹ Ngân chuyển vào",desc:"Vợ chuyển vào",amt:18000000},
   {date:"2026-01-24",type:"chi",cat:"Hiếu hỉ - Biếu tặng",desc:"Bánh SN chồng",amt:400000},
-  {date:"2026-01-24",type:"chi",cat:"Ăn uống",desc:"Mẹt heo",amt:770000},
-  {date:"2026-01-15",type:"thu",cat:"Tiền chồng chuyển vào",desc:"Chồng chuyển 15/1",amt:10000000},
-  {date:"2026-01-12",type:"thu",cat:"Tiền chồng chuyển vào",desc:"Chồng chuyển 12/1",amt:10000000},
+  {date:"2026-01-24",type:"chi",cat:"Ăn uống - Đi chợ & Siêu thị",desc:"Mẹt heo",amt:770000},
+  {date:"2026-01-15",type:"thu",cat:"Chuyển khoản - Ba Hảo chuyển vào",desc:"Chồng chuyển 15/1",amt:10000000},
+  {date:"2026-01-12",type:"thu",cat:"Chuyển khoản - Ba Hảo chuyển vào",desc:"Chồng chuyển 12/1",amt:10000000},
 ];
 let NEW_TX=[];
 let ACTIVITY_LOG=[];
@@ -1326,7 +1418,17 @@ let _editMode=null; // {type, index} — dùng chung cho mọi edit modal
 // ═══════════════════════════
 const fmt=n=>!n&&n!==0?"0đ":new Intl.NumberFormat("vi-VN").format(Math.round(n))+"đ";
 const fmtM=n=>{const a=Math.abs(n),s=n<0?"-":"";if(a>=1e9)return s+(a/1e9).toFixed(2)+" tỷ";if(a>=1e6)return s+(a/1e6).toFixed(1)+" tr";return s+new Intl.NumberFormat("vi-VN").format(Math.round(a))+"đ";};
-const catIcon=cat=>{const m={"Ăn":"🍜","Con":"👶","Nhà":"🏠","Du lịch":"✈️","Hiếu":"🎁","Ngân":"🏦","Đi lại":"🚗","Tiền vợ":"👩","Tiền chồng":"👨","Hưởng":"🎉","Sức":"💊"};for(const[k,v]of Object.entries(m))if(cat.includes(k))return v;return"💳";};
+const catIcon=cat=>{
+  if(!cat)return"💳";
+  const m={
+    "Ăn uống":"🍜","Con cái":"👶","Con ":"👶","Nhà cửa":"🏠",
+    "Du lịch":"✈️","Hiếu":"🎁","Ngân hàng":"🏦","Đi lại":"🚗",
+    "Chuyển khoản":"💸","Thu nhập":"💰","Hưởng thụ":"🎉","Sức khoẻ":"💊",
+    "Chi khác":"💳","Thu khác":"💰"
+  };
+  for(const[k,v]of Object.entries(m))if(cat.startsWith(k)||cat.includes(k))return v;
+  return"💳";
+};
 const showToast=(msg,ok=true)=>{const t=document.getElementById("toast");t.textContent=msg;t.style.borderLeftColor=ok?"#4ade80":"#f87171";t.classList.add("show");setTimeout(()=>t.classList.remove("show"),2800);};
 const today=()=>new Date().toISOString().split("T")[0];
 const daysLeft=due=>{const d=new Date(due)-new Date();return Math.ceil(d/86400000);};
@@ -1659,6 +1761,21 @@ function _buildChiCats(txs){
   txs.filter(t=>t.type==="chi").forEach(t=>{if(!mp[t.cat])mp[t.cat]=0;mp[t.cat]+=t.amt;});
   return Object.entries(mp).map(([name,amt],i)=>({name,amt,icon:catIcon(name),color:_CHI_COLORS[i%_CHI_COLORS.length]})).sort((a,b)=>b.amt-a.amt);
 }
+function _getL1Cat(cat){
+  const idx=cat.indexOf(' - ');
+  return idx>0?cat.slice(0,idx):cat;
+}
+function _buildChiCatsGrouped(txs){
+  const groups={};
+  txs.filter(t=>t.type==='chi').forEach(t=>{
+    const l1=_getL1Cat(t.cat);
+    if(!groups[l1])groups[l1]={name:l1,amt:0,subs:{}};
+    groups[l1].amt+=t.amt;
+    if(!groups[l1].subs[t.cat])groups[l1].subs[t.cat]=0;
+    groups[l1].subs[t.cat]+=t.amt;
+  });
+  return Object.values(groups).sort((a,b)=>b.amt-a.amt);
+}
 function _dashInsight(txs){
   if(!txs.length)return"Chưa có giao dịch trong khoảng thời gian này.";
   const mp={};
@@ -1725,7 +1842,7 @@ function renderDashboard(){
     tot=txs.reduce((s,t)=>{if(t.type==="thu")s.thu+=t.amt;else s.chi+=t.amt;return s;},{thu:0,chi:0});
     bal=tot.thu-tot.chi; savePct=tot.thu>0?Math.round((bal/tot.thu)*100):0;
     barData=_buildBarData(txs);
-    const cats=_buildChiCats(txs); chiTop=cats.slice(0,5); chiTot=cats.reduce((s,c)=>s+c.amt,0)||1;
+    const cats=_buildChiCats(txs); chiTop=cats.slice(0,5); chiTot=cats.reduce((s,c)=>s+c.amt,0)||1; // kept for fallback compatibility
     insightHtml=_dashInsight(txs);
   }
 
@@ -1752,7 +1869,32 @@ function renderDashboard(){
   document.getElementById("dash-insight").innerHTML=insightHtml;
 
   // Top chi
-  document.getElementById("dash-chi-bars").innerHTML=chiTop.length?chiTop.map(c=>`<div class="brow"><span class="bri">${c.icon}</span><div class="brb"><div class="brt"><span class="brn" style="font-size:11px">${c.name}</span><span class="brp">${Math.round(c.amt/chiTot*100)}%</span></div><div class="brtr"><div class="brf" style="width:${(c.amt/chiTop[0].amt)*100}%;background:${c.color}"></div></div></div><span class="bra" style="color:${c.color};font-size:10px">${fmtM(c.amt)}</span></div>`).join(""):"<div style='font-size:12px;color:#94a3b8;text-align:center;padding:16px'>Không có chi tiêu trong khoảng này</div>";
+  const chiGroups=use2025Fallback?(()=>{
+    const groups={};
+    CHI25.forEach(c=>{
+      const l1=_getL1Cat(c.name);
+      if(!groups[l1])groups[l1]={name:l1,amt:0,subs:{}};
+      groups[l1].amt+=c.amt;
+      groups[l1].subs[c.name]=(groups[l1].subs[c.name]||0)+c.amt;
+    });
+    return Object.values(groups).sort((a,b)=>b.amt-a.amt);
+  })():_buildChiCatsGrouped(txs);
+  const chiGroupTot=chiGroups.reduce((s,c)=>s+c.amt,0)||1;
+  document.getElementById('dash-chi-bars').innerHTML=chiGroups.length?chiGroups.slice(0,6).map((g,gi)=>{
+    const color=_CHI_COLORS[gi%_CHI_COLORS.length];
+    const subHtml=Object.entries(g.subs).sort((a,b)=>b[1]-a[1]).map(([n,v])=>
+      `<div style="display:flex;justify-content:space-between;padding:2px 0 2px 26px;font-size:10px;color:#64748b"><span>${n.replace(g.name+' - ','')}</span><span style="font-weight:700">${fmtM(v)}</span></div>`
+    ).join('');
+    return`<div class="brow" style="cursor:pointer" onclick="this.nextElementSibling.classList.toggle('hidden')">
+    <span class="bri">${catIcon(g.name)}</span>
+    <div class="brb">
+      <div class="brt"><span class="brn" style="font-size:11px">${g.name}</span><span class="brp">${Math.round(g.amt/chiGroupTot*100)}%</span></div>
+      <div class="brtr"><div class="brf" style="width:${(g.amt/chiGroups[0].amt)*100}%;background:${color}"></div></div>
+    </div>
+    <span class="bra" style="color:${color};font-size:10px">${fmtM(g.amt)}</span>
+  </div>
+  <div class="hidden" style="margin-bottom:4px">${subHtml}</div>`;
+  }).join(''):"<div style='font-size:12px;color:#94a3b8;text-align:center;padding:16px'>Không có chi tiêu trong khoảng này</div>";
 
   // Goals snap
   document.getElementById("dash-goals-snap").innerHTML=GOALS.slice(0,2).map(g=>{
@@ -2242,7 +2384,7 @@ function showEntryTab(tab){
 // ═══════════════════════════
 var _saoKeText='';
 var _saoKeTxList=[];
-var _SAOKE_CATS=["Ăn uống - Đi chợ","Ăn uống - Ăn ngoài","Nhà cửa - Tiền nhà","Nhà cửa - Mua sắm","Nhà cửa - Phí DV","Con - Học phí","Con - Mua sắm","Con - Ăn uống","Hiếu hỉ - Biếu tặng","Hưởng thụ","Hưởng thụ - Du lịch","Đi lại - Di chuyển","Sức khoẻ - Bảo hiểm","Ngân hàng - Rút tiền","Tiền chồng chuyển vào","Tiền vợ chuyển vào","Thu khác","Chi Khác"];
+var _SAOKE_CATS=["Ăn uống - Đi chợ & Siêu thị","Ăn uống - Ăn ngoài & Cafe","Nhà cửa - Tiền thuê nhà","Nhà cửa - Điện nước internet","Nhà cửa - Mua sắm đồ dùng","Nhà cửa - Sửa chữa","Nhà cửa - Phí dịch vụ","Con cái - Học phí","Con cái - Mua sắm","Con cái - Sinh hoạt","Du lịch - Trong nước","Du lịch - Nước ngoài","Hưởng thụ - Giải trí","Hưởng thụ - Mua sắm cá nhân","Sức khoẻ - Khám & Thuốc","Sức khoẻ - Bảo hiểm","Hiếu hỉ - Biếu tặng","Hiếu hỉ - Sự kiện","Đi lại - Xăng xe","Đi lại - Grab & Taxi","Đi lại - Phí gửi xe","Ngân hàng - Rút tiền","Ngân hàng - Chuyển khoản","Chi khác","Thu nhập - Lương Ba Hảo","Thu nhập - Lương Mẹ Ngân","Thu nhập - Thu nhập thêm","Chuyển khoản - Ba Hảo chuyển vào","Chuyển khoản - Mẹ Ngân chuyển vào","Thu khác"];
 
 function toggleApiKeyPopup(){
   var existing=document.getElementById('saoke-apikey-popup');
