@@ -368,7 +368,25 @@ input,select,button,textarea{font-family:'Nunito',sans-serif}
     <div id="tab-dashboard" class="tpane">
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;flex-wrap:wrap;gap:10px">
         <div class="thead" style="margin-bottom:0"><h1>Dashboard</h1><p>Tổng quan tài chính gia đình · cập nhật realtime</p></div>
-        <div class="yr-toggle"><button class="yrbtn on" id="yr25" onclick="switchDashYear('2025')">2025</button><button class="yrbtn" id="yr26" onclick="switchDashYear('2026')">2026</button></div>
+        <div id="dash-filter-bar" style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+          <div class="yr-toggle">
+            <button class="yrbtn on" id="yr25" onclick="setDashYear('2025')">2025</button>
+            <button class="yrbtn" id="yr26" onclick="setDashYear('2026')">2026</button>
+          </div>
+          <select id="dash-mon" onchange="setDashMonth(this.value)" style="padding:7px 12px;border-radius:20px;border:1px solid var(--aborder);background:#fff;font-size:12px;font-weight:700;color:#555;cursor:pointer;outline:none">
+            <option value="all">Tất cả</option>
+            <option value="01">T1</option><option value="02">T2</option><option value="03">T3</option>
+            <option value="04">T4</option><option value="05">T5</option><option value="06">T6</option>
+            <option value="07">T7</option><option value="08">T8</option><option value="09">T9</option>
+            <option value="10">T10</option><option value="11">T11</option><option value="12">T12</option>
+          </select>
+          <div style="display:flex;align-items:center;gap:5px">
+            <input type="date" id="dash-from" onchange="setDashRange()" style="padding:6px 8px;border-radius:10px;border:1px solid var(--aborder);font-size:11px;color:#555;outline:none"/>
+            <span style="color:#94a3b8;font-size:11px">→</span>
+            <input type="date" id="dash-to" onchange="setDashRange()" style="padding:6px 8px;border-radius:10px;border:1px solid var(--aborder);font-size:11px;color:#555;outline:none"/>
+            <button id="dash-range-clear" onclick="clearDashRange()" style="display:none;padding:5px 9px;border-radius:10px;border:1px solid #fecaca;background:#fff5f5;color:#dc2626;font-size:11px;font-weight:700;cursor:pointer">✕</button>
+          </div>
+        </div>
       </div>
 
       <!-- KPIs -->
@@ -1184,7 +1202,7 @@ async function loadAllDataFromSheets(){
   }
 }
 
-let dashYear="2025",monthYear="2025",entryType="thu";
+let dashYear="2025",dashMonth="all",dashFrom="",dashTo="",dashMode="year",monthYear="2025",entryType="thu";
 let currentSubTab="transactions";
 let _editMode=null; // {type, index} — dùng chung cho mọi edit modal
 
@@ -1479,15 +1497,87 @@ function renderBarChart(elId,data,h){
 // ═══════════════════════════
 // DASHBOARD
 // ═══════════════════════════
-function switchDashYear(y){
-  dashYear=y;
+// ── Dashboard filter helpers ──────────────────────────
+const _CHI_COLORS=["#8b5cf6","#0ea5e9","#f59e0b","#10b981","#ef4444","#06b6d4","#ec4899","#f97316","#64748b","#22c55e","#eab308","#78716c"];
+function _getDashTx(){
+  if(dashMode==="range"&&dashFrom&&dashTo)return ALL_TX.filter(t=>t.date>=dashFrom&&t.date<=dashTo);
+  const pfx=dashYear+(dashMonth!=="all"?"-"+dashMonth:"");
+  return ALL_TX.filter(t=>t.date.startsWith(pfx));
+}
+function _buildBarData(txs){
+  if(dashMode==="year"&&dashMonth==="all"){
+    return Array.from({length:12},(_,i)=>{
+      const mo=(i+1).toString().padStart(2,"0");
+      const ms=txs.filter(t=>t.date.startsWith(dashYear+"-"+mo));
+      return{m:"T"+(i+1),thu:ms.filter(t=>t.type==="thu").reduce((s,t)=>s+t.amt,0),chi:ms.filter(t=>t.type==="chi").reduce((s,t)=>s+t.amt,0)};
+    });
+  }
+  if(dashMode==="year"&&dashMonth!=="all"){
+    const mp={};
+    txs.forEach(t=>{const d=t.date.slice(8);if(!mp[d])mp[d]={thu:0,chi:0};mp[d][t.type]+=t.amt;});
+    return Object.keys(mp).sort().map(d=>({m:parseInt(d)+"",thu:mp[d].thu,chi:mp[d].chi}));
+  }
+  const mp={};
+  txs.forEach(t=>{const k=t.date.slice(0,7);if(!mp[k])mp[k]={thu:0,chi:0};mp[k][t.type]+=t.amt;});
+  return Object.keys(mp).sort().map(k=>({m:"T"+parseInt(k.slice(5)),thu:mp[k].thu,chi:mp[k].chi}));
+}
+function _buildChiCats(txs){
+  const mp={};
+  txs.filter(t=>t.type==="chi").forEach(t=>{if(!mp[t.cat])mp[t.cat]=0;mp[t.cat]+=t.amt;});
+  return Object.entries(mp).map(([name,amt],i)=>({name,amt,icon:catIcon(name),color:_CHI_COLORS[i%_CHI_COLORS.length]})).sort((a,b)=>b.amt-a.amt);
+}
+function _dashInsight(txs){
+  if(!txs.length)return"Chưa có giao dịch trong khoảng thời gian này.";
+  const mp={};
+  txs.forEach(t=>{const k=t.date.slice(0,7);if(!mp[k])mp[k]={thu:0,chi:0};mp[k][t.type]+=t.amt;});
+  const last=Object.values(mp).sort((a,b)=>b.m<a.m?-1:1)[0]||Object.values(mp)[0];
+  const lastKey=Object.keys(mp).sort().slice(-1)[0];
+  const mn=parseInt(lastKey.slice(5));
+  const b=last.thu-last.chi;
+  return`Tháng gần nhất (T${mn}): thu <strong style="color:#059669">${fmtM(last.thu)}</strong> — chi <strong style="color:#dc2626">${fmtM(last.chi)}</strong>. ${b>=0?"✅ Dương 👍":"⚠️ Chi nhiều hơn thu"}`;
+}
+// ── Dashboard filter controls ─────────────────────────
+function setDashYear(y){
+  dashYear=y;dashMode="year";dashFrom="";dashTo="";
+  document.getElementById("dash-from").value="";
+  document.getElementById("dash-to").value="";
+  document.getElementById("dash-range-clear").style.display="none";
   document.getElementById("yr25").classList.toggle("on",y==="2025");
   document.getElementById("yr26").classList.toggle("on",y==="2026");
   renderDashboard();
 }
+function setDashMonth(m){
+  dashMonth=m;dashMode="year";dashFrom="";dashTo="";
+  document.getElementById("dash-from").value="";
+  document.getElementById("dash-to").value="";
+  document.getElementById("dash-range-clear").style.display="none";
+  document.getElementById("yr25").classList.toggle("on",dashYear==="2025");
+  document.getElementById("yr26").classList.toggle("on",dashYear==="2026");
+  renderDashboard();
+}
+function setDashRange(){
+  const f=document.getElementById("dash-from").value,t=document.getElementById("dash-to").value;
+  if(!f||!t)return;
+  dashFrom=f;dashTo=t;dashMode="range";
+  document.getElementById("yr25").classList.remove("on");
+  document.getElementById("yr26").classList.remove("on");
+  document.getElementById("dash-mon").value="all";
+  document.getElementById("dash-range-clear").style.display="";
+  renderDashboard();
+}
+function clearDashRange(){
+  dashFrom="";dashTo="";dashMode="year";dashMonth="all";
+  document.getElementById("dash-from").value="";
+  document.getElementById("dash-to").value="";
+  document.getElementById("dash-mon").value="all";
+  document.getElementById("dash-range-clear").style.display="none";
+  document.getElementById("yr25").classList.toggle("on",dashYear==="2025");
+  document.getElementById("yr26").classList.toggle("on",dashYear==="2026");
+  renderDashboard();
+}
 function renderDashboard(){
-  const data=dashYear==="2025"?D25:D26;
-  const tot=data.reduce((s,m)=>({thu:s.thu+m.thu,chi:s.chi+m.chi}),{thu:0,chi:0});
+  const txs=_getDashTx();
+  const tot=txs.reduce((s,t)=>{if(t.type==="thu")s.thu+=t.amt;else s.chi+=t.amt;return s;},{thu:0,chi:0});
   const bal=tot.thu-tot.chi;
   const savePct=tot.thu>0?Math.round((bal/tot.thu)*100):0;
 
@@ -1498,11 +1588,13 @@ function renderDashboard(){
     {l:bal>=0?"Tiết kiệm":"Thâm hụt",v:fmtM(Math.abs(bal)),c:bal>=0?"#0ea5e9":"#dc2626",bg:"#f0f9ff",bc:"#bae6fd",i:bal>=0?"💰":"⚠️"},
     {l:"Tỷ lệ tiết kiệm",v:savePct+"%",c:"#7c3aed",bg:"#faf5ff",bc:"#e9d5ff",i:"📊"},
   ];
-  document.getElementById("dash-kpis").innerHTML=kpis.map(k=>`<div class="kcard" style="background:${k.bg};border-color:${k.bc}"><div class="bgi">${k.i}</div><div class="ki">${k.i}</div><div class="kl">${k.l} ${dashYear}</div><div class="kv" style="color:${k.c}">${k.v}</div></div>`).join("");
+  document.getElementById("dash-kpis").innerHTML=kpis.map(k=>`<div class="kcard" style="background:${k.bg};border-color:${k.bc}"><div class="bgi">${k.i}</div><div class="ki">${k.i}</div><div class="kl">${k.l}</div><div class="kv" style="color:${k.c}">${k.v}</div></div>`).join("");
 
   // Bar chart
-  renderBarChart("dash-bar",data,150);
-  document.getElementById("dash-chart-title").textContent=`Thu chi ${dashYear} theo tháng`;
+  const barData=_buildBarData(txs);
+  renderBarChart("dash-bar",barData,150);
+  const chartTitle=dashMode==="range"?`${dashFrom} → ${dashTo}`:dashMonth!=="all"?`T${parseInt(dashMonth)} ${dashYear} theo ngày`:`Thu chi ${dashYear} theo tháng`;
+  document.getElementById("dash-chart-title").textContent=chartTitle;
 
   // Account list
   const totalBal=ACCOUNTS.reduce((s,a)=>s+a.bal,0);
@@ -1510,14 +1602,13 @@ function renderDashboard(){
   document.getElementById("dash-acc-list").innerHTML=ACCOUNTS.map(a=>`<div style="display:flex;justify-content:space-between;align-items:center"><span style="font-size:12px;color:rgba(255,255,255,.6)">${a.icon} ${a.name}</span><span style="font-size:13px;font-weight:800;color:#4ade80">${fmtM(a.bal)}</span></div>`).join("");
 
   // Insight
-  const lastM=data[data.length-1];
-  const ins=lastM?`Tháng gần nhất (${lastM.m}): thu <strong style="color:#059669">${fmtM(lastM.thu)}</strong> — chi <strong style="color:#dc2626">${fmtM(lastM.chi)}</strong>. ${lastM.thu>=lastM.chi?"✅ Dương 👍":"⚠️ Chi nhiều hơn thu"}`:"Chưa có dữ liệu";
-  document.getElementById("dash-insight").innerHTML=ins;
+  document.getElementById("dash-insight").innerHTML=_dashInsight(txs);
 
-  // Top chi bars (2025)
-  const chiTop=CHI25.slice(0,5);
-  const chiTot=CHI25.reduce((s,c)=>s+c.amt,0);
-  document.getElementById("dash-chi-bars").innerHTML=chiTop.map(c=>`<div class="brow"><span class="bri">${c.icon}</span><div class="brb"><div class="brt"><span class="brn" style="font-size:11px">${c.name}</span><span class="brp">${Math.round(c.amt/chiTot*100)}%</span></div><div class="brtr"><div class="brf" style="width:${(c.amt/chiTop[0].amt)*100}%;background:${c.color}"></div></div></div><span class="bra" style="color:${c.color};font-size:10px">${fmtM(c.amt)}</span></div>`).join("");
+  // Top chi
+  const cats=_buildChiCats(txs);
+  const chiTop=cats.slice(0,5);
+  const chiTot=cats.reduce((s,c)=>s+c.amt,0)||1;
+  document.getElementById("dash-chi-bars").innerHTML=chiTop.length?chiTop.map(c=>`<div class="brow"><span class="bri">${c.icon}</span><div class="brb"><div class="brt"><span class="brn" style="font-size:11px">${c.name}</span><span class="brp">${Math.round(c.amt/chiTot*100)}%</span></div><div class="brtr"><div class="brf" style="width:${(c.amt/chiTop[0].amt)*100}%;background:${c.color}"></div></div></div><span class="bra" style="color:${c.color};font-size:10px">${fmtM(c.amt)}</span></div>`).join(""):"<div style='font-size:12px;color:#94a3b8;text-align:center;padding:16px'>Không có chi tiêu trong khoảng này</div>";
 
   // Goals snap
   document.getElementById("dash-goals-snap").innerHTML=GOALS.slice(0,2).map(g=>{
@@ -1526,8 +1617,6 @@ function renderDashboard(){
   }).join("")||"<div style='font-size:12px;color:#94a3b8;text-align:center;padding:16px'>Chưa có mục tiêu. Thêm ngay!</div>";
 
   // Debt snap
-  const oweTot=DEBTS.filter(d=>d.dir==="owe").reduce((s,d)=>s+d.amt,0);
-  const owedTot=DEBTS.filter(d=>d.dir==="owed").reduce((s,d)=>s+d.amt,0);
   document.getElementById("dash-debt-snap").innerHTML=DEBTS.slice(0,3).map(d=>`<div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid #f0ede6"><div><div style="font-size:12px;font-weight:700;color:var(--atext)">${d.name}</div><div style="font-size:10px;color:#94a3b8">${d.who} · ${d.dir==="owe"?"Tôi nợ":d.dir==="owed"?"Họ nợ tôi":"Trả góp"}</div></div><div style="font-weight:900;font-size:13px;color:${d.dir==="owe"?"#dc2626":d.dir==="owed"?"#059669":"#0ea5e9"}">${fmtM(d.amt)}</div></div>`).join("")||"<div style='font-size:12px;color:#94a3b8;text-align:center;padding:16px'>Không có khoản nợ nào 🎉</div>";
 
   // Tasks snap
