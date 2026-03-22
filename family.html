@@ -1723,7 +1723,7 @@ function renderBarChart(elId,data,h){
   const mx=Math.max(...data.map(d=>Math.max(d.thu||0,d.chi||0)),1);
   el.style.height=h+"px";
   el.innerHTML=data.map(d=>{
-    const tH=Math.max(((d.thu||0)/mx)*(h-14),2),cH=Math.max(((d.chi||0)/mx)*(h-14),2);
+    const dtu=d.thu||0,dch=d.chi||0;const tH=dtu>0?Math.max((dtu/mx)*(h-14),2):0,cH=dch>0?Math.max((dch/mx)*(h-14),2):0;
     const neg=(d.thu||0)<(d.chi||0);
     return`<div class="bc-col"><div class="bc-pair" style="height:${h-14}px"><div class="bc-thu" style="height:${tH}px"></div><div class="bc-chi" style="background:${neg?"#f87171":"#fb923c"};height:${cH}px"></div></div><div class="bc-lbl">${d.m||d.l||""}</div></div>`;
   }).join("");
@@ -1734,6 +1734,8 @@ function renderBarChart(elId,data,h){
 // ═══════════════════════════
 // ── Dashboard filter helpers ──────────────────────────
 const _CHI_COLORS=["#8b5cf6","#0ea5e9","#f59e0b","#10b981","#ef4444","#06b6d4","#ec4899","#f97316","#64748b","#22c55e","#eab308","#78716c"];
+// Danh mục chuyển khoản nội bộ — không tính vào chi tiêu thực tế
+const _TRANSFER_CATS=["Ngân hàng - Rút tiền","Ngân hàng - Chuyển khoản"];
 function _getDashTx(){
   if(dashMode==="range"&&dashFrom&&dashTo)return ALL_TX.filter(t=>t.date>=dashFrom&&t.date<=dashTo);
   const pfx=dashYear+(dashMonth!=="all"?"-"+dashMonth:"");
@@ -1758,7 +1760,7 @@ function _buildBarData(txs){
 }
 function _buildChiCats(txs){
   const mp={};
-  txs.filter(t=>t.type==="chi").forEach(t=>{if(!mp[t.cat])mp[t.cat]=0;mp[t.cat]+=t.amt;});
+  txs.filter(t=>t.type==="chi"&&!_TRANSFER_CATS.includes(t.cat)).forEach(t=>{if(!mp[t.cat])mp[t.cat]=0;mp[t.cat]+=t.amt;});
   return Object.entries(mp).map(([name,amt],i)=>({name,amt,icon:catIcon(name),color:_CHI_COLORS[i%_CHI_COLORS.length]})).sort((a,b)=>b.amt-a.amt);
 }
 function _getL1Cat(cat){
@@ -1767,7 +1769,7 @@ function _getL1Cat(cat){
 }
 function _buildChiCatsGrouped(txs){
   const groups={};
-  txs.filter(t=>t.type==='chi').forEach(t=>{
+  txs.filter(t=>t.type==='chi'&&!_TRANSFER_CATS.includes(t.cat)).forEach(t=>{
     const l1=_getL1Cat(t.cat);
     if(!groups[l1])groups[l1]={name:l1,amt:0,subs:{}};
     groups[l1].amt+=t.amt;
@@ -1871,7 +1873,7 @@ function renderDashboard(){
   // Top chi
   const chiGroups=use2025Fallback?(()=>{
     const groups={};
-    CHI25.forEach(c=>{
+    CHI25.filter(c=>!_TRANSFER_CATS.includes(c.name)).forEach(c=>{
       const l1=_getL1Cat(c.name);
       if(!groups[l1])groups[l1]={name:l1,amt:0,subs:{}};
       groups[l1].amt+=c.amt;
@@ -2063,13 +2065,13 @@ function applyAnalytics(){
   }
   document.getElementById("an-chart-title").textContent=p==="month"?`Tháng ${mo||"(tất cả)"} / ${yr}`:p==="year"?`Năm ${yr}`:"Kỳ tùy chọn";
   const barEl=document.getElementById("an-bar");
-  barEl.style.height="160px";
+  barEl.style.cssText="height:160px;display:flex;align-items:flex-end;gap:4px;overflow:hidden";
   if(!chartData.length){barEl.innerHTML=`<div style="text-align:center;width:100%;color:#94a3b8;padding-top:60px">Không có dữ liệu</div>`;}
-  else{const mx=Math.max(...chartData.map(d=>Math.max(d.thu,d.chi)),1);barEl.innerHTML=chartData.map(d=>{const tH=Math.max((d.thu/mx)*140,2),cH=Math.max((d.chi/mx)*140,2),neg=d.thu<d.chi;return`<div class="bc-col"><div class="bc-pair" style="height:140px"><div class="bc-thu" style="height:${tH}px"></div><div class="bc-chi" style="background:${neg?"#f87171":"#fb923c"};height:${cH}px"></div></div><div class="bc-lbl">${d.l}</div></div>`;}).join("");}
+  else{const mx=Math.max(...chartData.map(d=>Math.max(d.thu,d.chi)),1);barEl.innerHTML=chartData.map(d=>{const tH=d.thu>0?Math.max((d.thu/mx)*140,2):0,cH=d.chi>0?Math.max((d.chi/mx)*140,2):0,neg=d.thu<d.chi;return`<div class="bc-col"><div class="bc-pair" style="height:140px"><div class="bc-thu" style="height:${tH}px"></div><div class="bc-chi" style="background:${neg?"#f87171":"#fb923c"};height:${cH}px"></div></div><div class="bc-lbl">${d.l}</div></div>`;}).join("");}
 
   // category breakdown
   const CC={},TC={};
-  filtered.forEach(t=>{if(t.type==="chi")CC[t.cat]=(CC[t.cat]||0)+t.amt;else TC[t.cat]=(TC[t.cat]||0)+t.amt;});
+  filtered.forEach(t=>{if(t.type==="chi"&&!_TRANSFER_CATS.includes(t.cat))CC[t.cat]=(CC[t.cat]||0)+t.amt;else if(t.type==="thu")TC[t.cat]=(TC[t.cat]||0)+t.amt;});
   const CA=Object.entries(CC).sort((a,b)=>b[1]-a[1]).slice(0,6);
   const TA=Object.entries(TC).sort((a,b)=>b[1]-a[1]).slice(0,6);
   const CX=CA[0]?.[1]||1,TX2=TA[0]?.[1]||1;
@@ -2285,8 +2287,7 @@ function openEditTxModal(i){
   // Match category
   var catSel=document.getElementById("e-cat");
   for(var j=0;j<catSel.options.length;j++){
-    var optCat=catSel.options[j].text.replace(/^[^\s]+\s/,"");
-    if(catSel.options[j].text===tx.cat||optCat===tx.cat){catSel.selectedIndex=j;break;}
+    if(catSel.options[j].value===tx.cat||catSel.options[j].text===tx.cat){catSel.selectedIndex=j;break;}
   }
   document.getElementById("modal-edit-tx").classList.remove("hidden");
 }
@@ -2294,7 +2295,7 @@ function saveEditTx(){
   var date=_getF("e-date");
   var amt=parseFloat(_getF("e-amt"))||0;
   var catRaw=document.getElementById("e-cat").value;
-  var cat=catRaw.replace(/^[^\s]+\s/,"");
+  var cat=catRaw;
   var desc=_getF("e-desc").trim()||cat;
   if(!date||!amt){showToast("⚠️ Nhập đủ ngày và số tiền!",false);return;}
   if(_editMode&&_editMode.type==="tx"){
@@ -2324,7 +2325,7 @@ function addEntry(){
   var date=document.getElementById("en-date").value;
   var amt=parseFloat(document.getElementById("en-amt").value)||0;
   var catRaw=document.getElementById("en-cat").value;
-  var cat=catRaw.replace(/^[^\s]+\s/,"");
+  var cat=catRaw;
   var desc=(document.getElementById("en-desc").value||"").trim()||cat;
   if(!date||!amt){showToast("⚠️ Nhập đủ ngày và số tiền!",false);return;}
   var tx={date,type:entryType,cat,desc,amt,isNew:true};
