@@ -1409,7 +1409,8 @@ async function loadAllDataFromSheets(){
   }
 }
 
-let dashYear="2025",dashMonth="all",dashFrom="",dashTo="",dashMode="year",monthYear="2025",entryType="thu";
+const _CY=new Date().getFullYear().toString();
+let dashYear=_CY,dashMonth="all",dashFrom="",dashTo="",dashMode="year",monthYear=_CY,entryType="thu";
 let currentSubTab="transactions";
 let _editMode=null; // {type, index} — dùng chung cho mọi edit modal
 
@@ -1466,7 +1467,7 @@ function doLogin(){
 }
 function doLogout(){
   localStorage.removeItem("kf_session");
-  goPage("home");
+  window.location.href="https://khoaifamily.com/";
 }
 function closeModal(id){document.getElementById(id).classList.add("hidden");_editMode=null;}
 
@@ -2614,7 +2615,9 @@ function initApp(){
   var de=document.getElementById("en-date");if(de)de.value=td;
   var gd=document.getElementById("g-deadline");if(gd)gd.value="";
   _initSaoKeApiKey();
-  renderDashboard();renderTxTab();renderMonthly();renderGoals();renderWealth();renderTasks();
+  setDashYear(dashYear); // sync year toggle buttons + renderDashboard
+  switchMonthYear(monthYear); // sync monthly tab buttons + renderMonthly
+  renderTxTab();renderGoals();renderWealth();renderTasks();
   showTab("dashboard");
   loadAllDataFromSheets();
 }
