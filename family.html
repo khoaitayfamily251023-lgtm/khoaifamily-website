@@ -352,6 +352,7 @@ input,select,button,textarea{font-family:'Nunito',sans-serif}
         <button class="ntab" onclick="showTab('wealth')">🏦 Tài sản & Nợ <span class="nnew">NEW</span></button>
         <button class="ntab" onclick="showTab('tasks')">✅ Giao việc <span class="nnew">NEW</span></button>
         <button class="ntab" onclick="showTab('entry')">✏️ Nhập mới</button>
+        <button class="ntab" onclick="showTab('log')">📋 Lịch sử</button>
       </div>
       <div class="nright">
         <div class="nbadge" id="nav-badge">👨 Jonny</div>
@@ -723,6 +724,29 @@ input,select,button,textarea{font-family:'Nunito',sans-serif}
       </div>
     </div>
 
+
+    <div id="tab-log" class="tpane hidden">
+      <div class="thead"><h1>📋 Lịch sử</h1><p>Toàn bộ hoạt động của gia đình · realtime</p></div>
+      <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:20px;padding:12px;background:#fff;border-radius:14px;border:1px solid #e4e0d8">
+        <select id="log-user-f" onchange="renderLog()" style="padding:7px 10px;border-radius:10px;border:1px solid var(--aborder);font-size:12px;font-weight:700;color:#555;background:#fff">
+          <option value="all">👥 Tất cả</option><option value="Ba Hảo">👨 Ba Hảo</option><option value="Mẹ Ngân">👩 Mẹ Ngân</option>
+        </select>
+        <select id="log-mod-f" onchange="renderLog()" style="padding:7px 10px;border-radius:10px;border:1px solid var(--aborder);font-size:12px;font-weight:700;color:#555;background:#fff">
+          <option value="all">📦 Tất cả module</option><option value="Transactions">💸 Transactions</option>
+          <option value="Goals">🎯 Goals</option><option value="Tasks">✅ Tasks</option>
+          <option value="Accounts">🏦 Accounts</option><option value="Assets">🏠 Assets</option><option value="Debts">🤝 Debts</option>
+        </select>
+        <select id="log-act-f" onchange="renderLog()" style="padding:7px 10px;border-radius:10px;border:1px solid var(--aborder);font-size:12px;font-weight:700;color:#555;background:#fff">
+          <option value="all">🔄 Tất cả hành động</option><option value="CREATE">➕ CREATE</option>
+          <option value="UPDATE">✏️ UPDATE</option><option value="DELETE">🗑️ DELETE</option><option value="COMPLETE">✅ COMPLETE</option>
+        </select>
+        <input type="date" id="log-date-f" onchange="renderLog()" style="padding:7px 8px;border-radius:10px;border:1px solid var(--aborder);font-size:12px;color:#555"/>
+        <button onclick="resetLogFilter()" style="padding:7px 14px;border-radius:10px;border:1px solid var(--aborder);background:#fff;font-size:12px;font-weight:700;color:#555;cursor:pointer">↺ Reset</button>
+        <button onclick="loadActivityLog()" style="padding:7px 14px;border-radius:10px;border:none;background:#0d1f1a;color:#fff;font-size:12px;font-weight:700;cursor:pointer">🔄 Tải lại</button>
+      </div>
+      <div id="log-list"><div style="text-align:center;padding:40px;color:#94a3b8">Chưa có dữ liệu. Bấm "Tải lại" hoặc thực hiện một thao tác.</div></div>
+    </div>
+
   </div><!-- abody -->
 
   <!-- Mobile nav -->
@@ -733,6 +757,7 @@ input,select,button,textarea{font-family:'Nunito',sans-serif}
       <button class="mnbtn" id="mn-goals" onclick="showTab('goals')"><span class="mni">🎯</span>Mục tiêu</button>
       <button class="mnbtn" id="mn-tasks" onclick="showTab('tasks')"><span class="mni">✅</span>Giao việc</button>
       <button class="mnbtn" id="mn-entry" onclick="showTab('entry')"><span class="mni">✏️</span>Nhập</button>
+      <button class="mnbtn" id="mn-log" onclick="showTab('log')"><span class="mni">📋</span>Lịch sử</button>
     </div>
   </div>
 </div>
@@ -978,6 +1003,7 @@ let ALL_TX=[
   {date:"2026-01-12",type:"thu",cat:"Tiền chồng chuyển vào",desc:"Chồng chuyển 12/1",amt:10000000},
 ];
 let NEW_TX=[];
+let ACTIVITY_LOG=[];
 
 // Accounts data
 let ACCOUNTS=[
@@ -1130,6 +1156,94 @@ async function syncTasks(){
   await gsWrite('Tasks!A1',[['title','assign','pri','cat','due','note','status'],...TASKS.map(t=>[t.title,t.assign,t.pri,t.cat,t.due,t.note,t.status])]);
 }
 function _syncBg(fn){fn().catch(e=>{console.warn('GS background sync:',e.message);showToast('❌ Sync lỗi: '+e.message,false);});}
+// ═══════════════════════════════════════════════════
+// ACTIVITY LOG
+// ═══════════════════════════════════════════════════
+function _currentUser(){try{const s=JSON.parse(localStorage.getItem("kf_session")||"{}");return s.user==="jonny"?"Ba Hảo":"Mẹ Ngân";}catch(e){return"?";}}
+function _logAction(action,module,detail,oldVal,newVal){
+  const entry={timestamp:new Date().toISOString(),user:_currentUser(),action,module,detail,old_value:oldVal?JSON.stringify(oldVal):"",new_value:newVal?JSON.stringify(newVal):""};
+  ACTIVITY_LOG.unshift(entry);
+  getGSToken().then(tok=>{
+    const url='https://sheets.googleapis.com/v4/spreadsheets/'+GS_SPREADSHEET_ID+'/values/ActivityLog!A1:append?valueInputOption=RAW&insertDataOption=INSERT_ROWS';
+    return fetch(url,{method:'POST',headers:{Authorization:'Bearer '+tok,'Content-Type':'application/json'},
+      body:JSON.stringify({values:[[entry.timestamp,entry.user,entry.action,entry.module,entry.detail,entry.old_value,entry.new_value]]})});
+  }).catch(e=>console.warn('ActivityLog error:',e.message));
+}
+async function _ensureActivityLogSheet(){
+  try{
+    const tok=await getGSToken();
+    const r=await fetch('https://sheets.googleapis.com/v4/spreadsheets/'+GS_SPREADSHEET_ID+'?fields=sheets.properties.title',{headers:{Authorization:'Bearer '+tok}});
+    const d=await r.json();
+    const titles=(d.sheets||[]).map(s=>s.properties.title);
+    if(!titles.includes('ActivityLog')){
+      await fetch('https://sheets.googleapis.com/v4/spreadsheets/'+GS_SPREADSHEET_ID+':batchUpdate',{
+        method:'POST',headers:{Authorization:'Bearer '+tok,'Content-Type':'application/json'},
+        body:JSON.stringify({requests:[{addSheet:{properties:{title:'ActivityLog'}}}]})});
+      const hUrl='https://sheets.googleapis.com/v4/spreadsheets/'+GS_SPREADSHEET_ID+'/values/ActivityLog!A1?valueInputOption=RAW';
+      await fetch(hUrl,{method:'PUT',headers:{Authorization:'Bearer '+tok,'Content-Type':'application/json'},
+        body:JSON.stringify({values:[['timestamp','user','action','module','detail','old_value','new_value']]})});
+      console.log('[ActivityLog] Sheet created.');
+    }
+  }catch(e){console.warn('_ensureActivityLogSheet:',e.message);}
+}
+async function loadActivityLog(){
+  const el=document.getElementById("log-list");
+  if(el)el.innerHTML='<div style="text-align:center;padding:20px;color:#94a3b8">⏳ Đang tải...</div>';
+  try{
+    await _ensureActivityLogSheet();
+    const tok=await getGSToken();
+    const r=await fetch('https://sheets.googleapis.com/v4/spreadsheets/'+GS_SPREADSHEET_ID+'/values/ActivityLog!A:G',{headers:{Authorization:'Bearer '+tok}});
+    const d=await r.json();
+    if(d.error){if(el)el.innerHTML='<div style="color:#dc2626;padding:20px">Lỗi: '+d.error.message+'</div>';return;}
+    const rows=(d.values||[]).slice(1).filter(r=>r[0]);
+    ACTIVITY_LOG=rows.map(r=>({timestamp:r[0]||'',user:r[1]||'',action:r[2]||'',module:r[3]||'',detail:r[4]||'',old_value:r[5]||'',new_value:r[6]||''})).reverse();
+    renderLog();
+  }catch(e){console.warn('loadActivityLog:',e.message);if(el)el.innerHTML='<div style="color:#dc2626;padding:20px">Lỗi tải: '+e.message+'</div>';}
+}
+function renderLog(){
+  const userF=(document.getElementById("log-user-f")||{}).value||"all";
+  const modF=(document.getElementById("log-mod-f")||{}).value||"all";
+  const actF=(document.getElementById("log-act-f")||{}).value||"all";
+  const dateF=(document.getElementById("log-date-f")||{}).value||"";
+  const AC={CREATE:"#059669",UPDATE:"#0ea5e9",DELETE:"#dc2626",COMPLETE:"#7c3aed"};
+  const AB={CREATE:"#f0fdf4",UPDATE:"#f0f9ff",DELETE:"#fff5f5",COMPLETE:"#faf5ff"};
+  const AI={CREATE:"➕",UPDATE:"✏️",DELETE:"🗑️",COMPLETE:"✅"};
+  const logs=ACTIVITY_LOG.filter(l=>{
+    if(userF!=="all"&&l.user!==userF)return false;
+    if(modF!=="all"&&l.module!==modF)return false;
+    if(actF!=="all"&&l.action!==actF)return false;
+    if(dateF&&!l.timestamp.startsWith(dateF))return false;
+    return true;
+  });
+  const el=document.getElementById("log-list");if(!el)return;
+  if(!logs.length){el.innerHTML='<div style="text-align:center;padding:40px;color:#94a3b8;font-size:14px">Không có hoạt động nào trong khoảng này</div>';return;}
+  el.innerHTML=logs.map((l,i)=>{
+    const c=AC[l.action]||"#64748b",bg=AB[l.action]||"#f8f6f2",ic=AI[l.action]||"•";
+    const ts=new Date(l.timestamp);
+    const tStr=isNaN(ts.getTime())?l.timestamp:ts.toLocaleString("vi-VN",{day:"2-digit",month:"2-digit",year:"numeric",hour:"2-digit",minute:"2-digit"});
+    const hasDetail=l.old_value||l.new_value;
+    const detailId="ld-"+i;
+    return`<div style="display:flex;gap:12px;margin-bottom:10px;align-items:flex-start">
+      <div style="flex-shrink:0;width:36px;height:36px;border-radius:50%;background:${bg};border:2px solid ${c};display:flex;align-items:center;justify-content:center;font-size:15px">${ic}</div>
+      <div style="flex:1;background:#fff;border:1px solid #e4e0d8;border-radius:14px;padding:12px 14px">
+        <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:4px;margin-bottom:5px">
+          <div style="display:flex;gap:6px;align-items:center">
+            <span style="font-size:11px;font-weight:800;color:${c};background:${bg};padding:2px 8px;border-radius:8px">${l.action}</span>
+            <span style="font-size:11px;color:#64748b;background:#f5f3ef;padding:2px 7px;border-radius:7px">${l.module}</span>
+          </div>
+          <span style="font-size:11px;color:#94a3b8">${l.user} · ${tStr}</span>
+        </div>
+        <div style="font-size:13px;color:#2A1F1A;font-weight:600">${l.detail}</div>
+        ${hasDetail?`<div id="${detailId}" class="hidden" style="margin-top:8px;font-size:11px;color:#64748b;background:#f8f6f2;border-radius:8px;padding:8px;word-break:break-all">${l.old_value?'<div><b style="color:#dc2626">Cũ:</b> '+l.old_value+'</div>':''}${l.new_value?'<div><b style="color:#059669">Mới:</b> '+l.new_value+'</div>':''}</div><button onclick="document.getElementById('${detailId}').classList.toggle('hidden')" style="margin-top:5px;font-size:11px;color:#94a3b8;background:none;border:none;cursor:pointer;padding:0">▼ Chi tiết</button>`:""}
+      </div></div>`;
+  }).join("");
+}
+function resetLogFilter(){
+  ["log-user-f","log-mod-f","log-act-f"].forEach(id=>{var e=document.getElementById(id);if(e)e.value="all";});
+  var d=document.getElementById("log-date-f");if(d)d.value="";
+  renderLog();
+}
+
 
 function _setSyncStatus(type,msg){
   const el=document.getElementById('sync-status');if(!el)return;
@@ -1195,6 +1309,7 @@ async function loadAllDataFromSheets(){
     renderDashboard();renderTxTab();renderMonthly();renderGoals();renderWealth();renderTasks();
     _setSyncStatus('ok','✅ Đã tải');
     console.log('[GS] Load thành công — TX:'+ALL_TX.length+' Acc:'+ACCOUNTS.length);
+    _ensureActivityLogSheet().catch(()=>{});
   }catch(e){
     console.error('[GS] Load lỗi:',e);
     _setSyncStatus('err','⚠️ Chưa kết nối');
@@ -1228,12 +1343,13 @@ function showTab(t){
   document.querySelectorAll(".tpane").forEach(e=>e.classList.add("hidden"));
   document.getElementById("tab-"+t).classList.remove("hidden");
   document.querySelectorAll(".ntab").forEach(b=>b.classList.toggle("on",b.getAttribute("onclick").includes("'"+t+"'")));
-  ["dashboard","txn","goals","tasks","entry"].forEach(k=>{const el=document.getElementById("mn-"+k);if(el)el.classList.toggle("on",k===t);});
+  ["dashboard","txn","goals","tasks","entry","log"].forEach(k=>{const el=document.getElementById("mn-"+k);if(el)el.classList.toggle("on",k===t);});
   if(t==="txn")switchSubTab(currentSubTab);
   if(t==="goals")renderGoals();
   if(t==="wealth")renderWealth();
   if(t==="tasks")renderTasks();
   if(t==="dashboard")renderDashboard();
+  if(t==="log"){loadActivityLog();}
 }
 function selUser(u){selU=u;["jonny","linh"].forEach(k=>document.getElementById("bu-"+k).classList.toggle("on",k===u));}
 function doLogin(){
@@ -1283,13 +1399,16 @@ function saveGoal(){
   var deadline=_getF("g-deadline");
   if(!name||!target){showToast("⚠️ Nhập đủ tên và số tiền!",false);return;}
   var obj={name,cat,target,saved,monthly,deadline};
-  if(_editMode&&_editMode.type==="goal"){GOALS[_editMode.index]=obj;showToast("✅ Đã cập nhật: "+name);}
+  var _ge=_editMode&&_editMode.type==="goal",_go=_ge?{...GOALS[_editMode.index]}:null;
+  if(_ge){GOALS[_editMode.index]=obj;showToast("✅ Đã cập nhật: "+name);}
   else{GOALS.push(obj);showToast("✅ Đã thêm: "+name);}
+  _logAction(_ge?"UPDATE":"CREATE","Goals",(_ge?"Cập nhật":"Thêm")+" mục tiêu: "+name,_go,obj);
   closeModal("modal-goal");renderGoals();renderDashboard();_syncBg(syncGoals);
 }
 function deleteGoal(i){
   if(!confirm("Xóa mục tiêu này?"))return;
-  GOALS.splice(i,1);renderGoals();renderDashboard();showToast("🗑 Đã xóa mục tiêu");_syncBg(syncGoals);
+  var _gdel={...GOALS[i]};GOALS.splice(i,1);renderGoals();renderDashboard();showToast("🗑 Đã xóa mục tiêu");
+  _logAction("DELETE","Goals","Xóa mục tiêu: "+_gdel.name,_gdel,null);_syncBg(syncGoals);
 }
 
 // ═══════════════════════
@@ -1324,15 +1443,18 @@ function saveTxModal(){
   var desc=(_getF("e-tx-desc")||_getF("e-desc")).trim()||cat;
   if(!date||!amt){showToast("⚠️ Nhập đủ ngày và số tiền!",false);return;}
   var tx={date,type:entryType,cat,desc,amt};
-  if(_editMode&&_editMode.type==="tx"){ALL_TX[_editMode.index]=tx;showToast("✅ Đã cập nhật giao dịch");}
+  var _te=_editMode&&_editMode.type==="tx",_to=_te?{...ALL_TX[_editMode.index]}:null;
+  if(_te){ALL_TX[_editMode.index]=tx;showToast("✅ Đã cập nhật giao dịch");}
   else{tx.isNew=true;NEW_TX.unshift(tx);ALL_TX.unshift(tx);showToast("✅ Đã lưu giao dịch");}
+  _logAction(_te?"UPDATE":"CREATE","Transactions",(_te?"Cập nhật":"Thêm")+" GD: "+desc+" "+fmt(amt)+" ("+date+")",_to,tx);
   closeModal("modal-tx");renderTxTab();renderDashboard();renderNewList();_syncBg(syncTransactions);
 }
 function deleteTx(i){
   if(!confirm("Xóa giao dịch này?"))return;
   var tx=ALL_TX[i];
   var ni=NEW_TX.indexOf(tx);if(ni>=0)NEW_TX.splice(ni,1);
-  ALL_TX.splice(i,1);renderTxTab();renderDashboard();renderNewList();showToast("🗑 Đã xóa giao dịch");_syncBg(syncTransactions);
+  ALL_TX.splice(i,1);renderTxTab();renderDashboard();renderNewList();showToast("🗑 Đã xóa giao dịch");
+  _logAction("DELETE","Transactions","Xóa GD: "+tx.desc+" "+fmt(tx.amt)+" ("+tx.date+")",tx,null);_syncBg(syncTransactions);
 }
 function txSelectAll(checked){
   document.querySelectorAll(".tx-chk").forEach(function(cb){cb.checked=checked;});
@@ -1383,13 +1505,16 @@ function saveAccount(){
   var icon=_getF("ac-icon").trim()||"🏦";
   if(!name){showToast("⚠️ Nhập tên tài khoản!",false);return;}
   var obj={name,type,bal,icon};
-  if(_editMode&&_editMode.type==="acc"){ACCOUNTS[_editMode.index]=obj;showToast("✅ Đã cập nhật: "+name);}
+  var _ae=_editMode&&_editMode.type==="acc",_ao=_ae?{...ACCOUNTS[_editMode.index]}:null;
+  if(_ae){ACCOUNTS[_editMode.index]=obj;showToast("✅ Đã cập nhật: "+name);}
   else{ACCOUNTS.push(obj);showToast("✅ Đã thêm: "+name);}
+  _logAction(_ae?"UPDATE":"CREATE","Accounts",(_ae?"Cập nhật":"Thêm")+" tài khoản: "+name,_ao,obj);
   closeModal("modal-acc");renderWealth();renderDashboard();_syncBg(syncAccounts);
 }
 function deleteAccount(i){
   if(!confirm("Xóa tài khoản này?"))return;
-  ACCOUNTS.splice(i,1);renderWealth();renderDashboard();showToast("🗑 Đã xóa tài khoản");_syncBg(syncAccounts);
+  var _adel={...ACCOUNTS[i]};ACCOUNTS.splice(i,1);renderWealth();renderDashboard();showToast("🗑 Đã xóa tài khoản");
+  _logAction("DELETE","Accounts","Xóa tài khoản: "+_adel.name,_adel,null);_syncBg(syncAccounts);
 }
 
 // ═══════════════════════
@@ -1411,13 +1536,16 @@ function saveAsset(){
   var icon=_getF("as-icon").trim()||"🏠";
   if(!name){showToast("⚠️ Nhập tên tài sản!",false);return;}
   var obj={name,cat,val,icon};
-  if(_editMode&&_editMode.type==="asset"){ASSETS_DATA[_editMode.index]=obj;showToast("✅ Đã cập nhật: "+name);}
+  var _asse=_editMode&&_editMode.type==="asset",_asso=_asse?{...ASSETS_DATA[_editMode.index]}:null;
+  if(_asse){ASSETS_DATA[_editMode.index]=obj;showToast("✅ Đã cập nhật: "+name);}
   else{ASSETS_DATA.push(obj);showToast("✅ Đã thêm: "+name);}
+  _logAction(_asse?"UPDATE":"CREATE","Assets",(_asse?"Cập nhật":"Thêm")+" tài sản: "+name,_asso,obj);
   closeModal("modal-asset");renderWealth();_syncBg(syncAssets);
 }
 function deleteAsset(i){
   if(!confirm("Xóa tài sản này?"))return;
-  ASSETS_DATA.splice(i,1);renderWealth();showToast("🗑 Đã xóa tài sản");_syncBg(syncAssets);
+  var _asdel={...ASSETS_DATA[i]};ASSETS_DATA.splice(i,1);renderWealth();showToast("🗑 Đã xóa tài sản");
+  _logAction("DELETE","Assets","Xóa tài sản: "+_asdel.name,_asdel,null);_syncBg(syncAssets);
 }
 
 // ═══════════════════════
@@ -1444,13 +1572,16 @@ function saveDebt(){
   var note=_getF("dt-note").trim();
   if(!name||!amt){showToast("⚠️ Nhập đủ thông tin!",false);return;}
   var obj={name,dir,amt,who,due,monthly,note};
-  if(_editMode&&_editMode.type==="debt"){DEBTS[_editMode.index]=obj;showToast("✅ Đã cập nhật: "+name);}
+  var _de=_editMode&&_editMode.type==="debt",_do=_de?{...DEBTS[_editMode.index]}:null;
+  if(_de){DEBTS[_editMode.index]=obj;showToast("✅ Đã cập nhật: "+name);}
   else{DEBTS.push(obj);showToast("✅ Đã thêm khoản nợ: "+name);}
+  _logAction(_de?"UPDATE":"CREATE","Debts",(_de?"Cập nhật":"Thêm")+" khoản nợ: "+name,_do,obj);
   closeModal("modal-debt");renderWealth();renderDashboard();_syncBg(syncDebts);
 }
 function deleteDebt(i){
   if(!confirm("Xóa khoản nợ này?"))return;
-  DEBTS.splice(i,1);renderWealth();renderDashboard();showToast("🗑 Đã xóa khoản nợ");_syncBg(syncDebts);
+  var _ddel={...DEBTS[i]};DEBTS.splice(i,1);renderWealth();renderDashboard();showToast("🗑 Đã xóa khoản nợ");
+  _logAction("DELETE","Debts","Xóa khoản nợ: "+_ddel.name,_ddel,null);_syncBg(syncDebts);
 }
 
 // ═══════════════════════
@@ -1475,8 +1606,10 @@ function saveTask(){
   var note=_getF("tk-note").trim();
   if(!title){showToast("⚠️ Nhập tên công việc!",false);return;}
   var obj={title,assign,pri,cat,due,note,status:(_editMode&&_editMode.type==="task")?TASKS[_editMode.index].status:"todo"};
-  if(_editMode&&_editMode.type==="task"){TASKS[_editMode.index]=obj;showToast("✅ Đã cập nhật: "+title);}
+  var _tke=_editMode&&_editMode.type==="task",_tko=_tke?{...TASKS[_editMode.index]}:null;
+  if(_tke){TASKS[_editMode.index]=obj;showToast("✅ Đã cập nhật: "+title);}
   else{TASKS.unshift(obj);showToast("✅ Đã thêm: "+title);}
+  _logAction(_tke?"UPDATE":"CREATE","Tasks",(_tke?"Cập nhật":"Thêm")+" việc: "+title,_tko,obj);
   closeModal("modal-task");renderTasks();renderDashboard();_syncBg(syncTasks);
 }
 
@@ -1937,8 +2070,8 @@ function setTaskFilter(f, btn) {
   if (btn) btn.classList.add("on");
   renderTasks();
 }
-function moveTask(i,status){TASKS[i].status=status;renderTasks();renderDashboard();_syncBg(syncTasks);}
-function deleteTask(i){if(!confirm("Xóa việc này?"))return;TASKS.splice(i,1);renderTasks();renderDashboard();showToast("🗑 Đã xóa");_syncBg(syncTasks);}
+function moveTask(i,status){var _mold={...TASKS[i]};TASKS[i].status=status;renderTasks();renderDashboard();_logAction(status==="done"?"COMPLETE":"UPDATE","Tasks",status==="done"?"Hoàn thiện: "+TASKS[i].title:"Đổi trạng thái: "+TASKS[i].title+" → "+status,_mold,TASKS[i]);_syncBg(syncTasks);}
+function deleteTask(i){if(!confirm("Xóa việc này?"))return;var _tdel={...TASKS[i]};TASKS.splice(i,1);renderTasks();renderDashboard();showToast("🗑 Đã xóa");_logAction("DELETE","Tasks","Xóa việc: "+_tdel.title,_tdel,null);_syncBg(syncTasks);}
 function renderTasks(){
   const total=TASKS.length,done=TASKS.filter(t=>t.status==="done").length,todo=TASKS.filter(t=>t.status==="todo").length,doing=TASKS.filter(t=>t.status==="doing").length;
   const overdue=TASKS.filter(t=>t.status!=="done"&&t.due&&daysLeft(t.due)<0).length;
@@ -2023,8 +2156,10 @@ function saveEditTx(){
   var desc=_getF("e-desc").trim()||cat;
   if(!date||!amt){showToast("⚠️ Nhập đủ ngày và số tiền!",false);return;}
   if(_editMode&&_editMode.type==="tx"){
+    var _etold={...ALL_TX[_editMode.index]};
     ALL_TX[_editMode.index]={date,type:entryType,cat,desc,amt};
     showToast("✅ Đã cập nhật giao dịch");
+    _logAction("UPDATE","Transactions","Cập nhật GD: "+desc+" "+fmt(amt)+" ("+date+")",_etold,ALL_TX[_editMode.index]);
   }
   document.getElementById("modal-edit-tx").classList.add("hidden");
   _editMode=null;
@@ -2055,6 +2190,7 @@ function addEntry(){
   document.getElementById("en-amt").value="";document.getElementById("en-desc").value="";
   renderNewList();renderTxTab();renderDashboard();
   showToast("✅ "+(entryType==="thu"?"Thu":"Chi")+": "+desc+" · "+fmt(amt));
+  _logAction("CREATE","Transactions","Thêm GD: "+desc+" "+fmt(amt)+" ("+date+")",null,tx);
   _syncBg(syncTransactions);
 }
 function renderNewList(){
