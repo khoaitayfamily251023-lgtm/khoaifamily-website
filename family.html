@@ -1577,9 +1577,24 @@ function clearDashRange(){
 }
 function renderDashboard(){
   const txs=_getDashTx();
-  const tot=txs.reduce((s,t)=>{if(t.type==="thu")s.thu+=t.amt;else s.chi+=t.amt;return s;},{thu:0,chi:0});
-  const bal=tot.thu-tot.chi;
-  const savePct=tot.thu>0?Math.round((bal/tot.thu)*100):0;
+  // Fallback về D25/CHI25 khi chọn năm 2025 nhưng ALL_TX chưa có data 2025
+  const use2025Fallback=dashMode==="year"&&dashYear==="2025"&&txs.length===0;
+
+  let tot,bal,savePct,barData,chiTop,chiTot,insightHtml;
+  if(use2025Fallback){
+    const d25tot=D25.reduce((s,m)=>({thu:s.thu+m.thu,chi:s.chi+m.chi}),{thu:0,chi:0});
+    tot=d25tot; bal=tot.thu-tot.chi; savePct=tot.thu>0?Math.round((bal/tot.thu)*100):0;
+    barData=dashMonth==="all"?D25:D25.filter(m=>m.m==="T"+parseInt(dashMonth));
+    chiTop=CHI25.slice(0,5); chiTot=CHI25.reduce((s,c)=>s+c.amt,0)||1;
+    const lastM=dashMonth!=="all"?D25.find(m=>m.m==="T"+parseInt(dashMonth)):D25[D25.length-1];
+    insightHtml=lastM?`Tháng gần nhất (${lastM.m}): thu <strong style="color:#059669">${fmtM(lastM.thu)}</strong> — chi <strong style="color:#dc2626">${fmtM(lastM.chi)}</strong>. ${lastM.thu>=lastM.chi?"✅ Dương 👍":"⚠️ Chi nhiều hơn thu"}`:"Chưa có dữ liệu";
+  } else {
+    tot=txs.reduce((s,t)=>{if(t.type==="thu")s.thu+=t.amt;else s.chi+=t.amt;return s;},{thu:0,chi:0});
+    bal=tot.thu-tot.chi; savePct=tot.thu>0?Math.round((bal/tot.thu)*100):0;
+    barData=_buildBarData(txs);
+    const cats=_buildChiCats(txs); chiTop=cats.slice(0,5); chiTot=cats.reduce((s,c)=>s+c.amt,0)||1;
+    insightHtml=_dashInsight(txs);
+  }
 
   // KPIs
   const kpis=[
@@ -1591,7 +1606,6 @@ function renderDashboard(){
   document.getElementById("dash-kpis").innerHTML=kpis.map(k=>`<div class="kcard" style="background:${k.bg};border-color:${k.bc}"><div class="bgi">${k.i}</div><div class="ki">${k.i}</div><div class="kl">${k.l}</div><div class="kv" style="color:${k.c}">${k.v}</div></div>`).join("");
 
   // Bar chart
-  const barData=_buildBarData(txs);
   renderBarChart("dash-bar",barData,150);
   const chartTitle=dashMode==="range"?`${dashFrom} → ${dashTo}`:dashMonth!=="all"?`T${parseInt(dashMonth)} ${dashYear} theo ngày`:`Thu chi ${dashYear} theo tháng`;
   document.getElementById("dash-chart-title").textContent=chartTitle;
@@ -1602,12 +1616,9 @@ function renderDashboard(){
   document.getElementById("dash-acc-list").innerHTML=ACCOUNTS.map(a=>`<div style="display:flex;justify-content:space-between;align-items:center"><span style="font-size:12px;color:rgba(255,255,255,.6)">${a.icon} ${a.name}</span><span style="font-size:13px;font-weight:800;color:#4ade80">${fmtM(a.bal)}</span></div>`).join("");
 
   // Insight
-  document.getElementById("dash-insight").innerHTML=_dashInsight(txs);
+  document.getElementById("dash-insight").innerHTML=insightHtml;
 
   // Top chi
-  const cats=_buildChiCats(txs);
-  const chiTop=cats.slice(0,5);
-  const chiTot=cats.reduce((s,c)=>s+c.amt,0)||1;
   document.getElementById("dash-chi-bars").innerHTML=chiTop.length?chiTop.map(c=>`<div class="brow"><span class="bri">${c.icon}</span><div class="brb"><div class="brt"><span class="brn" style="font-size:11px">${c.name}</span><span class="brp">${Math.round(c.amt/chiTot*100)}%</span></div><div class="brtr"><div class="brf" style="width:${(c.amt/chiTop[0].amt)*100}%;background:${c.color}"></div></div></div><span class="bra" style="color:${c.color};font-size:10px">${fmtM(c.amt)}</span></div>`).join(""):"<div style='font-size:12px;color:#94a3b8;text-align:center;padding:16px'>Không có chi tiêu trong khoảng này</div>";
 
   // Goals snap
