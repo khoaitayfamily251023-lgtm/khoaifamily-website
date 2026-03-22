@@ -355,7 +355,7 @@ input,select,button,textarea{font-family:'Nunito',sans-serif}
         <button class="ntab" onclick="showTab('log')">📋 Lịch sử</button>
       </div>
       <div class="nright">
-        <div class="nbadge" id="nav-badge">👨 Jonny</div>
+        <div class="nbadge" id="nav-badge">👨 Ba Hảo</div>
         <span id="sync-status" style="font-size:11px"></span>
         <button class="nsync" id="btn-sync" onclick="manualSyncAll()">☁️ Sync</button>
         <button class="nout" onclick="doLogout()">Thoát</button>
@@ -729,7 +729,7 @@ input,select,button,textarea{font-family:'Nunito',sans-serif}
       <div class="thead"><h1>📋 Lịch sử</h1><p>Toàn bộ hoạt động của gia đình · realtime</p></div>
       <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:20px;padding:12px;background:#fff;border-radius:14px;border:1px solid #e4e0d8">
         <select id="log-user-f" onchange="renderLog()" style="padding:7px 10px;border-radius:10px;border:1px solid var(--aborder);font-size:12px;font-weight:700;color:#555;background:#fff">
-          <option value="all">👥 Tất cả</option><option value="Ba Hảo">👨 Ba Hảo</option><option value="Mẹ Ngân">👩 Mẹ Ngân</option>
+          <option value="all">👥 Tất cả</option><option value="Ba Hảo">👨 Ba Hảo</option><option value="Mẹ Ngân">👩 Mẹ Ngân</option><option value="Khoai Tây">🧒 Khoai Tây</option>
         </select>
         <select id="log-mod-f" onchange="renderLog()" style="padding:7px 10px;border-radius:10px;border:1px solid var(--aborder);font-size:12px;font-weight:700;color:#555;background:#fff">
           <option value="all">📦 Tất cả module</option><option value="Transactions">💸 Transactions</option>
@@ -875,7 +875,7 @@ input,select,button,textarea{font-family:'Nunito',sans-serif}
     <div class="frow">
       <div><label class="flabel">Giao cho</label>
         <select class="fselect" id="tk-assign">
-          <option>👨 Jonny</option><option>👩 Linh</option><option>👫 Cả hai</option>
+          <option>👨 Ba Hảo</option><option>👩 Mẹ Ngân</option><option>🧒 Khoai Tây</option><option>👫 Cả hai</option>
         </select>
       </div>
       <div><label class="flabel">Ưu tiên</label>
@@ -1027,11 +1027,11 @@ let GOALS=[
   {name:"Quỹ khẩn cấp 6 tháng",cat:"🛡️ Quỹ khẩn cấp",target:180000000,saved:105000000,monthly:5000000,deadline:"2027-06-01"},
 ];
 let TASKS=[
-  {title:"Nộp học phí T4 cho con",assign:"👩 Linh",pri:"high",cat:"👶 Con cái",due:"2026-03-20",status:"todo",note:"TP Bank chuyển khoản"},
-  {title:"Gia hạn bảo hiểm nhân thọ",assign:"👨 Jonny",pri:"high",cat:"💰 Tài chính",due:"2026-03-31",status:"todo",note:"Liên hệ agent Thu"},
-  {title:"Đặt tour du lịch KK tháng 4",assign:"👨 Jonny",pri:"med",cat:"✈️ Du lịch",due:"2026-03-15",status:"doing",note:"Budget 25-30tr"},
+  {title:"Nộp học phí T4 cho con",assign:"👩 Mẹ Ngân",pri:"high",cat:"👶 Con cái",due:"2026-03-20",status:"todo",note:"TP Bank chuyển khoản"},
+  {title:"Gia hạn bảo hiểm nhân thọ",assign:"👨 Ba Hảo",pri:"high",cat:"💰 Tài chính",due:"2026-03-31",status:"todo",note:"Liên hệ agent Thu"},
+  {title:"Đặt tour du lịch KK tháng 4",assign:"👨 Ba Hảo",pri:"med",cat:"✈️ Du lịch",due:"2026-03-15",status:"doing",note:"Budget 25-30tr"},
   {title:"Tổng vệ sinh nhà cuối tháng",assign:"👫 Cả hai",pri:"med",cat:"🏠 Nhà cửa",due:"2026-03-30",status:"todo",note:""},
-  {title:"Thanh toán tiền nhà T3",assign:"👩 Linh",pri:"high",cat:"💰 Tài chính",due:"2026-03-05",status:"done",note:"Đã chuyển 9tr"},
+  {title:"Thanh toán tiền nhà T3",assign:"👩 Mẹ Ngân",pri:"high",cat:"💰 Tài chính",due:"2026-03-05",status:"done",note:"Đã chuyển 9tr"},
 ];
 
 // ═══════════════════════════════════════════════════
@@ -1590,7 +1590,7 @@ function deleteDebt(i){
 function openTaskModal(editIdx){
   _editMode = editIdx!=null ? {type:"task",index:editIdx} : null;
   var t = editIdx!=null ? TASKS[editIdx] : null;
-  _setF("tk-title",t?t.title:"");_setF("tk-assign",t?t.assign:"👨 Jonny");
+  _setF("tk-title",t?t.title:"");_setF("tk-assign",t?t.assign:"👨 Ba Hảo");
   _setF("tk-pri",t?t.pri:"med");_setF("tk-cat",t?t.cat:"💰 Tài chính");
   _setF("tk-due",t?t.due:today());_setF("tk-note",t?t.note:"");
   _setModalTitle("modal-task",editIdx!=null?"✏️ Sửa công việc":"✅ Thêm công việc");
