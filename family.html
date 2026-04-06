@@ -2596,42 +2596,74 @@ async function analyzeSaoKeWithAI(){
     loading.classList.add('hidden');
   }
 }
+function _fmtSaokeAmt(n){return Number(n||0).toLocaleString('vi-VN');}
+function _updateSaokeRowColor(tr,type){
+  var isThu=type==='thu';
+  tr.style.background=isThu?'#f0fdf4':'#fff5f5';
+  tr.style.borderLeft='4px solid '+(isThu?'#34d399':'#f87171');
+}
 function renderSaoKeReview(list){
   if(!list||!list.length){_showSaoKeError('⚠️ AI không tìm thấy giao dịch nào. Thử với file khác.');return;}
-  var inputStyle='border:1px solid #e4e0d8;border-radius:8px;padding:5px 8px;font-size:11px;background:#fff;font-family:Nunito,sans-serif;width:100%;box-sizing:border-box';
+  var inputBase='border:1px solid #e4e0d8;border-radius:8px;padding:5px 8px;font-size:11px;font-family:Nunito,sans-serif;width:100%;box-sizing:border-box';
+  var inputThu=inputBase+';background:#f0fdf4;';
+  var inputChi=inputBase+';background:#fff5f5;';
   var rows=list.map(function(tx,i){
+    var isThu=tx.type==='thu';
+    var rowBg=isThu?'#f0fdf4':'#fff5f5';
+    var rowBorder=isThu?'#34d399':'#f87171';
+    var inp=isThu?inputThu:inputChi;
     var selOpts=_SAOKE_CATS.map(function(c){return'<option'+(c===tx.category?' selected':'')+'>'+c+'</option>';}).join('');
     var typeSelOpts='<option'+(tx.type==='chi'?' selected':'')+' value="chi">⬇️ Chi</option>'
                    +'<option'+(tx.type==='thu'?' selected':'')+' value="thu">⬆️ Thu</option>';
     var dateVal=(tx.date||'').replace('T',' ').slice(0,10);
-    return'<tr id="saoke-row-'+i+'" style="border-bottom:1px solid #f0ede6;vertical-align:middle">'
-      // Ngày — input date
-      +'<td style="padding:8px 6px;min-width:120px"><input type="date" value="'+dateVal+'" onchange="_saoKeTxList['+i+'].date=this.value" style="'+inputStyle+'"/></td>'
-      // Mô tả — input text
-      +'<td style="padding:8px 6px;min-width:160px"><input type="text" value="'+escHtml(tx.desc||'')+'" onchange="_saoKeTxList['+i+'].desc=this.value" style="'+inputStyle+'"/></td>'
-      // Loại — select thu/chi
-      +'<td style="padding:8px 6px;min-width:90px"><select onchange="_saoKeTxList['+i+'].type=this.value;this.parentNode.parentNode.style.background=(this.value===\'thu\'?\'#f0fdf4\':\'#fff5f5\')" style="'+inputStyle+'">'+typeSelOpts+'</select></td>'
-      // Số tiền — input number
-      +'<td style="padding:8px 6px;min-width:120px"><input type="number" value="'+(tx.amount||0)+'" onchange="_saoKeTxList['+i+'].amount=parseFloat(this.value)||0" style="'+inputStyle+';text-align:right;font-weight:800"/></td>'
-      // Danh mục — select
-      +'<td style="padding:8px 6px;min-width:170px"><select onchange="_saoKeTxList['+i+'].category=this.value" style="'+inputStyle+'">'+selOpts+'</select></td>'
+    // Số tiền formatted — dùng text input để hiển thị dấu phẩy, lưu raw khi thay đổi
+    var amtFmt=_fmtSaokeAmt(tx.amount);
+    var amtColor=isThu?'#059669':'#dc2626';
+    return'<tr id="saoke-row-'+i+'" style="border-bottom:1px solid #e8e4de;vertical-align:middle;background:'+rowBg+';border-left:4px solid '+rowBorder+';transition:background .2s">'
+      // Ngày
+      +'<td style="padding:8px 6px;min-width:130px"><input type="date" value="'+dateVal+'" onchange="_saoKeTxList['+i+'].date=this.value" style="'+inp+'"/></td>'
+      // Mô tả
+      +'<td style="padding:8px 6px;min-width:170px"><input type="text" value="'+escHtml(tx.desc||'')+'" onchange="_saoKeTxList['+i+'].desc=this.value" style="'+inp+'"/></td>'
+      // Loại — khi đổi: cập nhật màu cả hàng
+      +'<td style="padding:8px 6px;min-width:95px"><select onchange="'
+        +'_saoKeTxList['+i+'].type=this.value;'
+        +'_updateSaokeRowColor(this.closest(\'tr\'),this.value);'
+        +'var _inp=this.closest(\'tr\').querySelectorAll(\'input,select\');'
+        +'var _bg=this.value===\'thu\'?\'#f0fdf4\':\'#fff5f5\';'
+        +'_inp.forEach(function(el){el.style.background=_bg});'
+        +'this.closest(\'tr\').querySelector(\'.saoke-amt-disp\').style.color=this.value===\'thu\'?\'#059669\':\'#dc2626\''
+      +'" style="'+inp+'">'+typeSelOpts+'</select></td>'
+      // Số tiền — text input với format dấu phẩy
+      +'<td style="padding:8px 6px;min-width:140px">'
+        +'<input type="text" class="saoke-amt-disp" value="'+amtFmt+'" '
+        +'style="'+inp+';text-align:right;font-weight:900;font-size:13px;color:'+amtColor+'" '
+        +'oninput="this.value=this.value.replace(/[^0-9]/g,\'\');_saoKeTxList['+i+'].amount=parseFloat(this.value)||0;this.value=Number(this.value||0).toLocaleString(\'vi-VN\')" '
+        +'onfocus="this.value=String(_saoKeTxList['+i+'].amount||0)" '
+        +'onblur="this.value=_fmtSaokeAmt(_saoKeTxList['+i+'].amount)"/>'
+      +'</td>'
+      // Danh mục
+      +'<td style="padding:8px 6px;min-width:175px"><select onchange="_saoKeTxList['+i+'].category=this.value" style="'+inp+'">'+selOpts+'</select></td>'
       // Xóa
       +'<td style="padding:8px 6px;text-align:center"><button onclick="document.getElementById(\'saoke-row-'+i+'\').remove();_saoKeTxList.splice('+i+',1)" style="background:transparent;border:1px solid #fecaca;border-radius:8px;padding:4px 9px;cursor:pointer;font-size:12px;color:#ef4444">🗑</button></td>'
       +'</tr>';
   }).join('');
   document.getElementById('saoke-review-table').innerHTML=
-    '<div style="overflow-x:auto;border-radius:14px;border:1px solid #e4e0d8">'
+    '<div style="overflow-x:auto;border-radius:14px;border:1px solid #e4e0d8;box-shadow:0 2px 8px rgba(0,0,0,.06)">'
     +'<table style="width:100%;border-collapse:collapse">'
-    +'<thead><tr style="background:#f8f6f2">'
+    +'<thead><tr style="background:#f0ede8;border-bottom:2px solid #e4e0d8">'
     +'<th style="padding:10px 8px;font-size:10px;font-weight:800;color:#94a3b8;text-align:left;text-transform:uppercase;letter-spacing:.5px">Ngày</th>'
     +'<th style="padding:10px 8px;font-size:10px;font-weight:800;color:#94a3b8;text-align:left;text-transform:uppercase;letter-spacing:.5px">Mô tả</th>'
     +'<th style="padding:10px 8px;font-size:10px;font-weight:800;color:#94a3b8;text-align:center;text-transform:uppercase;letter-spacing:.5px">Loại</th>'
-    +'<th style="padding:10px 8px;font-size:10px;font-weight:800;color:#94a3b8;text-align:right;text-transform:uppercase;letter-spacing:.5px">Số tiền</th>'
+    +'<th style="padding:10px 8px;font-size:10px;font-weight:800;color:#94a3b8;text-align:right;text-transform:uppercase;letter-spacing:.5px">Số tiền (VND)</th>'
     +'<th style="padding:10px 8px;font-size:10px;font-weight:800;color:#94a3b8;text-align:left;text-transform:uppercase;letter-spacing:.5px">Danh mục</th>'
     +'<th style="padding:10px 8px;font-size:10px;font-weight:800;color:#94a3b8;text-align:center;text-transform:uppercase;letter-spacing:.5px">Xóa</th>'
     +'</tr></thead>'
     +'<tbody>'+rows+'</tbody></table></div>'
-    +'<div style="font-size:12px;color:#94a3b8;margin-top:8px;text-align:right">'+list.length+' giao dịch · ✏️ Có thể chỉnh sửa tất cả các cột trước khi thêm</div>';
+    +'<div style="display:flex;gap:12px;margin-top:10px;font-size:12px;color:#94a3b8;justify-content:space-between;align-items:center">'
+    +'<div><span style="display:inline-block;width:12px;height:12px;background:#34d399;border-radius:3px;margin-right:4px;vertical-align:middle"></span>Thu &nbsp;'
+    +'<span style="display:inline-block;width:12px;height:12px;background:#f87171;border-radius:3px;margin-right:4px;vertical-align:middle"></span>Chi</div>'
+    +'<div>'+list.length+' giao dịch · ✏️ Tất cả các cột đều có thể chỉnh sửa</div>'
+    +'</div>';
   document.getElementById('saoke-review-section').classList.remove('hidden');
 }
 function addAllSaoKe(){
