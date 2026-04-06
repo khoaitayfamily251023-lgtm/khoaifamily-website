@@ -358,6 +358,7 @@ input,select,button,textarea{font-family:'Nunito',sans-serif}
         <div class="nbadge" id="nav-badge">👨 Ba Hảo</div>
         <span id="sync-status" style="font-size:11px"></span>
         <button class="nsync" id="btn-sync" onclick="manualSyncAll()">☁️ Sync</button>
+        <button class="nout" onclick="openChangePwModal()" style="background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.18)">🔑 Đổi mật khẩu</button>
         <button class="nout" onclick="doLogout()">Thoát</button>
       </div>
     </div>
@@ -1023,6 +1024,23 @@ input,select,button,textarea{font-family:'Nunito',sans-serif}
   </div>
 </div>
 
+<!-- ══ MODAL ĐỔI MẬT KHẨU ══ -->
+<div id="modal-change-pw" class="overlay hidden">
+  <div class="modal" style="max-width:380px">
+    <button class="mclose" onclick="document.getElementById('modal-change-pw').classList.add('hidden')">×</button>
+    <h2>🔑 Đổi mật khẩu</h2>
+    <div class="msub">Mật khẩu mới sẽ được lưu ngay trên thiết bị này</div>
+    <label class="flabel">Mật khẩu hiện tại</label>
+    <input class="finput" type="password" id="pw-current" placeholder="Nhập mật khẩu hiện tại..." style="letter-spacing:2px"/>
+    <label class="flabel" style="margin-top:12px">Mật khẩu mới</label>
+    <input class="finput" type="password" id="pw-new" placeholder="Nhập mật khẩu mới..." style="letter-spacing:2px"/>
+    <label class="flabel" style="margin-top:12px">Xác nhận mật khẩu mới</label>
+    <input class="finput" type="password" id="pw-confirm" placeholder="Nhập lại mật khẩu mới..." style="letter-spacing:2px"/>
+    <div id="pw-change-err" class="hidden" style="font-size:12px;color:#ef4444;margin-top:8px;font-weight:700"></div>
+    <button class="btn-submit" onclick="doChangePw()" style="margin-top:16px">💾 Đổi mật khẩu</button>
+  </div>
+</div>
+
 <div class="toast" id="toast"></div>
 
 <script>
@@ -1455,8 +1473,29 @@ function showTab(t){
   if(t==="log"){loadActivityLog();}
 }
 function selUser(u){selU=u;["jonny","linh"].forEach(k=>document.getElementById("bu-"+k).classList.toggle("on",k===u));}
+function openChangePwModal(){
+  document.getElementById('pw-current').value='';
+  document.getElementById('pw-new').value='';
+  document.getElementById('pw-confirm').value='';
+  document.getElementById('pw-change-err').classList.add('hidden');
+  document.getElementById('modal-change-pw').classList.remove('hidden');
+}
+function doChangePw(){
+  var cur=document.getElementById('pw-current').value;
+  var nw=document.getElementById('pw-new').value;
+  var cf=document.getElementById('pw-confirm').value;
+  var errEl=document.getElementById('pw-change-err');
+  var stored=localStorage.getItem('kf_custom_pw')||'khoaitay2023';
+  if(cur!==stored){errEl.textContent='❌ Mật khẩu hiện tại không đúng!';errEl.classList.remove('hidden');return;}
+  if(!nw||nw.length<6){errEl.textContent='❌ Mật khẩu mới phải có ít nhất 6 ký tự!';errEl.classList.remove('hidden');return;}
+  if(nw!==cf){errEl.textContent='❌ Xác nhận mật khẩu không khớp!';errEl.classList.remove('hidden');return;}
+  localStorage.setItem('kf_custom_pw',nw);
+  document.getElementById('modal-change-pw').classList.add('hidden');
+  showToast('✅ Đã đổi mật khẩu thành công!');
+}
 function doLogin(){
-  if(document.getElementById("pw").value==="khoaitay2023"){
+  var stored=localStorage.getItem('kf_custom_pw')||'khoaitay2023';
+  if(document.getElementById("pw").value===stored){
     const u=selU==="jonny"?{name:"Ba Hảo",av:"👨"}:{name:"Mẹ Ngân",av:"👩"};
     document.getElementById("nav-badge").textContent=u.av+" "+u.name;
     document.getElementById("pw").value="";
@@ -2559,16 +2598,25 @@ async function analyzeSaoKeWithAI(){
 }
 function renderSaoKeReview(list){
   if(!list||!list.length){_showSaoKeError('⚠️ AI không tìm thấy giao dịch nào. Thử với file khác.');return;}
-  var catOpts=_SAOKE_CATS.map(function(c){return'<option>'+c+'</option>';}).join('');
+  var inputStyle='border:1px solid #e4e0d8;border-radius:8px;padding:5px 8px;font-size:11px;background:#fff;font-family:Nunito,sans-serif;width:100%;box-sizing:border-box';
   var rows=list.map(function(tx,i){
     var selOpts=_SAOKE_CATS.map(function(c){return'<option'+(c===tx.category?' selected':'')+'>'+c+'</option>';}).join('');
-    return'<tr id="saoke-row-'+i+'" style="border-bottom:1px solid #f0ede6">'
-      +'<td style="padding:10px 8px;font-size:12px;white-space:nowrap;font-weight:700;color:#0d1f1a">'+((tx.date||'').replace('T',' ').slice(0,10))+'</td>'
-      +'<td style="padding:10px 8px;font-size:12px;color:#374151;max-width:200px">'+escHtml(tx.desc||'')+'</td>'
-      +'<td style="padding:10px 8px;text-align:center"><span style="background:'+(tx.type==='thu'?'#f0fdf4':'#fff5f5')+';color:'+(tx.type==='thu'?'#059669':'#dc2626')+';border-radius:12px;padding:3px 10px;font-size:11px;font-weight:800">'+(tx.type==='thu'?'Thu':'Chi')+'</span></td>'
-      +'<td style="padding:10px 8px;text-align:right;font-weight:900;font-size:13px;color:'+(tx.type==='thu'?'#059669':'#dc2626')+'">'+fmt(tx.amount||0)+'</td>'
-      +'<td style="padding:10px 8px"><select onchange="_saoKeTxList['+i+'].category=this.value" style="border:1px solid #e4e0d8;border-radius:8px;padding:5px 8px;font-size:11px;background:#fff;max-width:165px;font-family:Nunito,sans-serif">'+selOpts+'</select></td>'
-      +'<td style="padding:10px 8px;text-align:center"><button onclick="document.getElementById(\'saoke-row-'+i+'\').remove();_saoKeTxList.splice('+i+',1)" style="background:transparent;border:1px solid #fecaca;border-radius:8px;padding:4px 9px;cursor:pointer;font-size:12px;color:#ef4444">🗑</button></td>'
+    var typeSelOpts='<option'+(tx.type==='chi'?' selected':'')+' value="chi">⬇️ Chi</option>'
+                   +'<option'+(tx.type==='thu'?' selected':'')+' value="thu">⬆️ Thu</option>';
+    var dateVal=(tx.date||'').replace('T',' ').slice(0,10);
+    return'<tr id="saoke-row-'+i+'" style="border-bottom:1px solid #f0ede6;vertical-align:middle">'
+      // Ngày — input date
+      +'<td style="padding:8px 6px;min-width:120px"><input type="date" value="'+dateVal+'" onchange="_saoKeTxList['+i+'].date=this.value" style="'+inputStyle+'"/></td>'
+      // Mô tả — input text
+      +'<td style="padding:8px 6px;min-width:160px"><input type="text" value="'+escHtml(tx.desc||'')+'" onchange="_saoKeTxList['+i+'].desc=this.value" style="'+inputStyle+'"/></td>'
+      // Loại — select thu/chi
+      +'<td style="padding:8px 6px;min-width:90px"><select onchange="_saoKeTxList['+i+'].type=this.value;this.parentNode.parentNode.style.background=(this.value===\'thu\'?\'#f0fdf4\':\'#fff5f5\')" style="'+inputStyle+'">'+typeSelOpts+'</select></td>'
+      // Số tiền — input number
+      +'<td style="padding:8px 6px;min-width:120px"><input type="number" value="'+(tx.amount||0)+'" onchange="_saoKeTxList['+i+'].amount=parseFloat(this.value)||0" style="'+inputStyle+';text-align:right;font-weight:800"/></td>'
+      // Danh mục — select
+      +'<td style="padding:8px 6px;min-width:170px"><select onchange="_saoKeTxList['+i+'].category=this.value" style="'+inputStyle+'">'+selOpts+'</select></td>'
+      // Xóa
+      +'<td style="padding:8px 6px;text-align:center"><button onclick="document.getElementById(\'saoke-row-'+i+'\').remove();_saoKeTxList.splice('+i+',1)" style="background:transparent;border:1px solid #fecaca;border-radius:8px;padding:4px 9px;cursor:pointer;font-size:12px;color:#ef4444">🗑</button></td>'
       +'</tr>';
   }).join('');
   document.getElementById('saoke-review-table').innerHTML=
@@ -2576,14 +2624,14 @@ function renderSaoKeReview(list){
     +'<table style="width:100%;border-collapse:collapse">'
     +'<thead><tr style="background:#f8f6f2">'
     +'<th style="padding:10px 8px;font-size:10px;font-weight:800;color:#94a3b8;text-align:left;text-transform:uppercase;letter-spacing:.5px">Ngày</th>'
-    +'<th style="padding:10px 8px;font-size:10px;font-weight:800;color:#94a3b8;text-align:left;text-transform:uppercase;letter-spacing:.5px">Mô tả gốc</th>'
+    +'<th style="padding:10px 8px;font-size:10px;font-weight:800;color:#94a3b8;text-align:left;text-transform:uppercase;letter-spacing:.5px">Mô tả</th>'
     +'<th style="padding:10px 8px;font-size:10px;font-weight:800;color:#94a3b8;text-align:center;text-transform:uppercase;letter-spacing:.5px">Loại</th>'
     +'<th style="padding:10px 8px;font-size:10px;font-weight:800;color:#94a3b8;text-align:right;text-transform:uppercase;letter-spacing:.5px">Số tiền</th>'
     +'<th style="padding:10px 8px;font-size:10px;font-weight:800;color:#94a3b8;text-align:left;text-transform:uppercase;letter-spacing:.5px">Danh mục</th>'
     +'<th style="padding:10px 8px;font-size:10px;font-weight:800;color:#94a3b8;text-align:center;text-transform:uppercase;letter-spacing:.5px">Xóa</th>'
     +'</tr></thead>'
     +'<tbody>'+rows+'</tbody></table></div>'
-    +'<div style="font-size:12px;color:#94a3b8;margin-top:8px;text-align:right">'+list.length+' giao dịch · Có thể sửa danh mục hoặc xóa dòng trước khi thêm</div>';
+    +'<div style="font-size:12px;color:#94a3b8;margin-top:8px;text-align:right">'+list.length+' giao dịch · ✏️ Có thể chỉnh sửa tất cả các cột trước khi thêm</div>';
   document.getElementById('saoke-review-section').classList.remove('hidden');
 }
 function addAllSaoKe(){
