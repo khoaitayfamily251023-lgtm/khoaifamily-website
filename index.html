@@ -1,25 +1,858 @@
-import Navbar from "@/components/Navbar";
-import HeroSection from "@/components/HeroSection";
-import ImageSlider from "@/components/ImageSlider";
-import VideoSlider from "@/components/VideoSlider";
-import FamilySection from "@/components/FamilySection";
-import AlbumSection from "@/components/AlbumSection";
-import FooterSection from "@/components/FooterSection";
-import MusicPlayer from "@/components/MusicPlayer";
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Khoai Tây Family 🥔</title>
+<link rel="icon" type="image/png" href="khoaitay-avatar.png"/>
+<link rel="apple-touch-icon" href="khoaitay-avatar.png"/>
+<meta name="apple-mobile-web-app-title" content="Khoai Tây"/>
+<meta name="apple-mobile-web-app-capable" content="yes"/>
+<meta name="theme-color" content="#1c3a2e"/>
+<meta property="og:type" content="website"/>
+<meta property="og:url" content="https://khoaifamily.com/"/>
+<meta property="og:title" content="Khoai Tây Family 🥔"/>
+<meta property="og:description" content="Hệ thống tài chính & giao việc gia đình — Thu chi · Mục tiêu · Giao việc 🌿"/>
+<meta property="og:image" content="https://raw.githubusercontent.com/khoaitayfamily251023-lgtm/khoaifamily-website/main/khoaitay-avatar.png"/>
+<meta property="og:image:width" content="180"/>
+<meta property="og:image:height" content="180"/>
+<meta property="og:locale" content="vi_VN"/>
+<meta name="twitter:card" content="summary"/>
+<meta name="twitter:title" content="Khoai Tây Family 🥔"/>
+<meta name="twitter:description" content="Hệ thống tài chính & giao việc gia đình"/>
+<meta name="twitter:image" content="https://raw.githubusercontent.com/khoaitayfamily251023-lgtm/khoaifamily-website/main/khoaitay-avatar.png"/>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=DM+Sans:wght@300;400;500&family=Dancing+Script:wght@700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --cream: #FDF6EC;
+    --warm: #F5E6CC;
+    --brown: #5C3D2E;
+    --gold: #C9943A;
+    --green: #2D4A3E;
+    --sage: #7A9E8E;
+    --text: #2A1F1A;
+    --light: #FAF3E8;
+  }
 
-const Index = () => {
-  return (
-    <div className="min-h-screen bg-background text-foreground overflow-x-hidden">
-      <Navbar />
-      <HeroSection />
-      <ImageSlider />
-      <VideoSlider />
-      <FamilySection />
-      <AlbumSection />
-      <FooterSection />
-      <MusicPlayer />
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--cream);
+    color: var(--text);
+    overflow-x: hidden;
+  }
+
+  /* ── NAV ── */
+  nav {
+    position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+    padding: 20px 48px;
+    display: flex; align-items: center; justify-content: space-between;
+    background: rgba(253,246,236,0.92);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid rgba(201,148,58,0.15);
+  }
+  .nav-logo {
+    font-family: 'Dancing Script', cursive;
+    font-size: 1.6rem; color: var(--brown);
+    text-decoration: none;
+  }
+  .nav-logo span { color: var(--gold); }
+  .nav-links { display: flex; gap: 32px; align-items: center; }
+  .nav-links a {
+    text-decoration: none; color: var(--brown); font-size: 0.9rem;
+    font-weight: 500; letter-spacing: 0.03em;
+    transition: color 0.2s;
+  }
+  .nav-links a:hover { color: var(--gold); }
+  .nav-cta {
+    background: var(--green) !important; color: white !important;
+    padding: 8px 20px; border-radius: 100px;
+  }
+  .nav-cta:hover { background: var(--brown) !important; color: white !important; }
+
+  /* ── HERO ── */
+  .hero {
+    min-height: 100vh;
+    display: grid; grid-template-columns: 1fr 1fr;
+    align-items: center;
+    padding: 120px 48px 80px;
+    position: relative; overflow: hidden;
+  }
+  .hero::before {
+    content: '';
+    position: absolute; top: -200px; right: -200px;
+    width: 700px; height: 700px;
+    background: radial-gradient(circle, rgba(201,148,58,0.12) 0%, transparent 70%);
+    border-radius: 50%;
+  }
+  .hero-text { position: relative; z-index: 2; }
+  .hero-tag {
+    display: inline-flex; align-items: center; gap: 8px;
+    background: rgba(201,148,58,0.12); border: 1px solid rgba(201,148,58,0.3);
+    color: var(--gold); padding: 6px 16px; border-radius: 100px;
+    font-size: 0.82rem; font-weight: 500; letter-spacing: 0.05em;
+    margin-bottom: 28px;
+    animation: fadeUp 0.8s ease both;
+  }
+  .hero h1 {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(2.8rem, 5vw, 4.2rem);
+    line-height: 1.15; color: var(--brown);
+    margin-bottom: 24px;
+    animation: fadeUp 0.8s 0.1s ease both;
+  }
+  .hero h1 em { color: var(--gold); font-style: italic; }
+  .hero p {
+    font-size: 1.05rem; line-height: 1.8; color: #6B5247;
+    max-width: 480px; margin-bottom: 40px;
+    animation: fadeUp 0.8s 0.2s ease both;
+  }
+  .hero-btns {
+    display: flex; gap: 16px; flex-wrap: wrap;
+    animation: fadeUp 0.8s 0.3s ease both;
+  }
+  .btn-primary {
+    background: var(--green); color: white;
+    padding: 14px 32px; border-radius: 100px;
+    text-decoration: none; font-weight: 500;
+    transition: all 0.3s; font-size: 0.95rem;
+    display: inline-flex; align-items: center; gap: 8px;
+  }
+  .btn-primary:hover { background: var(--brown); transform: translateY(-2px); box-shadow: 0 8px 24px rgba(44,74,62,0.25); }
+  .btn-outline {
+    border: 1.5px solid var(--gold); color: var(--gold);
+    padding: 14px 32px; border-radius: 100px;
+    text-decoration: none; font-weight: 500;
+    transition: all 0.3s; font-size: 0.95rem;
+    display: inline-flex; align-items: center; gap: 8px;
+  }
+  .btn-outline:hover { background: var(--gold); color: white; transform: translateY(-2px); }
+
+  .hero-visual {
+    display: flex; justify-content: center; align-items: center;
+    position: relative;
+    animation: fadeIn 1s 0.4s ease both;
+  }
+  .potato-big {
+    font-size: 12rem; line-height: 1;
+    filter: drop-shadow(0 30px 60px rgba(92,61,46,0.2));
+    animation: float 4s ease-in-out infinite;
+  }
+  .hero-stats {
+    position: absolute; bottom: -20px; left: 50%; transform: translateX(-50%);
+    display: flex; gap: 32px; background: white;
+    padding: 20px 40px; border-radius: 20px;
+    box-shadow: 0 20px 60px rgba(92,61,46,0.12);
+    white-space: nowrap;
+  }
+  .stat { text-align: center; }
+  .stat-num { font-family: 'Playfair Display', serif; font-size: 1.8rem; color: var(--brown); font-weight: 700; }
+  .stat-label { font-size: 0.75rem; color: #9B8070; font-weight: 500; letter-spacing: 0.05em; }
+
+  /* ── SECTION HEADER ── */
+  .section-header { text-align: center; margin-bottom: 60px; }
+  .section-tag {
+    display: inline-block; color: var(--gold); font-size: 0.8rem;
+    font-weight: 500; letter-spacing: 0.12em; text-transform: uppercase;
+    margin-bottom: 12px;
+  }
+  .section-header h2 {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(2rem, 4vw, 2.8rem); color: var(--brown);
+    line-height: 1.2;
+  }
+  .section-header h2 em { color: var(--gold); font-style: italic; }
+  .section-header p { color: #6B5247; margin-top: 12px; max-width: 500px; margin-left: auto; margin-right: auto; line-height: 1.7; }
+
+  /* ── TRIPS SECTION ── */
+  .trips-section { padding: 100px 48px; background: var(--light); }
+  .trips-grid {
+    display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+    gap: 28px; max-width: 1200px; margin: 0 auto;
+  }
+  .trip-card {
+    background: white; border-radius: 20px; overflow: hidden;
+    box-shadow: 0 4px 20px rgba(92,61,46,0.08);
+    transition: all 0.3s; cursor: pointer;
+    text-decoration: none; color: inherit;
+    display: block;
+  }
+  .trip-card:hover { transform: translateY(-6px); box-shadow: 0 20px 50px rgba(92,61,46,0.15); }
+  .trip-thumb {
+    position: relative; padding-top: 56.25%; background: var(--warm);
+    overflow: hidden;
+  }
+  .trip-thumb iframe {
+    position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+    border: none;
+  }
+  .trip-thumb-overlay {
+    position: absolute; top: 0; left: 0; right: 0; bottom: 0;
+    background: linear-gradient(135deg, rgba(92,61,46,0.05), rgba(201,148,58,0.05));
+    pointer-events: none;
+  }
+  .play-badge {
+    position: absolute; top: 12px; right: 12px;
+    background: rgba(201,148,58,0.9); color: white;
+    padding: 4px 12px; border-radius: 100px;
+    font-size: 0.75rem; font-weight: 600;
+    display: flex; align-items: center; gap: 4px;
+  }
+  .trip-info { padding: 20px 24px 24px; }
+  .trip-vlog { font-size: 0.75rem; color: var(--gold); font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 6px; }
+  .trip-title { font-family: 'Playfair Display', serif; font-size: 1.05rem; color: var(--brown); line-height: 1.4; margin-bottom: 10px; }
+  .trip-dest {
+    display: inline-flex; align-items: center; gap: 6px;
+    background: rgba(122,158,142,0.12); color: var(--sage);
+    padding: 4px 12px; border-radius: 100px;
+    font-size: 0.78rem; font-weight: 500;
+  }
+
+  /* ── BLOG SECTION ── */
+  .blog-section { padding: 100px 48px; background: var(--cream); }
+  .blog-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(340px, 1fr)); gap: 28px; max-width: 1200px; margin: 0 auto; }
+  .blog-card {
+    background: white; border-radius: 20px; overflow: hidden;
+    box-shadow: 0 4px 20px rgba(92,61,46,0.08);
+    transition: all 0.3s;
+  }
+  .blog-card:hover { transform: translateY(-4px); box-shadow: 0 16px 40px rgba(92,61,46,0.13); }
+  .blog-img {
+    height: 200px; background: linear-gradient(135deg, var(--warm), var(--cream));
+    display: flex; align-items: center; justify-content: center;
+    font-size: 4rem; position: relative; overflow: hidden;
+  }
+  .blog-img::after {
+    content: ''; position: absolute; inset: 0;
+    background: linear-gradient(to bottom, transparent 60%, rgba(92,61,46,0.06));
+  }
+  .blog-body { padding: 24px; }
+  .blog-tag {
+    display: inline-block; background: rgba(201,148,58,0.1);
+    color: var(--gold); padding: 3px 12px; border-radius: 100px;
+    font-size: 0.75rem; font-weight: 600; letter-spacing: 0.06em;
+    text-transform: uppercase; margin-bottom: 12px;
+  }
+  .blog-title {
+    font-family: 'Playfair Display', serif; font-size: 1.1rem;
+    color: var(--brown); line-height: 1.45; margin-bottom: 10px;
+  }
+  .blog-excerpt { color: #7A6357; font-size: 0.9rem; line-height: 1.7; margin-bottom: 16px; }
+  .blog-meta { display: flex; align-items: center; gap: 12px; color: #9B8070; font-size: 0.8rem; }
+  .blog-coming {
+    text-align: center; padding: 60px 24px;
+    background: linear-gradient(135deg, rgba(201,148,58,0.06), rgba(45,74,62,0.04));
+    border-radius: 20px; border: 2px dashed rgba(201,148,58,0.25);
+    max-width: 1200px; margin: 0 auto;
+  }
+  .blog-coming h3 { font-family: 'Playfair Display', serif; color: var(--brown); margin-bottom: 8px; font-size: 1.3rem; }
+  .blog-coming p { color: #7A6357; font-size: 0.92rem; }
+
+  /* ── ABOUT SECTION ── */
+  .about-section {
+    padding: 100px 48px;
+    background: var(--green); color: white;
+    position: relative; overflow: hidden;
+  }
+  .about-section::before {
+    content: '🥔';
+    position: absolute; right: -40px; bottom: -40px;
+    font-size: 18rem; opacity: 0.06; line-height: 1;
+    pointer-events: none;
+  }
+  .about-inner { max-width: 1200px; margin: 0 auto; display: grid; grid-template-columns: 1fr 1fr; gap: 80px; align-items: center; }
+  .about-text .section-tag { color: rgba(255,255,255,0.6); }
+  .about-text h2 { font-family: 'Playfair Display', serif; font-size: 2.6rem; margin-bottom: 20px; line-height: 1.2; }
+  .about-text h2 em { color: var(--gold); font-style: italic; }
+  .about-text p { color: rgba(255,255,255,0.75); line-height: 1.8; margin-bottom: 16px; }
+  .about-quote {
+    border-left: 3px solid var(--gold); padding-left: 20px;
+    font-family: 'Playfair Display', serif; font-style: italic;
+    font-size: 1.1rem; color: rgba(255,255,255,0.9); margin: 24px 0;
+  }
+  .family-cards { display: flex; flex-direction: column; gap: 16px; }
+  .family-card {
+    background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.12);
+    border-radius: 16px; padding: 20px 24px;
+    display: flex; align-items: center; gap: 16px;
+    backdrop-filter: blur(10px);
+  }
+  .family-avatar { font-size: 2.5rem; }
+  .family-name { font-weight: 600; font-size: 1rem; }
+  .family-role { color: rgba(255,255,255,0.55); font-size: 0.85rem; margin-top: 2px; }
+
+  /* ── YOUTUBE CHANNEL ── */
+  .youtube-section { padding: 80px 48px; background: var(--warm); text-align: center; }
+  .yt-box {
+    max-width: 700px; margin: 0 auto;
+    background: white; border-radius: 24px;
+    padding: 48px; box-shadow: 0 20px 60px rgba(92,61,46,0.1);
+  }
+  .yt-icon { font-size: 3rem; margin-bottom: 16px; }
+  .yt-box h3 { font-family: 'Playfair Display', serif; font-size: 1.8rem; color: var(--brown); margin-bottom: 12px; }
+  .yt-box p { color: #6B5247; margin-bottom: 28px; line-height: 1.7; }
+  .yt-btn {
+    display: inline-flex; align-items: center; gap: 10px;
+    background: #FF0000; color: white;
+    padding: 14px 36px; border-radius: 100px;
+    text-decoration: none; font-weight: 600; font-size: 1rem;
+    transition: all 0.3s;
+  }
+  .yt-btn:hover { background: #CC0000; transform: translateY(-2px); box-shadow: 0 8px 24px rgba(255,0,0,0.3); }
+
+  /* ── FOOTER ── */
+  footer {
+    background: var(--brown); color: rgba(255,255,255,0.7);
+    padding: 48px; text-align: center;
+  }
+  footer .footer-logo {
+    font-family: 'Dancing Script', cursive; font-size: 2rem;
+    color: white; margin-bottom: 8px; display: block;
+  }
+  footer p { font-size: 0.88rem; margin-bottom: 20px; }
+  footer .footer-links { display: flex; gap: 24px; justify-content: center; flex-wrap: wrap; }
+  footer .footer-links a { color: rgba(255,255,255,0.6); text-decoration: none; font-size: 0.85rem; transition: color 0.2s; }
+  footer .footer-links a:hover { color: var(--gold); }
+
+  /* ── GALLERY ── */
+  .gallery-section { padding: 100px 48px; background: var(--light); }
+
+  /* Album Banner */
+  .album-banner {
+    max-width: 1000px; margin: 0 auto 60px;
+    display: flex; align-items: center; gap: 32px;
+    background: var(--green); border-radius: 24px;
+    padding: 36px 40px; text-decoration: none;
+    transition: all 0.3s; cursor: pointer;
+    box-shadow: 0 10px 40px rgba(45,74,62,0.2);
+  }
+  .album-banner:hover { transform: translateY(-4px); box-shadow: 0 20px 60px rgba(45,74,62,0.3); }
+  .album-grid-preview {
+    display: grid; grid-template-columns: 1fr 1fr;
+    gap: 6px; width: 90px; height: 90px; flex-shrink: 0;
+    border-radius: 12px; overflow: hidden;
+  }
+  .album-grid-preview div {
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1.4rem;
+  }
+  .album-banner-center { flex: 1; }
+  .album-icon { font-size: 2rem; margin-bottom: 8px; }
+  .album-banner-center h3 { font-family: 'Playfair Display', serif; font-size: 1.4rem; color: white; margin-bottom: 6px; }
+  .album-banner-center p { color: rgba(255,255,255,0.7); font-size: 0.9rem; margin-bottom: 12px; }
+  .album-tags { display: flex; gap: 8px; flex-wrap: wrap; }
+  .album-tags span {
+    background: rgba(255,255,255,0.12); color: rgba(255,255,255,0.85);
+    padding: 4px 12px; border-radius: 100px; font-size: 0.78rem;
+  }
+  .album-banner-right { text-align: center; flex-shrink: 0; }
+  .album-open-btn {
+    background: var(--gold); color: white;
+    padding: 12px 24px; border-radius: 100px;
+    font-weight: 600; font-size: 0.9rem; margin-bottom: 6px;
+    white-space: nowrap;
+  }
+  .album-hint { color: rgba(255,255,255,0.5); font-size: 0.75rem; }
+
+  /* Preview Grid */
+  .gallery-preview {
+    max-width: 1000px; margin: 0 auto;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    grid-template-rows: repeat(3, 200px);
+    gap: 12px;
+  }
+  .gp-item {
+    border-radius: 16px; overflow: hidden;
+    position: relative; background: var(--warm);
+    display: flex; align-items: center; justify-content: center;
+  }
+  .gp-item img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.4s; display: block; }
+  .gp-item:hover img { transform: scale(1.05); }
+  .gp-big { grid-column: span 2; grid-row: span 2; }
+  .gp-fallback { font-size: 3rem; }
+  .gp-last { position: relative; }
+  .gp-more-overlay {
+    position: absolute; inset: 0;
+    background: rgba(45,74,62,0.85);
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    text-decoration: none; color: white;
+    transition: background 0.3s;
+  }
+  .gp-more-overlay:hover { background: rgba(45,74,62,0.95); }
+  .gp-more-num { font-family: 'Playfair Display', serif; font-size: 2.5rem; font-weight: 700; line-height: 1; }
+  .gp-more-text { font-size: 0.85rem; opacity: 0.8; margin-top: 4px; }
+
+  @media (max-width: 768px) {
+    .gallery-section { padding: 60px 20px; }
+    .album-banner { flex-direction: column; text-align: center; padding: 28px 20px; }
+    .album-tags { justify-content: center; }
+    .gallery-preview { grid-template-rows: repeat(3, 140px); gap: 8px; }
+  }
+
+  /* ── ANIMATIONS ── */
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(30px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  @keyframes fadeIn {
+    from { opacity: 0; } to { opacity: 1; }
+  }
+  @keyframes float {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-20px); }
+  }
+
+  .reveal {
+    opacity: 0; transform: translateY(40px);
+    transition: opacity 0.7s ease, transform 0.7s ease;
+  }
+  .reveal.visible { opacity: 1; transform: translateY(0); }
+
+  /* ── RESPONSIVE ── */
+  @media (max-width: 768px) {
+    nav { padding: 16px 20px; }
+    .nav-links { display: none; }
+
+    /* Hero: 1 cột, emoji trên - text dưới, padding 20px */
+    .hero { grid-template-columns: 1fr; padding: 80px 20px 50px; gap: 24px; }
+    .hero-visual { order: -1; }
+    .potato-big { font-size: 7rem; }
+
+    /* Stats box: không tràn màn hình */
+    .hero-stats {
+      position: static; transform: none;
+      margin-top: 16px; gap: 16px;
+      padding: 14px 20px;
+      white-space: normal;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+    .stat-num { font-size: 1.4rem; }
+
+    /* Hero buttons: 2 nút cạnh nhau vừa màn hình */
+    .hero-btns { gap: 10px; flex-wrap: nowrap; }
+    .hero-btns .btn-primary,
+    .hero-btns .btn-outline {
+      flex: 1;
+      text-align: center;
+      padding: 12px 10px;
+      font-size: 0.85rem;
+      white-space: nowrap;
+      justify-content: center;
+    }
+
+    /* Padding tổng thể: 20px */
+    .trips-section, .blog-section, .about-section,
+    .youtube-section { padding: 60px 20px; }
+
+    .about-inner { grid-template-columns: 1fr; gap: 40px; }
+    .trips-grid, .blog-grid { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <a href="#" class="nav-logo">Khoai <span>Tây</span> Family</a>
+  <div class="nav-links">
+    <a href="#trips">Chuyến đi</a>
+    <a href="#blog">Blog</a>
+    <a href="#about">Gia đình</a>
+    <a href="https://youtube.com/@Khoaitay-family" target="_blank">YouTube</a>
+    <a href="https://khoaifamily.com/family.html" class="nav-cta">🔒 Vào gia đình</a>
+  </div>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-text">
+    <div class="hero-tag">🥔 Gia đình · Hành trình · Kỷ niệm</div>
+    <h1>Gia đình nhỏ,<br><em>hạnh phúc</em> lớn.</h1>
+    <p>Nhật ký hành trình của Ba Hảo, Mẹ Ngân và Khoai Tây — những chuyến đi, khoảnh khắc bình dị và cuộc sống đáng yêu của một gia đình nhỏ.</p>
+    <div class="hero-btns">
+      <a href="#trips" class="btn-primary">✈️ Xem chuyến đi</a>
+      <a href="https://youtube.com/@Khoaitay-family" target="_blank" class="btn-outline">▶ Kênh YouTube</a>
     </div>
-  );
-};
+  </div>
+  <div class="hero-visual">
+    <div class="potato-big">🥔</div>
+    <div class="hero-stats">
+      <div class="stat"><div class="stat-num">10+</div><div class="stat-label">Chuyến đi</div></div>
+      <div class="stat"><div class="stat-num">2021</div><div class="stat-label">Năm cưới</div></div>
+      <div class="stat"><div class="stat-num">3</div><div class="stat-label">Thành viên</div></div>
+    </div>
+  </div>
+</section>
 
-export default Index;
+<!-- TRIPS -->
+<section class="trips-section" id="trips">
+  <div class="section-header reveal">
+    <div class="section-tag">✈️ Hành trình</div>
+    <h2>Khám phá <em>cùng gia đình</em></h2>
+    <p>Mỗi chuyến đi là một câu chuyện đáng nhớ. Xem vlog trực tiếp trên YouTube!</p>
+  </div>
+  <div class="trips-grid">
+
+    <a class="trip-card reveal" href="https://www.youtube.com/watch?v=J9017KNGqFA" target="_blank">
+      <div class="trip-thumb">
+        <img src="https://img.youtube.com/vi/J9017KNGqFA/hqdefault.jpg" style="width:100%;height:100%;object-fit:cover;position:absolute;top:0;left:0;" alt="Vĩnh Hy & Đà Lạt">
+        <div class="trip-thumb-overlay"></div>
+        <div class="play-badge">▶ YouTube</div>
+      </div>
+      <div class="trip-info">
+        <div class="trip-vlog">Vlog 7 · Tết 2026</div>
+        <div class="trip-title">Khoai Tây Khám Phá Vĩnh Hy & Đà Lạt</div>
+        <span class="trip-dest">📍 Vĩnh Hy · Đà Lạt</span>
+      </div>
+    </a>
+
+    <a class="trip-card reveal" href="https://www.youtube.com/watch?v=ScGyOtdY4-o" target="_blank">
+      <div class="trip-thumb">
+        <img src="https://img.youtube.com/vi/ScGyOtdY4-o/hqdefault.jpg" style="width:100%;height:100%;object-fit:cover;position:absolute;top:0;left:0;" alt="Nhật Bản Tokyo">
+        <div class="trip-thumb-overlay"></div>
+        <div class="play-badge">▶ YouTube</div>
+      </div>
+      <div class="trip-info">
+        <div class="trip-vlog">Vlog 6 Part 1</div>
+        <div class="trip-title">Hành trình đến Nhật Bản — Khám phá Tokyo (Ngày 1, 2)</div>
+        <span class="trip-dest">🇯🇵 Tokyo · Nhật Bản</span>
+      </div>
+    </a>
+
+    <a class="trip-card reveal" href="https://www.youtube.com/watch?v=eFHCUamHnhc" target="_blank">
+      <div class="trip-thumb">
+        <img src="https://img.youtube.com/vi/eFHCUamHnhc/hqdefault.jpg" style="width:100%;height:100%;object-fit:cover;position:absolute;top:0;left:0;" alt="Senso-ji Nhật Bản">
+        <div class="trip-thumb-overlay"></div>
+        <div class="play-badge">▶ YouTube</div>
+      </div>
+      <div class="trip-info">
+        <div class="trip-vlog">Vlog 6 Part 2</div>
+        <div class="trip-title">Khám phá Chùa Cổ Senso-ji, Kura Sushi tại Nhật Bản</div>
+        <span class="trip-dest">🇯🇵 Tokyo · Nhật Bản</span>
+      </div>
+    </a>
+
+    <a class="trip-card reveal" href="https://www.youtube.com/watch?v=PF3QSyvbMe0" target="_blank">
+      <div class="trip-thumb">
+        <img src="https://img.youtube.com/vi/PF3QSyvbMe0/hqdefault.jpg" style="width:100%;height:100%;object-fit:cover;position:absolute;top:0;left:0;" alt="Nara Matcha Onsen">
+        <div class="trip-thumb-overlay"></div>
+        <div class="play-badge">▶ YouTube</div>
+      </div>
+      <div class="trip-info">
+        <div class="trip-vlog">Vlog 6 Part 7</div>
+        <div class="trip-title">Công viên Nara, Thủ phủ Matcha Uji & tắm Onsen Solaniwa</div>
+        <span class="trip-dest">🇯🇵 Nara · Uji · Nhật Bản</span>
+      </div>
+    </a>
+
+    <a class="trip-card reveal" href="https://www.youtube.com/watch?v=ZO0K91N08MY" target="_blank">
+      <div class="trip-thumb">
+        <img src="https://img.youtube.com/vi/ZO0K91N08MY/hqdefault.jpg" style="width:100%;height:100%;object-fit:cover;position:absolute;top:0;left:0;" alt="Kamakura Shibuya">
+        <div class="trip-thumb-overlay"></div>
+        <div class="play-badge">▶ YouTube</div>
+      </div>
+      <div class="trip-info">
+        <div class="trip-vlog">Vlog 6 Part 3</div>
+        <div class="trip-title">Khám phá Kamakura, Đại Phật, Chinatown & Giao lộ Shibuya</div>
+        <span class="trip-dest">🇯🇵 Kamakura · Shibuya · Nhật Bản</span>
+      </div>
+    </a>
+
+    <a class="trip-card reveal" href="https://www.youtube.com/watch?v=Ua1hzJe2Vg0" target="_blank">
+      <div class="trip-thumb">
+        <img src="https://img.youtube.com/vi/Ua1hzJe2Vg0/hqdefault.jpg" style="width:100%;height:100%;object-fit:cover;position:absolute;top:0;left:0;" alt="Núi Phú Sĩ Kawaguchiko">
+        <div class="trip-thumb-overlay"></div>
+        <div class="play-badge">▶ YouTube</div>
+      </div>
+      <div class="trip-info">
+        <div class="trip-vlog">Vlog 6 Part 4</div>
+        <div class="trip-title">Khám phá núi Phú Sĩ, vườn đào, hồ Kawaguchiko, làng cổ Hakkai</div>
+        <span class="trip-dest">🇯🇵 Phú Sĩ · Kawaguchiko · Nhật Bản</span>
+      </div>
+    </a>
+
+    <a class="trip-card reveal" href="https://www.youtube.com/watch?v=6CfHJzBwIFc" target="_blank">
+      <div class="trip-thumb">
+        <img src="https://img.youtube.com/vi/6CfHJzBwIFc/hqdefault.jpg" style="width:100%;height:100%;object-fit:cover;position:absolute;top:0;left:0;" alt="Shinkansen Osaka Dontobori">
+        <div class="trip-thumb-overlay"></div>
+        <div class="play-badge">▶ YouTube</div>
+      </div>
+      <div class="trip-info">
+        <div class="trip-vlog">Vlog 6 Part 5</div>
+        <div class="trip-title">Trải nghiệm tàu Shinkansen, khám phá Osaka & khu Dontobori</div>
+        <span class="trip-dest">🇯🇵 Osaka · Nhật Bản</span>
+      </div>
+    </a>
+
+    <a class="trip-card reveal" href="https://www.youtube.com/watch?v=1Ieja34GJ4s" target="_blank">
+      <div class="trip-thumb">
+        <img src="https://img.youtube.com/vi/1Ieja34GJ4s/hqdefault.jpg" style="width:100%;height:100%;object-fit:cover;position:absolute;top:0;left:0;" alt="Osaka Shitennoji Kuromon">
+        <div class="trip-thumb-overlay"></div>
+        <div class="play-badge">▶ YouTube</div>
+      </div>
+      <div class="trip-info">
+        <div class="trip-vlog">Vlog 6 Part 6</div>
+        <div class="trip-title">Khám phá bảo tàng Osaka, Chùa Shitennoji & chợ cá Kuromon</div>
+        <span class="trip-dest">🇯🇵 Osaka · Nhật Bản</span>
+      </div>
+    </a>
+
+    <a class="trip-card reveal" href="https://www.youtube.com/watch?v=ms8ssaPkNoM" target="_blank">
+      <div class="trip-thumb">
+        <img src="https://img.youtube.com/vi/ms8ssaPkNoM/hqdefault.jpg" style="width:100%;height:100%;object-fit:cover;position:absolute;top:0;left:0;" alt="Miền Trung VinWonder">
+        <div class="trip-thumb-overlay"></div>
+        <div class="play-badge">▶ YouTube</div>
+      </div>
+      <div class="trip-info">
+        <div class="trip-vlog">Vlog 4 Part 1</div>
+        <div class="trip-title">Phượt miền Trung — VinWonder Nha Trang & Quảng Ngãi</div>
+        <span class="trip-dest">📍 Nha Trang · Quảng Ngãi</span>
+      </div>
+    </a>
+
+    <a class="trip-card reveal" href="https://www.youtube.com/watch?v=2bKUDq7lIH8" target="_blank">
+      <div class="trip-thumb">
+        <img src="https://img.youtube.com/vi/2bKUDq7lIH8/hqdefault.jpg" style="width:100%;height:100%;object-fit:cover;position:absolute;top:0;left:0;" alt="Hội An Đà Nẵng">
+        <div class="trip-thumb-overlay"></div>
+        <div class="play-badge">▶ YouTube</div>
+      </div>
+      <div class="trip-info">
+        <div class="trip-vlog">Vlog 4 Part 2</div>
+        <div class="trip-title">Trải nghiệm vẻ đẹp Hội An & Đà Nẵng</div>
+        <span class="trip-dest">📍 Hội An · Đà Nẵng</span>
+      </div>
+    </a>
+
+    <a class="trip-card reveal" href="https://www.youtube.com/watch?v=xwvmYcQYGww" target="_blank">
+      <div class="trip-thumb">
+        <img src="https://img.youtube.com/vi/xwvmYcQYGww/hqdefault.jpg" style="width:100%;height:100%;object-fit:cover;position:absolute;top:0;left:0;" alt="Măng Đen Buôn Mê Thuột">
+        <div class="trip-thumb-overlay"></div>
+        <div class="play-badge">▶ YouTube</div>
+      </div>
+      <div class="trip-info">
+        <div class="trip-vlog">Vlog 4 Part 3</div>
+        <div class="trip-title">Lần đầu đến thị trấn Măng Đen và Buôn Mê Thuột</div>
+        <span class="trip-dest">📍 Măng Đen · Buôn Mê Thuột</span>
+      </div>
+    </a>
+
+    <a class="trip-card reveal" href="https://www.youtube.com/watch?v=GYJHJ9JbmZU" target="_blank">
+      <div class="trip-thumb">
+        <img src="https://img.youtube.com/vi/GYJHJ9JbmZU/hqdefault.jpg" style="width:100%;height:100%;object-fit:cover;position:absolute;top:0;left:0;" alt="Dốc Lết">
+        <div class="trip-thumb-overlay"></div>
+        <div class="play-badge">▶ YouTube</div>
+      </div>
+      <div class="trip-info">
+        <div class="trip-vlog">Vlog 3</div>
+        <div class="trip-title">Du lịch Dốc Lết — Tắm biển phủ phê cùng em bé</div>
+        <span class="trip-dest">📍 Dốc Lết · Khánh Hòa</span>
+      </div>
+    </a>
+
+    <a class="trip-card reveal" href="https://www.youtube.com/watch?v=7TeAEMvwpZ0" target="_blank">
+      <div class="trip-thumb">
+        <img src="https://img.youtube.com/vi/7TeAEMvwpZ0/hqdefault.jpg" style="width:100%;height:100%;object-fit:cover;position:absolute;top:0;left:0;" alt="Dinh Độc Lập">
+        <div class="trip-thumb-overlay"></div>
+        <div class="play-badge">▶ YouTube</div>
+      </div>
+      <div class="trip-info">
+        <div class="trip-vlog">Vlog 2</div>
+        <div class="trip-title">Lần đầu tham quan Dinh Độc Lập cùng em bé</div>
+        <span class="trip-dest">📍 Dinh Độc Lập · Sài Gòn</span>
+      </div>
+    </a>
+
+    <a class="trip-card reveal" href="https://www.youtube.com/watch?v=-_lUZiCvSH0" target="_blank">
+      <div class="trip-thumb">
+        <img src="https://img.youtube.com/vi/-_lUZiCvSH0/hqdefault.jpg" style="width:100%;height:100%;object-fit:cover;position:absolute;top:0;left:0;" alt="Khoai Tây chào đời">
+        <div class="trip-thumb-overlay"></div>
+        <div class="play-badge">▶ YouTube</div>
+      </div>
+      <div class="trip-info">
+        <div class="trip-vlog">Vlog 5 · Đặc biệt</div>
+        <div class="trip-title">Ngày Khoai Tây chào đời 25-10-2023 🥔</div>
+        <span class="trip-dest">💛 Khoảnh khắc đặc biệt nhất</span>
+      </div>
+    </a>
+
+  </div>
+</section>
+
+<!-- BLOG -->
+<section class="blog-section" id="blog">
+  <div class="section-header reveal">
+    <div class="section-tag">✍️ Blog</div>
+    <h2>Nhật ký <em>gia đình</em></h2>
+    <p>Những câu chuyện, kỷ niệm và góc nhìn của Ba Hảo về cuộc sống gia đình.</p>
+  </div>
+  <div class="blog-coming reveal">
+    <div style="font-size:3rem;margin-bottom:16px;">✍️</div>
+    <h3>Blog đang được xây dựng</h3>
+    <p>Ba Hảo sẽ sớm chia sẻ những câu chuyện, tips du lịch cùng em bé và kỷ niệm gia đình tại đây. Theo dõi kênh YouTube để cập nhật mới nhất!</p>
+    <div style="margin-top:24px;">
+      <a href="https://youtube.com/@Khoaitay-family" target="_blank" class="btn-primary" style="display:inline-flex;">▶ Theo dõi YouTube ngay</a>
+    </div>
+  </div>
+</section>
+
+<!-- ABOUT -->
+<section class="about-section" id="about">
+  <div class="about-inner">
+    <div class="about-text reveal">
+      <div class="section-tag">👨‍👩‍👦 Về chúng tôi</div>
+      <h2>Một gia đình<br><em>bình thường</em> thôi</h2>
+      <p>Chúng tôi là gia đình nhỏ — Ba Hảo, Mẹ Ngân và Khoai Tây. Trang này là nơi chúng tôi lưu giữ những khoảnh khắc đáng nhớ, chia sẻ những chuyến đi và ghi lại hành trình lớn lên cùng con.</p>
+      <div class="about-quote">"Không cần hoàn hảo — chỉ cần là của nhau."</div>
+      <a href="https://youtube.com/@Khoaitay-family" target="_blank" class="btn-outline" style="border-color:rgba(255,255,255,0.4);color:white;">▶ Xem kênh YouTube</a>
+    </div>
+    <div class="family-cards reveal">
+      <div class="family-card">
+        <div class="family-avatar">👨</div>
+        <div>
+          <div class="family-name">Nguyên Hảo</div>
+          <div class="family-role">Ba Hảo · Chồng · Người quay phim kiêm đạo diễn</div>
+        </div>
+      </div>
+      <div class="family-card">
+        <div class="family-avatar">👩</div>
+        <div>
+          <div class="family-name">Hoàng Ngân</div>
+          <div class="family-role">Mẹ Ngân · Vợ · Ngôi sao thầm lặng của kênh</div>
+        </div>
+      </div>
+      <div class="family-card">
+        <div class="family-avatar">🥔</div>
+        <div>
+          <div class="family-name">Khoai Tây · Quốc Anh</div>
+          <div class="family-role">Sinh 25.10.2023 · Diễn viên chính của kênh</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- GALLERY -->
+<section class="gallery-section" id="gallery">
+  <div class="section-header reveal">
+    <div class="section-tag">📸 Album ảnh</div>
+    <h2>Khoảnh khắc <em>gia đình</em></h2>
+    <p>Những kỷ niệm đẹp của Ba Hảo, Mẹ Ngân và Khoai Tây từ 7/2023 đến nay.</p>
+  </div>
+
+  <!-- BANNER MỞ ALBUM -->
+  <a href="https://photos.app.goo.gl/PoRNeF7XLQFphaeS9" target="_blank" class="album-banner reveal">
+    <div class="album-banner-left">
+      <div class="album-grid-preview">
+        <div class="ag1" style="background:linear-gradient(135deg,#e8d5b7,#c9943a)">🥔</div>
+        <div class="ag2" style="background:linear-gradient(135deg,#2d4a3e,#7a9e8e)">👨‍👩‍👦</div>
+        <div class="ag3" style="background:linear-gradient(135deg,#c9943a,#5c3d2e)">✈️</div>
+        <div class="ag4" style="background:linear-gradient(135deg,#7a9e8e,#2d4a3e)">🇯🇵</div>
+      </div>
+    </div>
+    <div class="album-banner-center">
+      <div class="album-icon">📸</div>
+      <h3>Album Khoai Tây Family</h3>
+      <p>120+ khoảnh khắc từ tháng 7/2023 đến nay</p>
+      <div class="album-tags">
+        <span>👶 Khoai Tây lớn lên</span>
+        <span>✈️ 10+ chuyến đi</span>
+        <span>👨‍👩‍👦 Gia đình</span>
+      </div>
+    </div>
+    <div class="album-banner-right">
+      <div class="album-open-btn">Xem tất cả ảnh →</div>
+      <div class="album-hint">Mở Google Photos</div>
+    </div>
+  </a>
+
+  <!-- PREVIEW GRID 9 Ô -->
+  <div class="gallery-preview reveal">
+    <div class="gp-item gp-big">
+      <img src="https://lh3.googleusercontent.com/pw/AP1GczO0cFM3WNencXrLf80WT6NSjBDh18tpQ7qXKCBPsJDjskLbqWhKwNMapdLbGY9COeoKWNL3GxmUkW9tVri2XRFv5rbJA-dtofS-0qrNGjB-LCAzSfs=w600-h600-no" alt="Khoai Tây Family"
+        onerror="this.parentElement.style.background='linear-gradient(135deg,#f5e6cc,#c9943a)';this.style.display='none';this.parentElement.innerHTML+='<div class=gp-fallback>🥔</div>'">
+    </div>
+    <div class="gp-item">
+      <img src="https://lh3.googleusercontent.com/pw/AP1GczOnGcE0aAlL2K_UNaC8HIrcRX9UtFucb7OecIP_UiTVVaxqCuHkYJVI8bpsscq_8iwLRGdNOWTUY-BumGNl9pH8QsPfNUgGv_MC4YcQmuSo_IXhWPo=w400-h400-no" alt=""
+        onerror="this.parentElement.style.background='linear-gradient(135deg,#2d4a3e,#7a9e8e)';this.style.display='none';this.parentElement.innerHTML+='<div class=gp-fallback>👩</div>'">
+    </div>
+    <div class="gp-item">
+      <img src="https://lh3.googleusercontent.com/pw/AP1GczObcCcvNyDHUgmG5puuaLb11uiau2cTzxYcY9kjgyS_ubD2seyR8XrxhRJkHrl--a2sIQNqBLBcUOaA_U2cNBxooRoCpnCFn_s_9cwZ9wk8ECnU1F8=w400-h400-no" alt=""
+        onerror="this.parentElement.style.background='linear-gradient(135deg,#c9943a,#5c3d2e)';this.style.display='none';this.parentElement.innerHTML+='<div class=gp-fallback>👶</div>'">
+    </div>
+    <div class="gp-item">
+      <img src="https://lh3.googleusercontent.com/pw/AP1GczOcfmiIHVatKzvRpjRgXrwehwQZV3GhcGsYm9LOFnyz4K1N_U-T31K6qr0ca5Cg6LODUokCydhoDqFvxyvchh9OhCAatZtwjQ5NeY_uunMGaQ5Yf38=w400-h400-no" alt=""
+        onerror="this.parentElement.style.background='linear-gradient(135deg,#7a9e8e,#2d4a3e)';this.style.display='none';this.parentElement.innerHTML+='<div class=gp-fallback>🏖️</div>'">
+    </div>
+    <div class="gp-item">
+      <img src="https://lh3.googleusercontent.com/pw/AP1GczO9C5GEIvbhMxx6ANxW3gKx0nF1Pjn-7Q4snQDt6qb8TjvHhkLXGXDcdS8BGVcqQBXLeu7x1EV7ftm7dKwMocpSs_cuswBGJBfOCsUB4JwXzoYwXV8=w400-h400-no" alt=""
+        onerror="this.parentElement.style.background='linear-gradient(135deg,#e8d5b7,#c9943a)';this.style.display='none';this.parentElement.innerHTML+='<div class=gp-fallback>🎂</div>'">
+    </div>
+    <div class="gp-item">
+      <img src="https://lh3.googleusercontent.com/pw/AP1GczOBoSCdJrBh6UqAOAP3tpGCpus-WmZCrWtJR85O8kMl5wgrVwWtnoCp5izvAVoq7iTPjefCik-6Cyebf9D7yaFhMVez0RyXx4g0YjKiDHcZSGzlq98=w400-h400-no" alt=""
+        onerror="this.parentElement.style.background='linear-gradient(135deg,#5c3d2e,#c9943a)';this.style.display='none';this.parentElement.innerHTML+='<div class=gp-fallback>🌸</div>'">
+    </div>
+    <div class="gp-item">
+      <img src="https://lh3.googleusercontent.com/pw/AP1GczOZj8QNl3q_b8QpkFrC5uyE-bGoUhZNPYH0pDXyAR7aK1RX_fuInPDFvYUdxhEVDHHVfD-leGejJzoFwN3ZGsSsma3MzBmN4_vQ4xMxly79I6lujRA=w400-h400-no" alt=""
+        onerror="this.parentElement.style.background='linear-gradient(135deg,#2d4a3e,#c9943a)';this.style.display='none';this.parentElement.innerHTML+='<div class=gp-fallback>🗻</div>'">
+    </div>
+    <div class="gp-item">
+      <img src="https://lh3.googleusercontent.com/pw/AP1GczPhAl0qfTst3nXAM4_KIUm2t7nRopfnMueoCPSmbSpC2BywM4OL-oS6uDkesMwgQHHNp-eMvL4o09FFpxkwDn8FKSMxX5-IgXqPwLeu36MiEtv3GV4=w400-h400-no" alt=""
+        onerror="this.parentElement.style.background='linear-gradient(135deg,#7a9e8e,#5c3d2e)';this.style.display='none';this.parentElement.innerHTML+='<div class=gp-fallback>🌊</div>'">
+    </div>
+    <div class="gp-item gp-last">
+      <img src="https://lh3.googleusercontent.com/pw/AP1GczMV1oJTUaXHeWzr54hI8OjKB9duR171lhv3Y0p2T2ygtH8anBhx0WsNY__WWm405ofx2AiLnvYY34UMswe2l0FtL43jKfINss_gyIwwLeUt2UBuw-0=w400-h400-no" alt=""
+        onerror="this.style.display='none'">
+      <a href="https://photos.app.goo.gl/PoRNeF7XLQFphaeS9" target="_blank" class="gp-more-overlay">
+        <span class="gp-more-num">120+</span>
+        <span class="gp-more-text">Xem tất cả</span>
+      </a>
+    </div>
+  </div>
+</section>
+
+<!-- YOUTUBE CTA -->
+<section class="youtube-section">
+  <div class="yt-box reveal">
+    <div class="yt-icon">▶️</div>
+    <h3>Khoai Tây Family Vlog</h3>
+    <p>Theo dõi kênh YouTube để xem những chuyến đi, khoảnh khắc lớn lên của Khoai Tây và cuộc sống gia đình chúng tôi. Đừng quên bấm Subscribe!</p>
+    <a href="https://youtube.com/@Khoaitay-family" target="_blank" class="yt-btn">▶ Subscribe kênh ngay</a>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <span class="footer-logo">Khoai Tây Family</span>
+  <p>Nhật ký gia đình của Ba Hảo, Mẹ Ngân và Khoai Tây 🥔</p>
+  <div class="footer-links">
+    <a href="#trips">Chuyến đi</a>
+    <a href="#blog">Blog</a>
+    <a href="#about">Gia đình</a>
+    <a href="https://youtube.com/@Khoaitay-family" target="_blank">YouTube</a>
+    <a href="https://khoaifamily.com/family.html">🔒 Khu vực gia đình</a>
+  </div>
+  <p style="margin-top:24px;font-size:0.8rem;opacity:0.5;">© 2026 khoaifamily.com — Làm với ♥ cho Khoai Tây</p>
+</footer>
+
+<script>
+  // Scroll reveal
+  const reveals = document.querySelectorAll('.reveal');
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach((e, i) => {
+      if (e.isIntersecting) {
+        setTimeout(() => e.target.classList.add('visible'), i * 80);
+      }
+    });
+  }, { threshold: 0.1 });
+  reveals.forEach(el => observer.observe(el));
+</script>
+</body>
+</html>
