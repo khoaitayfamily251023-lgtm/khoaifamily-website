@@ -109,6 +109,17 @@ input,select,button,textarea{font-family:'Nunito',sans-serif}
 .sync-err-panel{position:fixed;bottom:70px;right:16px;background:#1a1a1a;border:1px solid #ef4444;border-radius:14px;padding:16px 18px;color:#fca5a5;font-size:13px;max-width:360px;z-index:9999;box-shadow:0 8px 30px rgba(0,0,0,.5)}
 .abody{max-width:1320px;margin:0 auto;padding:26px 18px 60px}
 .tpane{animation:fi .3s ease}
+.plan-stab{padding:8px 16px;border:1px solid #e4e0d8;border-radius:12px;background:#fff;color:#555;cursor:pointer;font-weight:700;font-size:13px;transition:all .2s}
+.plan-stab.on{background:#0d1f1a;color:#fff;border-color:#0d1f1a}
+.plan-panel.hidden{display:none!important}
+.plan-status{display:inline-block;padding:3px 10px;border-radius:12px;font-size:11px;font-weight:800}
+.plan-status-done{background:#f0fdf4;color:#059669}
+.plan-status-active{background:#fef9c3;color:#ca8a04}
+.plan-status-plan{background:#f1f5f9;color:#64748b}
+.plan-saving-card{background:#fff;border:1px solid #e4e0d8;border-radius:16px;padding:16px}
+.plan-saving-progress{height:8px;background:#f0ede6;border-radius:4px;margin:10px 0 6px;overflow:hidden}
+.plan-saving-fill{height:100%;background:linear-gradient(90deg,#059669,#34d399);border-radius:4px;transition:width .4s}
+.plan-row-current td{background:#f0fdf4;font-weight:700}
 @keyframes fi{from{opacity:0;transform:translateY(7px)}to{opacity:1;transform:translateY(0)}}
 .thead{margin-bottom:20px}
 .thead h1{font-family:'Playfair Display',serif;font-size:29px;color:var(--atext);margin-bottom:3px}
@@ -351,6 +362,7 @@ input,select,button,textarea{font-family:'Nunito',sans-serif}
         <button class="ntab" onclick="showTab('goals')">🎯 Mục tiêu</button>
         <button class="ntab" onclick="showTab('wealth')">🏦 Tài sản & Nợ</button>
         <button class="ntab" onclick="showTab('tasks')">✅ Giao việc</button>
+        <button class="ntab" onclick="showTab('plan')">📅 Kế hoạch năm</button>
         <button class="ntab" onclick="showTab('entry')">✏️ Nhập mới</button>
         <button class="ntab" onclick="showTab('log')">📋 Lịch sử</button>
       </div>
@@ -772,6 +784,98 @@ input,select,button,textarea{font-family:'Nunito',sans-serif}
     </div>
 
 
+    <div id="tab-plan" class="tpane hidden">
+      <div class="thead"><h1>📅 Kế hoạch năm</h1><p>Thu chi dự kiến · Cập nhật hàng tháng để bám sát mục tiêu</p></div>
+
+      <!-- Summary cards -->
+      <div id="plan-summary" style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:20px"></div>
+
+      <!-- Sub tabs -->
+      <div style="display:flex;gap:6px;margin-bottom:16px;flex-wrap:wrap">
+        <button class="plan-stab on" id="pst-monthly" onclick="switchPlanTab('monthly')">📋 Kế hoạch tháng</button>
+        <button class="plan-stab" id="pst-fixed" onclick="switchPlanTab('fixed')">🏠 Chi cố định</button>
+        <button class="plan-stab" id="pst-events" onclick="switchPlanTab('events')">🎉 Sự kiện</button>
+        <button class="plan-stab" id="pst-saving" onclick="switchPlanTab('saving')">💰 Tiết kiệm</button>
+      </div>
+
+      <!-- Tab: Kế hoạch tháng -->
+      <div id="plan-monthly" class="plan-panel">
+        <div class="card" style="overflow-x:auto">
+          <table style="width:100%;border-collapse:collapse;font-size:13px">
+            <thead><tr style="background:#f8f6f2">
+              <th style="padding:10px 8px;text-align:left;font-size:11px;color:#94a3b8;text-transform:uppercase">Tháng</th>
+              <th style="padding:10px 8px;text-align:right;font-size:11px;color:#94a3b8;text-transform:uppercase">Chi cố định</th>
+              <th style="padding:10px 8px;text-align:right;font-size:11px;color:#94a3b8;text-transform:uppercase">Chi sự kiện</th>
+              <th style="padding:10px 8px;text-align:right;font-size:11px;color:#94a3b8;text-transform:uppercase">Tổng cần chi</th>
+              <th style="padding:10px 8px;text-align:right;font-size:11px;color:#94a3b8;text-transform:uppercase">Thu vào</th>
+              <th style="padding:10px 8px;text-align:right;font-size:11px;color:#94a3b8;text-transform:uppercase">Thừa/Thiếu</th>
+              <th style="padding:10px 8px;text-align:left;font-size:11px;color:#94a3b8;text-transform:uppercase">Sự kiện</th>
+              <th style="padding:10px 8px;text-align:center;font-size:11px;color:#94a3b8;text-transform:uppercase">Trạng thái</th>
+            </tr></thead>
+            <tbody id="plan-monthly-body"></tbody>
+          </table>
+        </div>
+        <div style="margin-top:12px;font-size:12px;color:#94a3b8;text-align:right">Tháng hiện tại được đánh dấu · Click hàng để cập nhật</div>
+      </div>
+
+      <!-- Tab: Chi cố định -->
+      <div id="plan-fixed" class="plan-panel hidden">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+          <div style="font-size:13px;color:#64748b">Các khoản chi phát sinh đều đặn mỗi tháng</div>
+          <button onclick="openPlanFixedModal(null)" style="background:#0d1f1a;color:#fff;border:none;border-radius:12px;padding:8px 16px;font-size:13px;font-weight:700;cursor:pointer">+ Thêm khoản</button>
+        </div>
+        <div class="card" style="overflow-x:auto">
+          <table style="width:100%;border-collapse:collapse;font-size:13px">
+            <thead><tr style="background:#f8f6f2">
+              <th style="padding:10px 8px;text-align:left;font-size:11px;color:#94a3b8;text-transform:uppercase">Hạng mục</th>
+              <th style="padding:10px 8px;text-align:right;font-size:11px;color:#94a3b8;text-transform:uppercase">Dự kiến / tháng</th>
+              <th style="padding:10px 8px;text-align:right;font-size:11px;color:#94a3b8;text-transform:uppercase">Thực tế / tháng</th>
+              <th style="padding:10px 8px;text-align:left;font-size:11px;color:#94a3b8;text-transform:uppercase">Ghi chú</th>
+              <th style="padding:10px 8px;text-align:center;font-size:11px;color:#94a3b8;text-transform:uppercase">Thao tác</th>
+            </tr></thead>
+            <tbody id="plan-fixed-body"></tbody>
+          </table>
+        </div>
+        <div id="plan-fixed-total" style="margin-top:12px;text-align:right;font-size:14px;font-weight:800;color:#0d1f1a"></div>
+      </div>
+
+      <!-- Tab: Sự kiện -->
+      <div id="plan-events" class="plan-panel hidden">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+          <div style="font-size:13px;color:#64748b">Các khoản chi lớn theo sự kiện trong năm</div>
+          <button onclick="openPlanEventModal(null)" style="background:#0d1f1a;color:#fff;border:none;border-radius:12px;padding:8px 16px;font-size:13px;font-weight:700;cursor:pointer">+ Thêm sự kiện</button>
+        </div>
+        <div class="card" style="overflow-x:auto">
+          <table style="width:100%;border-collapse:collapse;font-size:13px">
+            <thead><tr style="background:#f8f6f2">
+              <th style="padding:10px 8px;text-align:left;font-size:11px;color:#94a3b8;text-transform:uppercase">Tháng</th>
+              <th style="padding:10px 8px;text-align:left;font-size:11px;color:#94a3b8;text-transform:uppercase">Sự kiện</th>
+              <th style="padding:10px 8px;text-align:right;font-size:11px;color:#94a3b8;text-transform:uppercase">Dự kiến</th>
+              <th style="padding:10px 8px;text-align:right;font-size:11px;color:#94a3b8;text-transform:uppercase">Thực chi</th>
+              <th style="padding:10px 8px;text-align:left;font-size:11px;color:#94a3b8;text-transform:uppercase">Ghi chú</th>
+              <th style="padding:10px 8px;text-align:center;font-size:11px;color:#94a3b8;text-transform:uppercase">Trạng thái</th>
+              <th style="padding:10px 8px;text-align:center;font-size:11px;color:#94a3b8;text-transform:uppercase">Thao tác</th>
+            </tr></thead>
+            <tbody id="plan-events-body"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Tab: Tiết kiệm -->
+      <div id="plan-saving" class="plan-panel hidden">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+          <div style="font-size:13px;color:#64748b">Các quỹ tiết kiệm cần dành mỗi tháng</div>
+          <button onclick="openPlanSavingModal(null)" style="background:#0d1f1a;color:#fff;border:none;border-radius:12px;padding:8px 16px;font-size:13px;font-weight:700;cursor:pointer">+ Thêm quỹ</button>
+        </div>
+        <div id="plan-saving-cards" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:12px"></div>
+        <div class="card" style="margin-top:16px;background:#f0fdf4;border-color:#bbf7d0">
+          <div style="font-size:13px;font-weight:800;color:#166534;margin-bottom:8px">💡 Tổng cần dành mỗi tháng</div>
+          <div id="plan-saving-total" style="font-size:24px;font-weight:900;color:#059669"></div>
+          <div style="font-size:12px;color:#6b7280;margin-top:4px">để sẵn sàng cho tất cả sự kiện & mục tiêu</div>
+        </div>
+      </div>
+    </div>
+
     <div id="tab-log" class="tpane hidden">
       <div class="thead"><h1>📋 Lịch sử</h1><p>Toàn bộ hoạt động của gia đình · realtime</p></div>
       <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:20px;padding:12px;background:#fff;border-radius:14px;border:1px solid #e4e0d8">
@@ -803,6 +907,7 @@ input,select,button,textarea{font-family:'Nunito',sans-serif}
       <button class="mnbtn" id="mn-txn" onclick="showTab('txn')"><span class="mni">💸</span>Thu Chi</button>
       <button class="mnbtn" id="mn-goals" onclick="showTab('goals')"><span class="mni">🎯</span>Mục tiêu</button>
       <button class="mnbtn" id="mn-tasks" onclick="showTab('tasks')"><span class="mni">✅</span>Giao việc</button>
+      <button class="mnbtn" id="mn-plan" onclick="showTab('plan')"><span class="mni">📅</span>Kế hoạch</button>
       <button class="mnbtn" id="mn-entry" onclick="showTab('entry')"><span class="mni">✏️</span>Nhập</button>
       <button class="mnbtn" id="mn-log" onclick="showTab('log')"><span class="mni">📋</span>Lịch sử</button>
     </div>
@@ -1464,13 +1569,14 @@ function showTab(t){
   document.querySelectorAll(".tpane").forEach(e=>e.classList.add("hidden"));
   document.getElementById("tab-"+t).classList.remove("hidden");
   document.querySelectorAll(".ntab").forEach(b=>b.classList.toggle("on",b.getAttribute("onclick").includes("'"+t+"'")));
-  ["dashboard","txn","goals","tasks","entry","log"].forEach(k=>{const el=document.getElementById("mn-"+k);if(el)el.classList.toggle("on",k===t);});
+  ["dashboard","txn","goals","tasks","entry","log","plan"].forEach(k=>{const el=document.getElementById("mn-"+k);if(el)el.classList.toggle("on",k===t);});
   if(t==="txn")switchSubTab(currentSubTab);
   if(t==="goals")renderGoals();
   if(t==="wealth")renderWealth();
   if(t==="tasks")renderTasks();
   if(t==="dashboard")renderDashboard();
   if(t==="log"){loadActivityLog();}
+  if(t==="plan")renderPlan();
 }
 function selUser(u){selU=u;["jonny","linh"].forEach(k=>document.getElementById("bu-"+k).classList.toggle("on",k===u));}
 function openChangePwModal(){
@@ -2690,6 +2796,239 @@ function escHtml(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').
 // ═══════════════════════════
 // INIT
 // ═══════════════════════════
+// ═══════════════════════════════════════
+// KẾ HOẠCH NĂM — DATA & FUNCTIONS
+// ═══════════════════════════════════════
+var PLAN_YEAR = new Date().getFullYear();
+var PLAN_FIXED = [
+  {name:"Học phí con", amt:7200000, actual:0, note:"Đã đóng đến 8/6/2026"},
+  {name:"Tiền ăn & phát sinh", amt:7000000, actual:0, note:""},
+  {name:"Tiền vệ sinh nhà", amt:1200000, actual:0, note:""},
+  {name:"Thuê nhà", amt:0, actual:0, note:""},
+  {name:"Tiền điện", amt:0, actual:0, note:""},
+  {name:"Tiền nước", amt:0, actual:0, note:""},
+  {name:"Tiền rác", amt:0, actual:0, note:""},
+];
+var PLAN_EVENTS = [
+  {month:1, name:"Du lịch Đà Lạt", amt:0, actual:0, note:"Cần đặt chỗ sớm", status:"plan"},
+  {month:2, name:"Tiền chợ tất niên cho má", amt:500000, actual:0, note:"", status:"plan"},
+  {month:2, name:"Trang trí & mua sắm tết", amt:0, actual:0, note:"", status:"plan"},
+  {month:2, name:"Lì xì", amt:0, actual:0, note:"", status:"plan"},
+  {month:3, name:"Bảo hiểm nhân thọ", amt:8750000, actual:8750000, note:"Đóng định kỳ T3-6-9-12", status:"done"},
+  {month:6, name:"Bảo hiểm nhân thọ", amt:8750000, actual:0, note:"Đóng định kỳ T3-6-9-12", status:"plan"},
+  {month:9, name:"Bảo hiểm nhân thọ", amt:8750000, actual:0, note:"Đóng định kỳ T3-6-9-12", status:"plan"},
+  {month:12, name:"Bảo hiểm nhân thọ", amt:8750000, actual:0, note:"Đóng định kỳ T3-6-9-12", status:"plan"},
+];
+var PLAN_SAVINGS = [
+  {name:"Bảo hiểm nhân thọ", target:35000000, saved:8750000, monthly:2917000, note:"4 lần/năm × 8.75tr"},
+  {name:"Quỹ du lịch", target:0, saved:0, monthly:0, note:"Tự quyết định mục tiêu"},
+  {name:"Quỹ tết & sự kiện", target:0, saved:0, monthly:0, note:"Trang trí, lì xì..."},
+  {name:"Quỹ khẩn cấp", target:180000000, saved:105000000, monthly:0, note:"Mục tiêu 6 tháng chi phí"},
+];
+var PLAN_INCOME = {husband:20000000, wife:12000000};
+var _planTab = 'monthly';
+
+function switchPlanTab(t){
+  _planTab = t;
+  ['monthly','fixed','events','saving'].forEach(k=>{
+    document.getElementById('pst-'+k).classList.toggle('on',k===t);
+    document.getElementById('plan-'+k).classList.toggle('hidden',k!==t);
+  });
+}
+
+function _planFmt(n){return n?Math.round(n).toLocaleString('vi-VN')+'đ':'—';}
+function _planFmtM(n){
+  if(!n)return'—';
+  if(n>=1000000)return(n/1000000).toFixed(1).replace('.0','')+'tr';
+  return Math.round(n).toLocaleString('vi-VN')+'đ';
+}
+
+function renderPlan(){
+  var fixedTotal = PLAN_FIXED.reduce((s,f)=>s+(f.amt||0),0);
+  var incomeTotal = PLAN_INCOME.husband + PLAN_INCOME.wife;
+  var eventsTotal = PLAN_EVENTS.reduce((s,e)=>s+(e.amt||0),0);
+  var surplus = incomeTotal*12 - fixedTotal*12 - eventsTotal;
+
+  // Summary cards
+  document.getElementById('plan-summary').innerHTML = [
+    {l:'Thu vào / năm', v:_planFmtM(incomeTotal*12), c:'#059669', sub:'Chồng '+_planFmtM(PLAN_INCOME.husband)+' · Vợ '+_planFmtM(PLAN_INCOME.wife)},
+    {l:'Chi cố định / năm', v:_planFmtM(fixedTotal*12), c:'#dc2626', sub:_planFmtM(fixedTotal)+' / tháng'},
+    {l:'Chi sự kiện / năm', v:_planFmtM(eventsTotal), c:'#d97706', sub:PLAN_EVENTS.length+' sự kiện'},
+    {l:'Dư / tiết kiệm', v:_planFmtM(surplus), c:'#0ea5e9', sub:Math.round(surplus/(incomeTotal*12)*100)+'% thu nhập'},
+  ].map(function(m){return'<div class="card" style="text-align:center"><div style="font-size:11px;color:#94a3b8;text-transform:uppercase;margin-bottom:6px">'+m.l+'</div><div style="font-size:22px;font-weight:900;color:'+m.c+'">'+m.v+'</div><div style="font-size:11px;color:#94a3b8;margin-top:4px">'+m.sub+'</div></div>';}).join('');
+
+  renderPlanMonthly(fixedTotal, incomeTotal);
+  renderPlanFixed();
+  renderPlanEvents();
+  renderPlanSaving();
+}
+
+function renderPlanMonthly(fixedTotal, incomeTotal){
+  var now = new Date().getMonth()+1;
+  var months = ['T1','T2','T3','T4','T5','T6','T7','T8','T9','T10','T11','T12'];
+  var rows = months.map(function(m,i){
+    var mn = i+1;
+    var evAmt = PLAN_EVENTS.filter(function(e){return e.month===mn;}).reduce(function(s,e){return s+(e.amt||0);},0);
+    var evNames = PLAN_EVENTS.filter(function(e){return e.month===mn;}).map(function(e){return e.name;}).join(', ');
+    var total = fixedTotal + evAmt;
+    var surplus = incomeTotal - total;
+    var isCurrent = mn === now;
+    var statusHtml = isCurrent
+      ? '<span class="plan-status plan-status-active">Đang diễn ra</span>'
+      : mn < now
+        ? '<span class="plan-status plan-status-done">Đã qua</span>'
+        : '<span class="plan-status plan-status-plan">Kế hoạch</span>';
+    return '<tr'+(isCurrent?' class="plan-row-current"':'')+' style="border-bottom:1px solid #f0ede6">'
+      +'<td style="padding:10px 8px;font-weight:800;font-size:14px">'+m+'</td>'
+      +'<td style="padding:10px 8px;text-align:right;color:#dc2626;font-weight:700">'+_planFmtM(fixedTotal)+'</td>'
+      +'<td style="padding:10px 8px;text-align:right;color:'+(evAmt?'#d97706':'#94a3b8')+'">'+_planFmtM(evAmt)+'</td>'
+      +'<td style="padding:10px 8px;text-align:right;font-weight:900;color:#7c3aed">'+_planFmtM(total)+'</td>'
+      +'<td style="padding:10px 8px;text-align:right;color:#059669">'+_planFmtM(incomeTotal)+'</td>'
+      +'<td style="padding:10px 8px;text-align:right;font-weight:800;color:'+(surplus>=0?'#059669':'#dc2626')+'">'+(surplus>=0?'+':'')+_planFmtM(surplus)+'</td>'
+      +'<td style="padding:10px 8px;font-size:12px;color:#64748b;max-width:200px">'+(evNames||'—')+'</td>'
+      +'<td style="padding:10px 8px;text-align:center">'+statusHtml+'</td>'
+      +'</tr>';
+  }).join('');
+  document.getElementById('plan-monthly-body').innerHTML = rows;
+}
+
+function renderPlanFixed(){
+  var total = PLAN_FIXED.reduce(function(s,f){return s+(f.amt||0);},0);
+  document.getElementById('plan-fixed-body').innerHTML = PLAN_FIXED.map(function(f,i){
+    return '<tr style="border-bottom:1px solid #f0ede6">'
+      +'<td style="padding:10px 8px;font-weight:700">'+f.name+'</td>'
+      +'<td style="padding:10px 8px;text-align:right;color:#dc2626;font-weight:700">'+(f.amt?_planFmt(f.amt):'<span style="color:#94a3b8">Chưa nhập</span>')+'</td>'
+      +'<td style="padding:10px 8px;text-align:right;color:#0000ff">'+(f.actual?_planFmt(f.actual):'<span style="color:#94a3b8">—</span>')+'</td>'
+      +'<td style="padding:10px 8px;font-size:12px;color:#94a3b8">'+(f.note||'')+'</td>'
+      +'<td style="padding:10px 8px;text-align:center;display:flex;gap:6px;justify-content:center">'
+      +'<button onclick="openPlanFixedModal('+i+')" style="background:transparent;border:1px solid #e4e0d8;border-radius:8px;padding:3px 9px;cursor:pointer;font-size:12px;color:#0ea5e9">✏️</button>'
+      +'<button onclick="deletePlanFixed('+i+')" style="background:transparent;border:1px solid #fecaca;border-radius:8px;padding:3px 9px;cursor:pointer;font-size:12px;color:#ef4444">🗑</button>'
+      +'</td></tr>';
+  }).join('');
+  document.getElementById('plan-fixed-total').innerHTML = 'Tổng chi cố định: <span style="color:#dc2626">'+_planFmt(total)+' / tháng</span> · <span style="color:#7c3aed">'+_planFmt(total*12)+' / năm</span>';
+}
+
+function renderPlanEvents(){
+  document.getElementById('plan-events-body').innerHTML = PLAN_EVENTS.map(function(e,i){
+    var statusHtml = e.status==='done'
+      ? '<span class="plan-status plan-status-done">✅ Xong</span>'
+      : e.status==='active'
+        ? '<span class="plan-status plan-status-active">⏳ Đang lo</span>'
+        : '<span class="plan-status plan-status-plan">📋 Kế hoạch</span>';
+    return '<tr style="border-bottom:1px solid #f0ede6">'
+      +'<td style="padding:10px 8px;font-weight:800;color:#0d1f1a">T'+e.month+'</td>'
+      +'<td style="padding:10px 8px;font-weight:700">'+e.name+'</td>'
+      +'<td style="padding:10px 8px;text-align:right;color:#d97706;font-weight:700">'+(e.amt?_planFmt(e.amt):'<span style="color:#94a3b8">Chưa nhập</span>')+'</td>'
+      +'<td style="padding:10px 8px;text-align:right;color:#059669">'+(e.actual?_planFmt(e.actual):'<span style="color:#94a3b8">—</span>')+'</td>'
+      +'<td style="padding:10px 8px;font-size:12px;color:#94a3b8">'+(e.note||'')+'</td>'
+      +'<td style="padding:10px 8px;text-align:center">'+statusHtml+'</td>'
+      +'<td style="padding:10px 8px;text-align:center;display:flex;gap:6px;justify-content:center">'
+      +'<button onclick="openPlanEventModal('+i+')" style="background:transparent;border:1px solid #e4e0d8;border-radius:8px;padding:3px 9px;cursor:pointer;font-size:12px;color:#0ea5e9">✏️</button>'
+      +'<button onclick="deletePlanEvent('+i+')" style="background:transparent;border:1px solid #fecaca;border-radius:8px;padding:3px 9px;cursor:pointer;font-size:12px;color:#ef4444">🗑</button>'
+      +'</td></tr>';
+  }).join('');
+}
+
+function renderPlanSaving(){
+  var totalMonthly = PLAN_SAVINGS.reduce(function(s,q){return s+(q.monthly||0);},0);
+  document.getElementById('plan-saving-total').textContent = _planFmt(totalMonthly)+' / tháng';
+  document.getElementById('plan-saving-cards').innerHTML = PLAN_SAVINGS.map(function(q,i){
+    var pct = q.target>0?Math.min(100,Math.round(q.saved/q.target*100)):0;
+    return '<div class="plan-saving-card">'
+      +'<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">'
+      +'<div style="font-weight:800;font-size:14px;color:#0d1f1a">'+q.name+'</div>'
+      +'<div style="display:flex;gap:6px">'
+      +'<button onclick="openPlanSavingModal('+i+')" style="background:transparent;border:1px solid #e4e0d8;border-radius:8px;padding:3px 9px;cursor:pointer;font-size:12px;color:#0ea5e9">✏️</button>'
+      +'<button onclick="deletePlanSaving('+i+')" style="background:transparent;border:1px solid #fecaca;border-radius:8px;padding:3px 9px;cursor:pointer;font-size:12px;color:#ef4444">🗑</button>'
+      +'</div></div>'
+      +'<div style="font-size:12px;color:#64748b;margin-bottom:8px">'+q.note+'</div>'
+      +(q.target>0?'<div class="plan-saving-progress"><div class="plan-saving-fill" style="width:'+pct+'%"></div></div><div style="display:flex;justify-content:space-between;font-size:12px;color:#64748b"><span>Đã có: '+_planFmtM(q.saved)+'</span><span>Mục tiêu: '+_planFmtM(q.target)+'</span></div>':'')
+      +'<div style="margin-top:10px;padding-top:10px;border-top:1px solid #f0ede6;display:flex;justify-content:space-between;align-items:center">'
+      +'<span style="font-size:12px;color:#94a3b8">Cần dành / tháng</span>'
+      +'<span style="font-size:16px;font-weight:900;color:#0ea5e9">'+(q.monthly?_planFmt(q.monthly):'<span style="color:#94a3b8;font-size:12px">Chưa đặt</span>')+'</span>'
+      +'</div></div>';
+  }).join('');
+}
+
+// Modal Chi cố định
+function openPlanFixedModal(idx){
+  var f = idx!=null?PLAN_FIXED[idx]:{name:'',amt:0,actual:0,note:''};
+  var html = '<div class="overlay" id="modal-plan-fixed" style="position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.5);display:flex;align-items:center;justify-content:center;z-index:999">'
+    +'<div style="background:#fff;border-radius:24px;padding:32px;width:100%;max-width:420px;position:relative">'
+    +'<button onclick="document.getElementById(\'modal-plan-fixed\').remove()" style="position:absolute;top:16px;right:16px;background:transparent;border:none;font-size:22px;cursor:pointer;color:#94a3b8">×</button>'
+    +'<h2 style="margin-bottom:20px">'+(idx!=null?'✏️ Sửa khoản chi':'+ Thêm khoản chi cố định')+'</h2>'
+    +'<label class="flabel">Tên khoản chi</label><input class="finput" id="pf-name" value="'+escHtml(f.name)+'"/>'
+    +'<label class="flabel">Dự kiến / tháng (₫)</label><input class="finput" type="number" id="pf-amt" value="'+(f.amt||'')+'"/>'
+    +'<label class="flabel">Thực tế / tháng (₫)</label><input class="finput" type="number" id="pf-actual" value="'+(f.actual||'')+'"/>'
+    +'<label class="flabel">Ghi chú</label><input class="finput" id="pf-note" value="'+escHtml(f.note||'')+'"/>'
+    +'<button class="btn-submit" onclick="savePlanFixed('+(idx!=null?idx:'null')+')">💾 Lưu</button>'
+    +'</div></div>';
+  document.body.insertAdjacentHTML('beforeend',html);
+}
+function savePlanFixed(idx){
+  var obj={name:document.getElementById('pf-name').value.trim(),amt:parseFloat(document.getElementById('pf-amt').value)||0,actual:parseFloat(document.getElementById('pf-actual').value)||0,note:document.getElementById('pf-note').value.trim()};
+  if(!obj.name){showToast('⚠️ Nhập tên khoản chi!',false);return;}
+  if(idx!=null)PLAN_FIXED[idx]=obj;else PLAN_FIXED.push(obj);
+  document.getElementById('modal-plan-fixed').remove();
+  renderPlan();showToast('✅ Đã lưu khoản chi cố định');
+}
+function deletePlanFixed(i){if(!confirm('Xóa khoản này?'))return;PLAN_FIXED.splice(i,1);renderPlan();}
+
+// Modal Sự kiện
+function openPlanEventModal(idx){
+  var e=idx!=null?PLAN_EVENTS[idx]:{month:new Date().getMonth()+1,name:'',amt:0,actual:0,note:'',status:'plan'};
+  var months=['T1','T2','T3','T4','T5','T6','T7','T8','T9','T10','T11','T12'];
+  var mOpts=months.map(function(m,i){return'<option value="'+(i+1)+'"'+(e.month===(i+1)?' selected':'')+'>'+m+'</option>';}).join('');
+  var sOpts=['plan','active','done'].map(function(s){return'<option value="'+s+'"'+(e.status===s?' selected':'')+'>'+{plan:'📋 Kế hoạch',active:'⏳ Đang lo',done:'✅ Xong'}[s]+'</option>';}).join('');
+  var html='<div class="overlay" id="modal-plan-event" style="position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.5);display:flex;align-items:center;justify-content:center;z-index:999">'
+    +'<div style="background:#fff;border-radius:24px;padding:32px;width:100%;max-width:420px;position:relative">'
+    +'<button onclick="document.getElementById(\'modal-plan-event\').remove()" style="position:absolute;top:16px;right:16px;background:transparent;border:none;font-size:22px;cursor:pointer;color:#94a3b8">×</button>'
+    +'<h2 style="margin-bottom:20px">'+(idx!=null?'✏️ Sửa sự kiện':'🎉 Thêm sự kiện')+'</h2>'
+    +'<label class="flabel">Tháng</label><select class="fselect" id="pe-month">'+mOpts+'</select>'
+    +'<label class="flabel">Tên sự kiện</label><input class="finput" id="pe-name" value="'+escHtml(e.name)+'"/>'
+    +'<label class="flabel">Dự kiến chi (₫)</label><input class="finput" type="number" id="pe-amt" value="'+(e.amt||'')+'"/>'
+    +'<label class="flabel">Thực chi (₫)</label><input class="finput" type="number" id="pe-actual" value="'+(e.actual||'')+'"/>'
+    +'<label class="flabel">Ghi chú</label><input class="finput" id="pe-note" value="'+escHtml(e.note||'')+'"/>'
+    +'<label class="flabel">Trạng thái</label><select class="fselect" id="pe-status">'+sOpts+'</select>'
+    +'<button class="btn-submit" onclick="savePlanEvent('+(idx!=null?idx:'null')+')">💾 Lưu sự kiện</button>'
+    +'</div></div>';
+  document.body.insertAdjacentHTML('beforeend',html);
+}
+function savePlanEvent(idx){
+  var obj={month:parseInt(document.getElementById('pe-month').value),name:document.getElementById('pe-name').value.trim(),amt:parseFloat(document.getElementById('pe-amt').value)||0,actual:parseFloat(document.getElementById('pe-actual').value)||0,note:document.getElementById('pe-note').value.trim(),status:document.getElementById('pe-status').value};
+  if(!obj.name){showToast('⚠️ Nhập tên sự kiện!',false);return;}
+  if(idx!=null)PLAN_EVENTS[idx]=obj;else PLAN_EVENTS.push(obj);
+  PLAN_EVENTS.sort(function(a,b){return a.month-b.month;});
+  document.getElementById('modal-plan-event').remove();
+  renderPlan();showToast('✅ Đã lưu sự kiện');
+}
+function deletePlanEvent(i){if(!confirm('Xóa sự kiện này?'))return;PLAN_EVENTS.splice(i,1);renderPlan();}
+
+// Modal Tiết kiệm
+function openPlanSavingModal(idx){
+  var q=idx!=null?PLAN_SAVINGS[idx]:{name:'',target:0,saved:0,monthly:0,note:''};
+  var html='<div class="overlay" id="modal-plan-saving" style="position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.5);display:flex;align-items:center;justify-content:center;z-index:999">'
+    +'<div style="background:#fff;border-radius:24px;padding:32px;width:100%;max-width:420px;position:relative">'
+    +'<button onclick="document.getElementById(\'modal-plan-saving\').remove()" style="position:absolute;top:16px;right:16px;background:transparent;border:none;font-size:22px;cursor:pointer;color:#94a3b8">×</button>'
+    +'<h2 style="margin-bottom:20px">'+(idx!=null?'✏️ Sửa quỹ':'💰 Thêm quỹ tiết kiệm')+'</h2>'
+    +'<label class="flabel">Tên quỹ</label><input class="finput" id="ps-name" value="'+escHtml(q.name)+'"/>'
+    +'<label class="flabel">Mục tiêu (₫)</label><input class="finput" type="number" id="ps-target" value="'+(q.target||'')+'"/>'
+    +'<label class="flabel">Đã tiết kiệm (₫)</label><input class="finput" type="number" id="ps-saved" value="'+(q.saved||'')+'"/>'
+    +'<label class="flabel">Cần dành / tháng (₫)</label><input class="finput" type="number" id="ps-monthly" value="'+(q.monthly||'')+'"/>'
+    +'<label class="flabel">Ghi chú</label><input class="finput" id="ps-note" value="'+escHtml(q.note||'')+'"/>'
+    +'<button class="btn-submit" onclick="savePlanSaving('+(idx!=null?idx:'null')+')">💾 Lưu quỹ</button>'
+    +'</div></div>';
+  document.body.insertAdjacentHTML('beforeend',html);
+}
+function savePlanSaving(idx){
+  var obj={name:document.getElementById('ps-name').value.trim(),target:parseFloat(document.getElementById('ps-target').value)||0,saved:parseFloat(document.getElementById('ps-saved').value)||0,monthly:parseFloat(document.getElementById('ps-monthly').value)||0,note:document.getElementById('ps-note').value.trim()};
+  if(!obj.name){showToast('⚠️ Nhập tên quỹ!',false);return;}
+  if(idx!=null)PLAN_SAVINGS[idx]=obj;else PLAN_SAVINGS.push(obj);
+  document.getElementById('modal-plan-saving').remove();
+  renderPlan();showToast('✅ Đã lưu quỹ tiết kiệm');
+}
+function deletePlanSaving(i){if(!confirm('Xóa quỹ này?'))return;PLAN_SAVINGS.splice(i,1);renderPlan();}
+
 function initApp(){
   var td=new Date().toISOString().split("T")[0];
   var de=document.getElementById("en-date");if(de)de.value=td;
