@@ -785,7 +785,13 @@ input,select,button,textarea{font-family:'Nunito',sans-serif}
 
 
     <div id="tab-plan" class="tpane hidden">
-      <div class="thead"><h1>📅 Kế hoạch năm</h1><p>Thu chi dự kiến · Cập nhật hàng tháng để bám sát mục tiêu</p></div>
+      <div class="thead"><h1 id="plan-year-title">📅 Kế hoạch năm 2026</h1><p>Thu chi dự kiến · Cập nhật hàng tháng để bám sát mục tiêu</p></div>
+
+      <div style="display:flex;gap:8px;margin-bottom:16px;align-items:center;">
+        <span style="font-weight:600;color:var(--text)">Năm:</span>
+        <button id="btn-year-2025" onclick="switchPlanYear(2025)" style="padding:6px 18px;border-radius:20px;border:2px solid #6c63ff;background:white;color:#6c63ff;font-weight:600;cursor:pointer">2025</button>
+        <button id="btn-year-2026" onclick="switchPlanYear(2026)" style="padding:6px 18px;border-radius:20px;border:2px solid #6c63ff;background:#6c63ff;color:white;font-weight:600;cursor:pointer">2026</button>
+      </div>
 
       <!-- Summary cards -->
       <div id="plan-summary" style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:20px"></div>
@@ -1576,7 +1582,7 @@ function showTab(t){
   if(t==="tasks")renderTasks();
   if(t==="dashboard")renderDashboard();
   if(t==="log"){loadActivityLog();}
-  if(t==="plan")renderPlan();
+  if(t==="plan")loadPlanFromSheets();
 }
 function selUser(u){selU=u;["jonny","linh"].forEach(k=>document.getElementById("bu-"+k).classList.toggle("on",k===u));}
 function openChangePwModal(){
@@ -2800,32 +2806,71 @@ function escHtml(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').
 // KẾ HOẠCH NĂM — DATA & FUNCTIONS
 // ═══════════════════════════════════════
 var PLAN_YEAR = new Date().getFullYear();
-var PLAN_FIXED = [
-  {name:"Học phí con", amt:7200000, actual:0, note:"Đã đóng đến 8/6/2026"},
-  {name:"Tiền ăn & phát sinh", amt:7000000, actual:0, note:""},
-  {name:"Tiền vệ sinh nhà", amt:1200000, actual:0, note:""},
-  {name:"Thuê nhà", amt:0, actual:0, note:""},
-  {name:"Tiền điện", amt:0, actual:0, note:""},
-  {name:"Tiền nước", amt:0, actual:0, note:""},
-  {name:"Tiền rác", amt:0, actual:0, note:""},
-];
-var PLAN_EVENTS = [
-  {month:1, name:"Du lịch Đà Lạt", amt:0, actual:0, note:"Cần đặt chỗ sớm", status:"plan"},
-  {month:2, name:"Tiền chợ tất niên cho má", amt:500000, actual:0, note:"", status:"plan"},
-  {month:2, name:"Trang trí & mua sắm tết", amt:0, actual:0, note:"", status:"plan"},
-  {month:2, name:"Lì xì", amt:0, actual:0, note:"", status:"plan"},
-  {month:3, name:"Bảo hiểm nhân thọ", amt:8750000, actual:8750000, note:"Đóng định kỳ T3-6-9-12", status:"done"},
-  {month:6, name:"Bảo hiểm nhân thọ", amt:8750000, actual:0, note:"Đóng định kỳ T3-6-9-12", status:"plan"},
-  {month:9, name:"Bảo hiểm nhân thọ", amt:8750000, actual:0, note:"Đóng định kỳ T3-6-9-12", status:"plan"},
-  {month:12, name:"Bảo hiểm nhân thọ", amt:8750000, actual:0, note:"Đóng định kỳ T3-6-9-12", status:"plan"},
-];
-var PLAN_SAVINGS = [
-  {name:"Bảo hiểm nhân thọ", target:35000000, saved:8750000, monthly:2917000, note:"4 lần/năm × 8.75tr"},
-  {name:"Quỹ du lịch", target:0, saved:0, monthly:0, note:"Tự quyết định mục tiêu"},
-  {name:"Quỹ tết & sự kiện", target:0, saved:0, monthly:0, note:"Trang trí, lì xì..."},
-  {name:"Quỹ khẩn cấp", target:180000000, saved:105000000, monthly:0, note:"Mục tiêu 6 tháng chi phí"},
-];
-var PLAN_INCOME = {husband:20000000, wife:12000000};
+let currentPlanYear = 2026;
+
+const PLAN_DATA = {
+  2025: {
+    PLAN_FIXED: [
+      {name:"Học phí con", amt:7200000, actual:0, note:""},
+      {name:"Tiền ăn & phát sinh", amt:7000000, actual:0, note:""},
+      {name:"Tiền vệ sinh nhà", amt:1200000, actual:0, note:""},
+      {name:"Thuê nhà", amt:0, actual:0, note:""},
+      {name:"Tiền điện", amt:0, actual:0, note:""},
+      {name:"Tiền nước", amt:0, actual:0, note:""},
+      {name:"Tiền rác", amt:0, actual:0, note:""},
+    ],
+    PLAN_EVENTS: [
+      {month:1, name:"Du lịch Đà Lạt", amt:0, actual:0, note:"Cần đặt chỗ sớm", status:"plan"},
+      {month:2, name:"Tiền chợ tất niên cho má", amt:500000, actual:0, note:"", status:"plan"},
+      {month:2, name:"Trang trí & mua sắm tết", amt:0, actual:0, note:"", status:"plan"},
+      {month:2, name:"Lì xì", amt:0, actual:0, note:"", status:"plan"},
+      {month:3, name:"Bảo hiểm nhân thọ", amt:8750000, actual:8750000, note:"Đóng định kỳ T3-6-9-12", status:"done"},
+      {month:6, name:"Bảo hiểm nhân thọ", amt:8750000, actual:0, note:"Đóng định kỳ T3-6-9-12", status:"plan"},
+      {month:9, name:"Bảo hiểm nhân thọ", amt:8750000, actual:0, note:"Đóng định kỳ T3-6-9-12", status:"plan"},
+      {month:12, name:"Bảo hiểm nhân thọ", amt:8750000, actual:0, note:"Đóng định kỳ T3-6-9-12", status:"plan"},
+    ],
+    PLAN_SAVINGS: [
+      {name:"Bảo hiểm nhân thọ", target:35000000, saved:8750000, monthly:2917000, note:"4 lần/năm × 8.75tr"},
+      {name:"Quỹ du lịch", target:0, saved:0, monthly:0, note:"Tự quyết định mục tiêu"},
+      {name:"Quỹ tết & sự kiện", target:0, saved:0, monthly:0, note:"Trang trí, lì xì..."},
+      {name:"Quỹ khẩn cấp", target:180000000, saved:105000000, monthly:0, note:"Mục tiêu 6 tháng chi phí"},
+    ],
+    PLAN_INCOME: {husband:20000000, wife:12000000},
+  },
+  2026: {
+    PLAN_FIXED: [
+      {name:"Học phí con", amt:7200000, actual:0, note:"Đã đóng đến 8/6/2026"},
+      {name:"Tiền ăn & phát sinh", amt:7000000, actual:0, note:""},
+      {name:"Tiền vệ sinh nhà", amt:1200000, actual:0, note:""},
+      {name:"Thuê nhà", amt:0, actual:0, note:""},
+      {name:"Tiền điện", amt:0, actual:0, note:""},
+      {name:"Tiền nước", amt:0, actual:0, note:""},
+      {name:"Tiền rác", amt:0, actual:0, note:""},
+    ],
+    PLAN_EVENTS: [
+      {month:1, name:"Du lịch Đà Lạt", amt:0, actual:0, note:"Cần đặt chỗ sớm", status:"plan"},
+      {month:2, name:"Tiền chợ tất niên cho má", amt:500000, actual:0, note:"", status:"plan"},
+      {month:2, name:"Trang trí & mua sắm tết", amt:0, actual:0, note:"", status:"plan"},
+      {month:2, name:"Lì xì", amt:0, actual:0, note:"", status:"plan"},
+      {month:3, name:"Bảo hiểm nhân thọ", amt:8750000, actual:8750000, note:"Đóng định kỳ T3-6-9-12", status:"done"},
+      {month:6, name:"Bảo hiểm nhân thọ", amt:8750000, actual:0, note:"Đóng định kỳ T3-6-9-12", status:"plan"},
+      {month:9, name:"Bảo hiểm nhân thọ", amt:8750000, actual:0, note:"Đóng định kỳ T3-6-9-12", status:"plan"},
+      {month:12, name:"Bảo hiểm nhân thọ", amt:8750000, actual:0, note:"Đóng định kỳ T3-6-9-12", status:"plan"},
+    ],
+    PLAN_SAVINGS: [
+      {name:"Bảo hiểm nhân thọ", target:35000000, saved:8750000, monthly:2917000, note:"4 lần/năm × 8.75tr"},
+      {name:"Quỹ du lịch", target:0, saved:0, monthly:0, note:"Tự quyết định mục tiêu"},
+      {name:"Quỹ tết & sự kiện", target:0, saved:0, monthly:0, note:"Trang trí, lì xì..."},
+      {name:"Quỹ khẩn cấp", target:180000000, saved:105000000, monthly:0, note:"Mục tiêu 6 tháng chi phí"},
+    ],
+    PLAN_INCOME: {husband:20000000, wife:12000000},
+  },
+};
+
+let PLAN_FIXED = PLAN_DATA[2026].PLAN_FIXED;
+let PLAN_EVENTS = PLAN_DATA[2026].PLAN_EVENTS;
+let PLAN_SAVINGS = PLAN_DATA[2026].PLAN_SAVINGS;
+let PLAN_INCOME = PLAN_DATA[2026].PLAN_INCOME;
 var _planTab = 'monthly';
 
 function switchPlanTab(t){
@@ -2843,7 +2888,24 @@ function _planFmtM(n){
   return Math.round(n).toLocaleString('vi-VN')+'đ';
 }
 
+function switchPlanYear(year) {
+  currentPlanYear = year;
+  document.getElementById('btn-year-2025').style.background = year === 2025 ? '#6c63ff' : 'white';
+  document.getElementById('btn-year-2025').style.color = year === 2025 ? 'white' : '#6c63ff';
+  document.getElementById('btn-year-2026').style.background = year === 2026 ? '#6c63ff' : 'white';
+  document.getElementById('btn-year-2026').style.color = year === 2026 ? 'white' : '#6c63ff';
+  loadPlanFromSheets();
+}
+function loadPlanFromSheets() {
+  PLAN_FIXED = PLAN_DATA[currentPlanYear].PLAN_FIXED;
+  PLAN_EVENTS = PLAN_DATA[currentPlanYear].PLAN_EVENTS;
+  PLAN_SAVINGS = PLAN_DATA[currentPlanYear].PLAN_SAVINGS;
+  PLAN_INCOME = PLAN_DATA[currentPlanYear].PLAN_INCOME;
+  renderPlan();
+}
 function renderPlan(){
+  var titleEl = document.getElementById('plan-year-title');
+  if(titleEl) titleEl.textContent = '📅 Kế hoạch năm ' + currentPlanYear;
   var fixedTotal = PLAN_FIXED.reduce((s,f)=>s+(f.amt||0),0);
   var incomeTotal = PLAN_INCOME.husband + PLAN_INCOME.wife;
   var eventsTotal = PLAN_EVENTS.reduce((s,e)=>s+(e.amt||0),0);
