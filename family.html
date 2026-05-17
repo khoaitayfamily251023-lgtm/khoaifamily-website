@@ -1548,6 +1548,7 @@ let _editMode=null; // {type, index} — dùng chung cho mọi edit modal
 // ═══════════════════════════
 const fmt=n=>!n&&n!==0?"0đ":new Intl.NumberFormat("vi-VN").format(Math.round(n))+"đ";
 const fmtM=n=>{const a=Math.abs(n),s=n<0?"-":"";if(a>=1e9)return s+(a/1e9).toFixed(2)+" tỷ";if(a>=1e6)return s+(a/1e6).toFixed(1)+" tr";return s+new Intl.NumberFormat("vi-VN").format(Math.round(a))+"đ";};
+function fmtVND(n){return Math.round(n).toLocaleString('vi-VN')+' VND';}
 const catIcon=cat=>{
   if(!cat)return"💳";
   const m={
@@ -2019,7 +2020,7 @@ function renderDashboard(){
   const totalBal = dashYear === "2025"
     ? ACCOUNTS.reduce((s,a)=>s+a.bal, 0)
     : BASE_BALANCE_2025 + tot.thu - tot.chi;
-  document.getElementById("dash-balance").textContent = fmtM(totalBal);
+  document.getElementById("dash-balance").textContent = fmtVND(totalBal);
   document.getElementById("dash-acc-list").innerHTML = ACCOUNTS.map(a=>`<div style="display:flex;justify-content:space-between;align-items:center"><span style="font-size:12px;color:rgba(255,255,255,.6)">${a.icon} ${a.name}</span><span style="font-size:13px;font-weight:800;color:#4ade80">${fmtM(a.bal)}</span></div>`).join("");
 
   // Insight
