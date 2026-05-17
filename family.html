@@ -1876,9 +1876,17 @@ function renderBarChart(elId,data,h){
   const mx=Math.max(...data.map(d=>Math.max(d.thu||0,d.chi||0)),1);
   el.style.height=h+"px";
   el.innerHTML=data.map(d=>{
-    const dtu=d.thu||0,dch=d.chi||0;const tH=dtu>0?Math.max((dtu/mx)*(h-14),2):0,cH=dch>0?Math.max((dch/mx)*(h-14),2):0;
-    const neg=(d.thu||0)<(d.chi||0);
-    return`<div class="bc-col"><div class="bc-pair" style="height:${h-14}px"><div class="bc-thu" style="height:${tH}px"></div><div class="bc-chi" style="background:${neg?"#f87171":"#fb923c"};height:${cH}px"></div></div><div class="bc-lbl">${d.m||d.l||""}</div></div>`;
+    const dtu=d.thu||0,dch=d.chi||0;
+    const tH=Math.max((dtu/mx)*(h-14),2);
+    const cH=Math.max((dch/mx)*(h-14),2);
+    const tip=`Thu: ${fmtM(dtu)} | Chi: ${fmtM(dch)}`;
+    return`<div class="bc-col" title="${tip}" style="cursor:pointer;position:relative">
+      <div class="bc-pair" style="height:${h-14}px;align-items:flex-end;display:flex;gap:2px">
+        <div class="bc-thu" style="background:#34d399;height:${tH}px;flex:1;border-radius:3px 3px 0 0;transition:opacity .2s" onmouseover="this.style.opacity='.7'" onmouseout="this.style.opacity='1'"></div>
+        <div class="bc-chi" style="background:#fb923c;height:${cH}px;flex:1;border-radius:3px 3px 0 0;transition:opacity .2s" onmouseover="this.style.opacity='.7'" onmouseout="this.style.opacity='1'"></div>
+      </div>
+      <div class="bc-lbl" style="font-size:10px;text-align:center;color:#888">${d.m||d.l||""}</div>
+    </div>`;
   }).join("");
 }
 
