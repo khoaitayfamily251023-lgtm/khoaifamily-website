@@ -2154,28 +2154,78 @@ function switchMonthYear(y){
   renderMonthly();
 }
 function renderMonthly(){
-  const data=monthYear==="2025"?D25:D26;
-  const tot=data.reduce((s,m)=>({thu:s.thu+m.thu,chi:s.chi+m.chi}),{thu:0,chi:0});
-  const bal=tot.thu-tot.chi;
-  const mx=Math.max(...data.map(d=>Math.max(d.thu,d.chi)),1);
-  document.getElementById("mo-sum").innerHTML=[
-    {l:"Tổng thu",v:fmtM(tot.thu),c:"#059669"},{l:"Tổng chi",v:fmtM(tot.chi),c:"#dc2626"},
-    {l:bal>=0?"Tiết kiệm":"Thâm hụt",v:fmtM(Math.abs(bal)),c:bal>=0?"#0ea5e9":"#dc2626"}
-  ].map(s=>`<div class="card" style="text-align:center"><div style="font-size:10px;color:#94a3b8;margin-bottom:3px;text-transform:uppercase">${s.l}</div><div style="font-size:22px;font-weight:900;color:${s.c}">${s.v}</div></div>`).join("");
-  document.getElementById("mo-list").innerHTML=data.map(function(m){
-    var b=m.thu-m.chi,neg=b<0;
-    var tW=Math.round((m.thu/mx)*100),cW=Math.round((m.chi/mx)*100);
-    var topHtml=m.top?('<div style="margin-top:10px;display:flex;gap:7px;flex-wrap:wrap">'+m.top.map(function(t){return'<span style="background:#f5f3ef;color:#64748b;border-radius:18px;padding:3px 11px;font-size:10px;font-weight:600">'+t+'</span>';}).join("")+'</div>'):"";
-    return '<div class="card" style="margin-bottom:10px;border-color:'+(neg?"#fecaca":"#e4e0d8")+'">'
-      +'<div style="display:grid;grid-template-columns:50px 1fr 1fr 1fr 120px;align-items:center;gap:14px">'
-      +'<div style="font-weight:900;font-size:18px">'+m.m+'</div>'
-      +'<div><div style="font-size:10px;color:#94a3b8;text-transform:uppercase">Thu vào</div><div style="font-weight:800;font-size:15px;color:#059669">'+fmtM(m.thu)+'</div></div>'
-      +'<div><div style="font-size:10px;color:#94a3b8;text-transform:uppercase">Chi ra</div><div style="font-weight:800;font-size:15px;color:#dc2626">'+fmtM(m.chi)+'</div></div>'
-      +'<div><div style="font-size:10px;color:#94a3b8;text-transform:uppercase">Số dư</div><div style="font-weight:800;font-size:15px;color:'+(neg?"#dc2626":"#0ea5e9")+'">'+(neg?"":"+")+fmtM(b)+'</div></div>'
-      +'<div><div style="height:5px;background:#f0ede6;border-radius:2px;margin-bottom:3px"><div style="width:'+tW+'%;height:100%;background:#34d399;border-radius:2px"></div></div>'
-      +'<div style="height:5px;background:#f0ede6;border-radius:2px"><div style="width:'+cW+'%;height:100%;background:'+(neg?"#f87171":"#fb923c")+';border-radius:2px"></div></div></div>'
-      +'</div>'+topHtml+'</div>';
-  }).join("");
+  const txs = ALL_TX.filter(t => t.date.startsWith(monthYear));
+  const year = monthYear;
+
+  const months = Array.from({length:12},(_,i)=>{
+    const mo = String(i+1).padStart(2,'0');
+    const prefix = year+'-'+mo;
+    const ms = ALL_TX.filter(t=>t.date.startsWith(prefix)&&!_TRANSFER_CATS.includes(t.cat));
+    const thu = ms.filter(t=>t.type==='thu').reduce((s,t)=>s+t.amt,0);
+    const chi = ms.filter(t=>t.type==='chi').reduce((s,t)=>s+t.amt,0);
+    const catMap={};
+    ms.filter(t=>t.type==='chi').forEach(t=>{if(!catMap[t.cat])catMap[t.cat]=0;catMap[t.cat]+=t.amt;});
+    const top=Object.entries(catMap).sort((a,b)=>b[1]-a[1]).slice(0,3).map(([c,a])=>({name:c,amt:a}));
+    return {m:'T'+(i+1), thu, chi, top, hasData: thu>0||chi>0};
+  });
+
+  const totalThu = months.reduce((s,m)=>s+m.thu,0);
+  const totalChi = months.reduce((s,m)=>s+m.chi,0);
+  const saving = totalThu - totalChi;
+
+  document.getElementById('mo-sum').innerHTML=`
+    <div class="kcard" style="background:#f0fdf4;border:1.5px solid #86efac">
+      <div class="ki" style="color:#16a34a">📈</div>
+      <div class="kl">TỔNG THU</div>
+      <div class="kv" style="color:#16a34a">${fmtM(totalThu)}</div>
+    </div>
+    <div class="kcard" style="background:#fff1f2;border:1.5px solid #fca5a5">
+      <div class="ki" style="color:#dc2626">📉</div>
+      <div class="kl">TỔNG CHI</div>
+      <div class="kv" style="color:#dc2626">${fmtM(totalChi)}</div>
+    </div>
+    <div class="kcard" style="background:${saving>=0?'#f0f9ff':'#fff7ed'};border:1.5px solid ${saving>=0?'#7dd3fc':'#fdba74'}">
+      <div class="ki">${saving>=0?'💰':'⚠️'}</div>
+      <div class="kl">TIẾT KIỆM</div>
+      <div class="kv" style="color:${saving>=0?'#0369a1':'#ea580c'}">${fmtM(Math.abs(saving))}</div>
+    </div>`;
+
+  const maxVal = Math.max(...months.map(m=>Math.max(m.thu,m.chi)),1);
+
+  document.getElementById('mo-list').innerHTML=months.map(mo=>{
+    const thuPct = Math.round((mo.thu/maxVal)*100);
+    const chiPct = Math.round((mo.chi/maxVal)*100);
+    const sodu = mo.thu - mo.chi;
+    const topTags = mo.top.map(c=>`<span style="background:#f3f4f6;padding:2px 8px;border-radius:10px;font-size:11px;color:#555">${c.name} ${fmtM(c.amt)}</span>`).join('');
+    return `<div style="background:#fff;border-radius:12px;padding:14px 18px;box-shadow:0 1px 4px rgba(0,0,0,.06);${!mo.hasData?'opacity:0.4':''}">
+      <div style="display:grid;grid-template-columns:50px 1fr 1fr 1fr 120px;gap:8px;align-items:center">
+        <div style="font-weight:700;font-size:15px;color:#374151">${mo.m}</div>
+        <div>
+          <div style="font-size:11px;color:#6b7280;margin-bottom:2px">THU VÀO</div>
+          <div style="font-size:15px;font-weight:700;color:#16a34a">${mo.hasData?fmtM(mo.thu):'—'}</div>
+        </div>
+        <div>
+          <div style="font-size:11px;color:#6b7280;margin-bottom:2px">CHI RA</div>
+          <div style="font-size:15px;font-weight:700;color:#dc2626">${mo.hasData?fmtM(mo.chi):'—'}</div>
+        </div>
+        <div>
+          <div style="font-size:11px;color:#6b7280;margin-bottom:2px">SỐ DƯ</div>
+          <div style="font-size:15px;font-weight:700;color:${sodu>=0?'#0369a1':'#ea580c'}">${mo.hasData?(sodu>=0?'+':'')+fmtM(sodu):'—'}</div>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:3px">
+          <div style="display:flex;align-items:center;gap:4px">
+            <div style="width:4px;height:4px;border-radius:50%;background:#16a34a"></div>
+            <div style="height:6px;width:${thuPct}%;background:#34d399;border-radius:3px;min-width:2px;max-width:110px"></div>
+          </div>
+          <div style="display:flex;align-items:center;gap:4px">
+            <div style="width:4px;height:4px;border-radius:50%;background:#dc2626"></div>
+            <div style="height:6px;width:${chiPct}%;background:#fb923c;border-radius:3px;min-width:2px;max-width:110px"></div>
+          </div>
+        </div>
+      </div>
+      ${mo.hasData && mo.top.length>0?`<div style="margin-top:8px;display:flex;flex-wrap:wrap;gap:4px">${topTags}</div>`:''}
+    </div>`;
+  }).join('');
 }
 
 // ═══════════════════════════
