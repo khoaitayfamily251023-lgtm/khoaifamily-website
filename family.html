@@ -384,7 +384,7 @@ input,select,button,textarea{font-family:'Nunito',sans-serif}
         <div class="thead" style="margin-bottom:0"><h1>Dashboard</h1><p>Tổng quan tài chính gia đình · cập nhật realtime</p></div>
         <div id="dash-filter-bar" style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
           <div class="yr-toggle">
-            <button class="yrbtn" id="yr25" onclick="setDashYear('2025')">2025</button>
+            <button class="yrbtn" id="yr25" onclick="setDashYear('2025')" style="display:none">2025</button>
             <button class="yrbtn on" id="yr26" onclick="setDashYear('2026')">2026</button>
           </div>
           <select id="dash-mon" onchange="setDashMonth(this.value)" style="padding:7px 12px;border-radius:20px;border:1px solid var(--aborder);background:#fff;font-size:12px;font-weight:700;color:#555;cursor:pointer;outline:none">
@@ -2024,10 +2024,8 @@ function renderDashboard(){
   document.getElementById("dash-chart-title").textContent=chartTitle;
 
   // Account list — tính số dư theo công thức: số dư cuối 2025 + thu 2026 - chi 2026
-  const BASE_BALANCE_2025 = 56850626; // Số dư ngày 31/12/2025 (TPBank)
-  const totalBal = dashYear === "2025"
-    ? ACCOUNTS.reduce((s,a)=>s+a.bal, 0)
-    : BASE_BALANCE_2025 + tot.thu - tot.chi;
+  const BASE_BALANCE_2025 = 56900000; // Số dư ngày 31/12/2025 (TPBank)
+  const totalBal = BASE_BALANCE_2025 + tot.thu - tot.chi;
   document.getElementById("dash-balance").textContent = fmtVND(totalBal);
   document.getElementById("dash-acc-list").innerHTML = ACCOUNTS.map(a=>`<div style="display:flex;justify-content:space-between;align-items:center"><span style="font-size:12px;color:rgba(255,255,255,.6)">${a.icon} ${a.name}</span><span style="font-size:13px;font-weight:800;color:#4ade80">${fmtM(a.bal)}</span></div>`).join("");
 
