@@ -2157,17 +2157,17 @@ function renderMonthly(){
     <div class="kcard" style="background:#f0fdf4;border:1.5px solid #86efac">
       <div class="ki" style="color:#16a34a">📈</div>
       <div class="kl">TỔNG THU</div>
-      <div class="kv" style="color:#16a34a">${fmtM(totalThu)}</div>
+      <div class="kv" style="color:#16a34a;font-size:14px">${fmtVND(totalThu)}</div>
     </div>
     <div class="kcard" style="background:#fff1f2;border:1.5px solid #fca5a5">
       <div class="ki" style="color:#dc2626">📉</div>
       <div class="kl">TỔNG CHI</div>
-      <div class="kv" style="color:#dc2626">${fmtM(totalChi)}</div>
+      <div class="kv" style="color:#dc2626;font-size:14px">${fmtVND(totalChi)}</div>
     </div>
     <div class="kcard" style="background:${saving>=0?'#f0f9ff':'#fff7ed'};border:1.5px solid ${saving>=0?'#7dd3fc':'#fdba74'}">
       <div class="ki">${saving>=0?'💰':'⚠️'}</div>
       <div class="kl">TIẾT KIỆM</div>
-      <div class="kv" style="color:${saving>=0?'#0369a1':'#ea580c'}">${fmtM(Math.abs(saving))}</div>
+      <div class="kv" style="color:${saving>=0?'#0369a1':'#ea580c'};font-size:14px">${(saving>=0?'+':'-')+fmtVND(Math.abs(saving))}</div>
     </div>`;
 
   const maxVal = Math.max(...months.map(m=>Math.max(m.thu,m.chi)),1);
@@ -2182,11 +2182,11 @@ function renderMonthly(){
         <div style="font-weight:700;font-size:15px;color:#374151">${mo.m}</div>
         <div>
           <div style="font-size:11px;color:#6b7280;margin-bottom:2px">THU VÀO</div>
-          <div style="font-size:15px;font-weight:700;color:#16a34a">${mo.hasData?fmtM(mo.thu):'—'}</div>
+          <div style="font-size:13px;font-weight:700;color:#16a34a">${mo.hasData?fmtVND(mo.thu):'—'}</div>
         </div>
         <div>
           <div style="font-size:11px;color:#6b7280;margin-bottom:2px">CHI RA</div>
-          <div style="font-size:15px;font-weight:700;color:#dc2626">${mo.hasData?fmtM(mo.chi):'—'}</div>
+          <div style="font-size:13px;font-weight:700;color:#dc2626">${mo.hasData?fmtVND(mo.chi):'—'}</div>
         </div>
         <div>
           <div style="font-size:11px;color:#6b7280;margin-bottom:2px">SỐ DƯ</div>
