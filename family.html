@@ -159,6 +159,9 @@ input,select,button,textarea{font-family:'Nunito',sans-serif}
 .txcat{font-size:11px;color:var(--amuted);margin-top:1px}
 .txrt{text-align:right;flex-shrink:0}
 .txamt{font-weight:900;font-size:14px}
+.txbal{text-align:right;flex-shrink:0;min-width:105px;padding-left:8px;border-left:1px solid var(--aborder)}
+.txbal-lbl{font-size:9px;color:#94a3b8;text-transform:uppercase;letter-spacing:.4px;margin-bottom:2px}
+.txbal-val{font-size:12px;font-weight:700;color:#94a3b8}
 .chip{border-radius:18px;padding:2px 9px;font-size:10px;font-weight:800;display:inline-block;margin-top:2px}
 .fbtn{padding:7px 16px;border-radius:18px;border:1.5px solid var(--aborder);background:var(--acard);color:#666;cursor:pointer;font-weight:700;font-size:12px;transition:all .2s}
 .fbtn.on{border-color:#0d1f1a;background:#0d1f1a;color:#fff}
@@ -2077,10 +2080,24 @@ function renderTxTab(){
   const cs=document.getElementById("tx-cat");
   const cur=cs.value;
   cs.innerHTML=`<option value="all">Tất cả</option>`+cats.map(c=>`<option value="${c}"${c===cur?" selected":""}>${c}</option>`).join("");
-  renderTxList(list,"tx-list");
+  // Tính số dư chạy cho từng giao dịch 2026 (dựa trên toàn bộ ALL_TX, không phụ thuộc filter)
+  var balMap={};
+  if(yr==="2026"){
+    var BASE_BAL=56900000;
+    var all26=ALL_TX.filter(function(t){return t.date.startsWith("2026");}).sort(function(a,b){return b.date.localeCompare(a.date);});
+    var tot26Thu=all26.filter(function(t){return t.type==="thu";}).reduce(function(s,t){return s+t.amt;},0);
+    var tot26Chi=all26.filter(function(t){return t.type==="chi";}).reduce(function(s,t){return s+t.amt;},0);
+    var runBal=BASE_BAL+tot26Thu-tot26Chi;
+    all26.forEach(function(tx){
+      var idx=ALL_TX.indexOf(tx);
+      balMap[idx]=runBal;
+      runBal+=(tx.type==="thu"?-tx.amt:tx.amt);
+    });
+  }
+  renderTxList(list,"tx-list",balMap);
 }
 
-function renderTxList(list,elId){
+function renderTxList(list,elId,balMap){
   var el=document.getElementById(elId);if(!el)return;
   var withChk=elId==="tx-list";
   if(!list.length){el.innerHTML='<div style="text-align:center;padding:32px;color:#94a3b8;font-size:13px">Không có giao dịch nào</div>';return;}
@@ -2091,6 +2108,9 @@ function renderTxList(list,elId){
     var editBtn=i>=0?'<button onclick="openEditTxModal('+i+')" style="background:transparent;border:1px solid #e4e0d8;border-radius:6px;padding:2px 6px;cursor:pointer;font-size:10px;color:#0ea5e9;margin-right:4px">✏️</button>':"";
     var delBtn=i>=0?'<button onclick="deleteTx('+i+')" style="background:transparent;border:none;color:#ccc;cursor:pointer;font-size:13px">🗑</button>':"";
     var chk=withChk&&i>=0?'<input type="checkbox" class="tx-chk" data-idx="'+i+'" onchange="onTxChkChange()" style="width:15px;height:15px;flex-shrink:0;cursor:pointer;accent-color:#0d1f1a"/>':'' ;
+    var balHtml=withChk&&balMap&&i>=0&&balMap[i]!==undefined
+      ?'<div class="txbal"><div class="txbal-lbl">Số dư</div><div class="txbal-val">'+fmtVND(balMap[i])+'</div></div>'
+      :'';
     return '<div class="tx-item">'
       +chk
       +'<div class="txico" style="background:'+(tx.type==="thu"?"#f0fdf4":"#fff5f5")+'">'+catIcon(tx.cat)+'</div>'
@@ -2100,7 +2120,7 @@ function renderTxList(list,elId){
       +'<div style="display:flex;align-items:center;gap:2px;margin-top:2px">'
       +'<span class="chip" style="background:'+(tx.type==="thu"?"rgba(5,150,105,.1)":"rgba(220,38,38,.1)")+';color:'+(tx.type==="thu"?"#059669":"#dc2626")+'">'+(tx.type==="thu"?"Thu":"Chi")+'</span>'
       +editBtn+delBtn
-      +'</div></div></div>';
+      +'</div></div>'+balHtml+'</div>';
   }).join("");
 }
 
