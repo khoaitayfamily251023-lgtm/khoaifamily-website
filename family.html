@@ -1581,6 +1581,7 @@ function doChangePw(){
   showToast('✅ Đã đổi mật khẩu thành công!');
 }
 function doLogin(){
+    localStorage.removeItem('kf_custom_pw');
   var stored=localStorage.getItem('kf_custom_pw')||'khoaitay2023';
   if(document.getElementById("pw").value===stored){
     const u=selU==="jonny"?{name:"Ba Hảo",av:"👨"}:{name:"Mẹ Ngân",av:"👩"};
