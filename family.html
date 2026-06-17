@@ -1576,7 +1576,7 @@ function doChangePw(){
   if(cur!==stored){errEl.textContent='❌ Mật khẩu hiện tại không đúng!';errEl.classList.remove('hidden');return;}
   if(!nw||nw.length<6){errEl.textContent='❌ Mật khẩu mới phải có ít nhất 6 ký tự!';errEl.classList.remove('hidden');return;}
   if(nw!==cf){errEl.textContent='❌ Xác nhận mật khẩu không khớp!';errEl.classList.remove('hidden');return;}
-  localStorage.setItem('kf_custom_pw',nw);
+  // localStorage.setItem('kf_custom_pw',nw);
   document.getElementById('modal-change-pw').classList.add('hidden');
   showToast('✅ Đã đổi mật khẩu thành công!');
 }
