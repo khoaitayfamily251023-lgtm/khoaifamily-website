@@ -2190,7 +2190,7 @@ function renderMonthly(){
         </div>
         <div>
           <div style="font-size:11px;color:#6b7280;margin-bottom:2px">SỐ DƯ</div>
-          <div style="font-size:15px;font-weight:700;color:${sodu>=0?'#0369a1':'#ea580c'}">${mo.hasData?(sodu>=0?'+':'')+fmtM(sodu):'—'}</div>
+          <div style="font-size:13px;font-weight:700;color:${sodu>=0?'#0369a1':'#ea580c'}">${mo.hasData?(sodu>=0?'+':'-')+fmtVND(Math.abs(sodu)):'—'}</div>
         </div>
         <div style="display:flex;flex-direction:column;gap:3px">
           <div style="display:flex;align-items:center;gap:4px">
