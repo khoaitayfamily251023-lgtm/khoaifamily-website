@@ -1920,6 +1920,7 @@ function _buildChiCatsGrouped(txs){
   return Object.values(groups).sort((a,b)=>b.amt-a.amt);
 }
 function _dashInsight(txs){
+  txs=txs.filter(t=>!_TRANSFER_CATS.includes(t.cat)); // khớp KPI: bỏ chuyển khoản nội bộ cả thu lẫn chi
   if(!txs.length)return"Chưa có giao dịch trong khoảng thời gian này.";
   const mp={};
   txs.forEach(t=>{const k=t.date.slice(0,7);if(!mp[k])mp[k]={thu:0,chi:0};mp[k][t.type]+=t.amt;});
