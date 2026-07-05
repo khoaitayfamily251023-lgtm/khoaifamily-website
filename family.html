@@ -501,7 +501,7 @@ input,select,button,textarea{font-family:'Nunito',sans-serif}
       <!-- Sub: Monthly -->
       <div id="stab-monthly" class="hidden">
         <div style="display:flex;justify-content:flex-end;margin-bottom:14px">
-          <div class="yr-toggle"><button class="yrbtn on" id="myr25" onclick="switchMonthYear('2025')">2025</button><button class="yrbtn" id="myr26" onclick="switchMonthYear('2026')">2026</button></div>
+          <div class="yr-toggle"><button class="yrbtn" id="myr25" onclick="switchMonthYear('2025')">2025</button><button class="yrbtn on" id="myr26" onclick="switchMonthYear('2026')">2026</button></div>
         </div>
         <div class="g3" id="mo-sum"></div>
         <div id="mo-list"></div>
@@ -1922,8 +1922,8 @@ function _dashInsight(txs){
   if(!txs.length)return"Chưa có giao dịch trong khoảng thời gian này.";
   const mp={};
   txs.forEach(t=>{const k=t.date.slice(0,7);if(!mp[k])mp[k]={thu:0,chi:0};mp[k][t.type]+=t.amt;});
-  const last=Object.values(mp).sort((a,b)=>b.m<a.m?-1:1)[0]||Object.values(mp)[0];
   const lastKey=Object.keys(mp).sort().slice(-1)[0];
+  const last=mp[lastKey];
   const mn=parseInt(lastKey.slice(5));
   const b=last.thu-last.chi;
   return`Tháng gần nhất (T${mn}): thu <strong style="color:#059669">${fmtM(last.thu)}</strong> — chi <strong style="color:#dc2626">${fmtM(last.chi)}</strong>. ${b>=0?"✅ Dương 👍":"⚠️ Chi nhiều hơn thu"}`;
@@ -2195,7 +2195,7 @@ function renderMonthly(){
           <div style="font-size:13px;font-weight:700;color:#dc2626">${mo.hasData?fmtVND(mo.chi):'—'}</div>
         </div>
         <div>
-          <div style="font-size:11px;color:#6b7280;margin-bottom:2px">SỐ DƯ</div>
+          <div style="font-size:11px;color:#6b7280;margin-bottom:2px">TIẾT KIỆM</div>
           <div style="font-size:13px;font-weight:700;color:${sodu>=0?'#0369a1':'#ea580c'}">${mo.hasData?(sodu>=0?'+':'-')+fmtVND(Math.abs(sodu)):'—'}</div>
         </div>
         <div style="display:flex;flex-direction:column;gap:3px">
