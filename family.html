@@ -140,7 +140,7 @@ input,select,button,textarea{font-family:'Nunito',sans-serif}
 .kcard .bgi{position:absolute;top:-8px;right:-8px;font-size:46px;opacity:.07}
 .kcard .ki{font-size:20px;margin-bottom:7px}
 .kcard .kl{font-size:10px;color:var(--amuted);font-weight:700;margin-bottom:3px;text-transform:uppercase;letter-spacing:.5px}
-.kcard .kv{font-size:22px;font-weight:900}
+.kcard .kv{font-size:16px;font-weight:900;white-space:nowrap}
 .kcard .ks{font-size:11px;color:var(--amuted);margin-top:2px}
 .brow{display:flex;align-items:center;gap:9px;margin-bottom:9px}
 .brow .bri{font-size:17px;width:26px;text-align:center}
@@ -1858,7 +1858,7 @@ function renderBarChart(elId,data,h){
     const dtu=d.thu||0,dch=d.chi||0;
     const tH=Math.max((dtu/mx)*(h-14),2);
     const cH=Math.max((dch/mx)*(h-14),2);
-    const tip=`Thu: ${fmtM(dtu)} | Chi: ${fmtM(dch)}`;
+    const tip=`Thu: ${fmtVND(dtu)} | Chi: ${fmtVND(dch)}`;
     return`<div class="bc-col" title="${tip}" style="cursor:pointer;position:relative">
       <div class="bc-pair" style="height:${h-14}px;align-items:flex-end;display:flex;gap:2px">
         <div class="bc-thu" style="background:#34d399;height:${tH}px;flex:1;border-radius:3px 3px 0 0;transition:opacity .2s" onmouseover="this.style.opacity='.7'" onmouseout="this.style.opacity='1'"></div>
@@ -1927,7 +1927,7 @@ function _dashInsight(txs){
   const last=mp[lastKey];
   const mn=parseInt(lastKey.slice(5));
   const b=last.thu-last.chi;
-  return`Tháng gần nhất (T${mn}): thu <strong style="color:#059669">${fmtM(last.thu)}</strong> — chi <strong style="color:#dc2626">${fmtM(last.chi)}</strong>. ${b>=0?"✅ Dương 👍":"⚠️ Chi nhiều hơn thu"}`;
+  return`Tháng gần nhất (T${mn}): thu <strong style="color:#059669">${fmtVND(last.thu)}</strong> — chi <strong style="color:#dc2626">${fmtVND(last.chi)}</strong>. ${b>=0?"✅ Dương 👍":"⚠️ Chi nhiều hơn thu"}`;
 }
 // ── Dashboard filter controls ─────────────────────────
 function setDashYear(y){
@@ -1980,9 +1980,9 @@ function renderDashboard(){
 
   // KPIs
   const kpis=[
-    {l:"Tổng thu",v:fmtM(tot.thu),c:"#059669",bg:"#f0fdf4",bc:"#bbf7d0",i:"📈"},
-    {l:"Tổng chi",v:fmtM(tot.chi),c:"#dc2626",bg:"#fff5f5",bc:"#fecaca",i:"📉"},
-    {l:bal>=0?"Tiết kiệm":"Thâm hụt",v:fmtM(Math.abs(bal)),c:bal>=0?"#0ea5e9":"#dc2626",bg:"#f0f9ff",bc:"#bae6fd",i:bal>=0?"💰":"⚠️"},
+    {l:"Tổng thu",v:fmtVND(tot.thu),c:"#059669",bg:"#f0fdf4",bc:"#bbf7d0",i:"📈"},
+    {l:"Tổng chi",v:fmtVND(tot.chi),c:"#dc2626",bg:"#fff5f5",bc:"#fecaca",i:"📉"},
+    {l:bal>=0?"Tiết kiệm":"Thâm hụt",v:fmtVND(Math.abs(bal)),c:bal>=0?"#0ea5e9":"#dc2626",bg:"#f0f9ff",bc:"#bae6fd",i:bal>=0?"💰":"⚠️"},
     {l:"Tỷ lệ tiết kiệm",v:savePct+"%",c:"#7c3aed",bg:"#faf5ff",bc:"#e9d5ff",i:"📊"},
   ];
   document.getElementById("dash-kpis").innerHTML=kpis.map(k=>`<div class="kcard" style="background:${k.bg};border-color:${k.bc}"><div class="bgi">${k.i}</div><div class="ki">${k.i}</div><div class="kl">${k.l}</div><div class="kv" style="color:${k.c}">${k.v}</div></div>`).join("");
@@ -2001,7 +2001,7 @@ function renderDashboard(){
   console.log('[RECON] Đầu kỳ:', OPENING_BALANCE_2026, '| Thu 2026:', thu26, '| Chi 2026:', chi26, '| Số dư app:', totalBal);
   document.getElementById("dash-balance").textContent = fmtVND(totalBal);
   document.getElementById("dash-opening-balance") && (document.getElementById("dash-opening-balance").textContent = fmtVND(OPENING_BALANCE_2026));
-  document.getElementById("dash-acc-list").innerHTML = ACCOUNTS.map(a=>`<div style="display:flex;justify-content:space-between;align-items:center"><span style="font-size:12px;color:rgba(255,255,255,.6)">${a.icon} ${a.name}</span><span style="font-size:13px;font-weight:800;color:#4ade80">${fmtM(a.bal)}</span></div>`).join("");
+  document.getElementById("dash-acc-list").innerHTML = ACCOUNTS.map(a=>`<div style="display:flex;justify-content:space-between;align-items:center"><span style="font-size:12px;color:rgba(255,255,255,.6)">${a.icon} ${a.name}</span><span style="font-size:13px;font-weight:800;color:#4ade80">${fmtVND(a.bal)}</span></div>`).join("");
 
   // Insight
   document.getElementById("dash-insight").innerHTML=insightHtml;
@@ -2012,7 +2012,7 @@ function renderDashboard(){
   document.getElementById('dash-chi-bars').innerHTML=chiGroups.length?chiGroups.slice(0,6).map((g,gi)=>{
     const color=_CHI_COLORS[gi%_CHI_COLORS.length];
     const subHtml=Object.entries(g.subs).sort((a,b)=>b[1]-a[1]).map(([n,v])=>
-      `<div style="display:flex;justify-content:space-between;padding:2px 0 2px 26px;font-size:10px;color:#64748b"><span>${n.replace(g.name+' - ','')}</span><span style="font-weight:700">${fmtM(v)}</span></div>`
+      `<div style="display:flex;justify-content:space-between;padding:2px 0 2px 26px;font-size:10px;color:#64748b"><span>${n.replace(g.name+' - ','')}</span><span style="font-weight:700">${fmtVND(v)}</span></div>`
     ).join('');
     return`<div class="brow" style="cursor:pointer" onclick="this.nextElementSibling.classList.toggle('hidden')">
     <span class="bri">${catIcon(g.name)}</span>
@@ -2020,7 +2020,7 @@ function renderDashboard(){
       <div class="brt"><span class="brn" style="font-size:11px">${g.name}</span><span class="brp">${Math.round(g.amt/chiGroupTot*100)}%</span></div>
       <div class="brtr"><div class="brf" style="width:${(g.amt/chiGroups[0].amt)*100}%;background:${color}"></div></div>
     </div>
-    <span class="bra" style="color:${color};font-size:10px">${fmtM(g.amt)}</span>
+    <span class="bra" style="color:${color};font-size:10px">${fmtVND(g.amt)}</span>
   </div>
   <div class="hidden" style="margin-bottom:4px">${subHtml}</div>`;
   }).join(''):"<div style='font-size:12px;color:#94a3b8;text-align:center;padding:16px'>Không có chi tiêu trong khoảng này</div>";
@@ -2028,11 +2028,11 @@ function renderDashboard(){
   // Goals snap
   document.getElementById("dash-goals-snap").innerHTML=GOALS.slice(0,2).map(g=>{
     const pct=Math.min(Math.round((g.saved/g.target)*100),100);
-    return`<div style="margin-bottom:12px"><div style="display:flex;justify-content:space-between;margin-bottom:4px"><span style="font-size:12px;font-weight:700">${g.cat.split(" ").slice(1).join(" ")} — ${g.name}</span><span style="font-size:12px;font-weight:900;color:#059669">${pct}%</span></div><div class="progress-wrap"><div class="progress-fill" style="width:${pct}%;background:linear-gradient(90deg,#059669,#4ade80)"></div></div><div style="font-size:11px;color:#94a3b8;margin-top:2px">${fmtM(g.saved)} / ${fmtM(g.target)}</div></div>`;
+    return`<div style="margin-bottom:12px"><div style="display:flex;justify-content:space-between;margin-bottom:4px"><span style="font-size:12px;font-weight:700">${g.cat.split(" ").slice(1).join(" ")} — ${g.name}</span><span style="font-size:12px;font-weight:900;color:#059669">${pct}%</span></div><div class="progress-wrap"><div class="progress-fill" style="width:${pct}%;background:linear-gradient(90deg,#059669,#4ade80)"></div></div><div style="font-size:11px;color:#94a3b8;margin-top:2px">${fmtVND(g.saved)} / ${fmtVND(g.target)}</div></div>`;
   }).join("")||"<div style='font-size:12px;color:#94a3b8;text-align:center;padding:16px'>Chưa có mục tiêu. Thêm ngay!</div>";
 
   // Debt snap
-  document.getElementById("dash-debt-snap").innerHTML=DEBTS.slice(0,3).map(d=>`<div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid #f0ede6"><div><div style="font-size:12px;font-weight:700;color:var(--atext)">${d.name}</div><div style="font-size:10px;color:#94a3b8">${d.who} · ${d.dir==="owe"?"Tôi nợ":d.dir==="owed"?"Họ nợ tôi":"Trả góp"}</div></div><div style="font-weight:900;font-size:13px;color:${d.dir==="owe"?"#dc2626":d.dir==="owed"?"#059669":"#0ea5e9"}">${fmtM(d.amt)}</div></div>`).join("")||"<div style='font-size:12px;color:#94a3b8;text-align:center;padding:16px'>Không có khoản nợ nào 🎉</div>";
+  document.getElementById("dash-debt-snap").innerHTML=DEBTS.slice(0,3).map(d=>`<div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid #f0ede6"><div><div style="font-size:12px;font-weight:700;color:var(--atext)">${d.name}</div><div style="font-size:10px;color:#94a3b8">${d.who} · ${d.dir==="owe"?"Tôi nợ":d.dir==="owed"?"Họ nợ tôi":"Trả góp"}</div></div><div style="font-weight:900;font-size:13px;color:${d.dir==="owe"?"#dc2626":d.dir==="owed"?"#059669":"#0ea5e9"}">${fmtVND(d.amt)}</div></div>`).join("")||"<div style='font-size:12px;color:#94a3b8;text-align:center;padding:16px'>Không có khoản nợ nào 🎉</div>";
 
   // Tasks snap
   const pending=TASKS.filter(t=>t.status!=="done").slice(0,3);
@@ -2182,7 +2182,7 @@ function renderMonthly(){
     const thuPct = Math.round((mo.thu/maxVal)*100);
     const chiPct = Math.round((mo.chi/maxVal)*100);
     const sodu = mo.thu - mo.chi;
-    const topTags = mo.top.map(c=>`<span style="background:#f3f4f6;padding:2px 8px;border-radius:10px;font-size:11px;color:#555">${c.name} ${fmtM(c.amt)}</span>`).join('');
+    const topTags = mo.top.map(c=>`<span style="background:#f3f4f6;padding:2px 8px;border-radius:10px;font-size:11px;color:#555;white-space:nowrap">${c.name} ${fmtVND(c.amt)}</span>`).join('');
     return `<div style="background:#fff;border-radius:12px;padding:14px 18px;box-shadow:0 1px 4px rgba(0,0,0,.06);${!mo.hasData?'opacity:0.4':''}">
       <div style="display:grid;grid-template-columns:50px 1fr 1fr 1fr 120px;gap:8px;align-items:center">
         <div style="font-weight:700;font-size:15px;color:#374151">${mo.m}</div>
@@ -2269,8 +2269,8 @@ function applyAnalytics(){
   const TA=Object.entries(TC).sort((a,b)=>b[1]-a[1]).slice(0,6);
   const CX=CA[0]?.[1]||1,TX2=TA[0]?.[1]||1;
   const COLS=["#8b5cf6","#0ea5e9","#f59e0b","#10b981","#ec4899","#06b6d4"];
-  document.getElementById("an-chi-cats").innerHTML=CA.length?CA.map(([n,v],i)=>`<div class="brow"><span class="bri">${catIcon(n)}</span><div class="brb"><div class="brt"><span class="brn" style="font-size:11px;max-width:140px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;display:block">${n}</span><span class="brp">${chi?Math.round(v/chi*100):0}%</span></div><div class="brtr"><div class="brf" style="width:${(v/CX)*100}%;background:${COLS[i]}"></div></div></div><span class="bra" style="color:${COLS[i]};font-size:10px">${fmtM(v)}</span></div>`).join(""):`<div style="text-align:center;padding:20px;color:#94a3b8;font-size:12px">Không có dữ liệu</div>`;
-  document.getElementById("an-thu-cats").innerHTML=TA.length?TA.map(([n,v],i)=>`<div class="brow"><span class="bri">${catIcon(n)}</span><div class="brb"><div class="brt"><span class="brn" style="font-size:11px;max-width:140px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;display:block">${n}</span><span class="brp">${thu?Math.round(v/thu*100):0}%</span></div><div class="brtr"><div class="brf" style="width:${(v/TX2)*100}%;background:${COLS[i]}"></div></div></div><span class="bra" style="color:${COLS[i]};font-size:10px">${fmtM(v)}</span></div>`).join(""):`<div style="text-align:center;padding:20px;color:#94a3b8;font-size:12px">Không có dữ liệu</div>`;
+  document.getElementById("an-chi-cats").innerHTML=CA.length?CA.map(([n,v],i)=>`<div class="brow"><span class="bri">${catIcon(n)}</span><div class="brb"><div class="brt"><span class="brn" style="font-size:11px;max-width:140px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;display:block">${n}</span><span class="brp">${chi?Math.round(v/chi*100):0}%</span></div><div class="brtr"><div class="brf" style="width:${(v/CX)*100}%;background:${COLS[i]}"></div></div></div><span class="bra" style="color:${COLS[i]};font-size:10px">${fmtVND(v)}</span></div>`).join(""):`<div style="text-align:center;padding:20px;color:#94a3b8;font-size:12px">Không có dữ liệu</div>`;
+  document.getElementById("an-thu-cats").innerHTML=TA.length?TA.map(([n,v],i)=>`<div class="brow"><span class="bri">${catIcon(n)}</span><div class="brb"><div class="brt"><span class="brn" style="font-size:11px;max-width:140px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;display:block">${n}</span><span class="brp">${thu?Math.round(v/thu*100):0}%</span></div><div class="brtr"><div class="brf" style="width:${(v/TX2)*100}%;background:${COLS[i]}"></div></div></div><span class="bra" style="color:${COLS[i]};font-size:10px">${fmtVND(v)}</span></div>`).join(""):`<div style="text-align:center;padding:20px;color:#94a3b8;font-size:12px">Không có dữ liệu</div>`;
   const sorted=filtered.sort((a,b)=>b.date.localeCompare(a.date));
   document.getElementById("an-tx-count").textContent=sorted.length+" giao dịch";
   renderTxList(sorted,"an-tx-list");
@@ -2282,7 +2282,7 @@ function applyAnalytics(){
 function goalHint(g, months, dl) {
   if (!months) return "";
   var dlPart = dl ? (" · Còn <strong>" + (dl > 0 ? dl + " ngày" : "Đã qua hạn") + "</strong> để deadline") : "";
-  return '<div style="margin-top:10px;padding:10px;background:#f8f6f2;border-radius:10px;font-size:12px;color:#555">💡 Nếu tiết kiệm <strong>' + fmtM(g.monthly) + '/tháng</strong> → đạt sau <strong>' + months + ' tháng</strong>' + dlPart + '</div>';
+  return '<div style="margin-top:10px;padding:10px;background:#f8f6f2;border-radius:10px;font-size:12px;color:#555">💡 Nếu tiết kiệm <strong>' + fmtVND(g.monthly) + '/tháng</strong> → đạt sau <strong>' + months + ' tháng</strong>' + dlPart + '</div>';
 }
 function renderGoals(){
   document.getElementById("goal-list").innerHTML=GOALS.map(function(g,i){
@@ -2298,9 +2298,9 @@ function renderGoals(){
       +'<div style="display:flex;gap:4px;justify-content:flex-end;margin-top:4px"><button onclick="openGoalModal('+i+')" style="background:transparent;border:1px solid #bae6fd;border-radius:7px;padding:3px 8px;cursor:pointer;font-size:11px;color:#0ea5e9">✏️</button><button onclick="deleteGoal('+i+')" style="background:transparent;border:none;color:#ccc;cursor:pointer;font-size:14px">🗑</button></div></div></div>'
       +'<div class="progress-wrap"><div class="progress-fill" style="width:'+pct+'%;background:linear-gradient(90deg,#059669,#4ade80)"></div></div>'
       +'<div class="gc-stats">'
-      +'<div class="gc-stat"><div class="gc-sl">Đã có</div><div class="gc-sv" style="color:#059669">'+fmtM(g.saved)+'</div></div>'
-      +'<div class="gc-stat"><div class="gc-sl">Còn thiếu</div><div class="gc-sv" style="color:#dc2626">'+fmtM(rem)+'</div></div>'
-      +'<div class="gc-stat"><div class="gc-sl">Mục tiêu</div><div class="gc-sv">'+fmtM(g.target)+'</div></div>'
+      +'<div class="gc-stat"><div class="gc-sl">Đã có</div><div class="gc-sv" style="color:#059669">'+fmtVND(g.saved)+'</div></div>'
+      +'<div class="gc-stat"><div class="gc-sl">Còn thiếu</div><div class="gc-sv" style="color:#dc2626">'+fmtVND(rem)+'</div></div>'
+      +'<div class="gc-stat"><div class="gc-sl">Mục tiêu</div><div class="gc-sv">'+fmtVND(g.target)+'</div></div>'
       +'</div>'
       +goalHint(g, months, dl)
       +'</div>';
@@ -2321,7 +2321,7 @@ function calcInstallment(){
   const ratio=income?Math.round(monthly/income*100):null;
   var ratioHtml="";
   if(ratio){var ratioColor=ratio>40?"#f87171":ratio>30?"#fbbf24":"#4ade80";var ratioNote=ratio>40?"⚠️ Quá cao (>40%)":ratio>30?"🟡 Nên cân nhắc":"✅ Ổn định";ratioHtml='<div style="margin-top:12px;padding:10px;background:rgba(255,255,255,.08);border-radius:10px;font-size:12px;color:rgba(255,255,255,.7)">📊 Tỷ lệ trả góp / thu nhập: <strong style="color:'+ratioColor+'">'+ratio+'%</strong> '+ratioNote+'</div>';}
-  document.getElementById("calc-result").innerHTML='<div class="calc-result"><div class="cr-title">Kết quả tính toán</div><div class="cr-grid"><div class="cr-item"><div class="crl">Trả trước</div><div class="crv">'+fmtM(price*downPct/100)+'</div></div><div class="cr-item"><div class="crl">Số tiền vay</div><div class="crv">'+fmtM(loan)+'</div></div><div class="cr-item"><div class="crl">Trả hàng tháng</div><div class="crv">'+fmtM(monthly)+'</div></div><div class="cr-item"><div class="crl">Tổng lãi phải trả</div><div class="crv" style="color:#f87171">'+fmtM(interest)+'</div></div></div>'+ratioHtml+'</div>';
+  document.getElementById("calc-result").innerHTML='<div class="calc-result"><div class="cr-title">Kết quả tính toán</div><div class="cr-grid"><div class="cr-item"><div class="crl">Trả trước</div><div class="crv">'+fmtVND(price*downPct/100)+'</div></div><div class="cr-item"><div class="crl">Số tiền vay</div><div class="crv">'+fmtVND(loan)+'</div></div><div class="cr-item"><div class="crl">Trả hàng tháng</div><div class="crv">'+fmtVND(monthly)+'</div></div><div class="cr-item"><div class="crl">Tổng lãi phải trả</div><div class="crv" style="color:#f87171">'+fmtVND(interest)+'</div></div></div>'+ratioHtml+'</div>';
 }
 
 // ═══════════════════════════
@@ -2329,7 +2329,7 @@ function calcInstallment(){
 // ═══════════════════════════
 function payDebt(i){
   var np=parseFloat(prompt("Trả bao nhiêu (VND)?",""));
-  if(np>0){DEBTS[i].amt=Math.max(0,DEBTS[i].amt-np);renderWealth();renderDashboard();showToast("✅ Đã ghi nhận trả "+fmtM(np));}
+  if(np>0){DEBTS[i].amt=Math.max(0,DEBTS[i].amt-np);renderWealth();renderDashboard();showToast("✅ Đã ghi nhận trả "+fmtVND(np));}
 }
 function renderWealth(){
   const totalAcc=ACCOUNTS.reduce((s,a)=>s+a.bal,0);
@@ -2339,10 +2339,10 @@ function renderWealth(){
   const totalInstall=DEBTS.filter(d=>d.dir==="installment").reduce((s,d)=>s+d.monthly,0);
   const net=(totalAcc+totalAsset)-totalOwe;
 
-  document.getElementById("nw-assets").textContent=fmtM(totalAcc+totalAsset);
-  document.getElementById("nw-debts").textContent=fmtM(totalOwe);
-  document.getElementById("nw-net").textContent=fmtM(net);
-  document.getElementById("nw-liquid").textContent=fmtM(totalAcc);
+  document.getElementById("nw-assets").textContent=fmtVND(totalAcc+totalAsset);
+  document.getElementById("nw-debts").textContent=fmtVND(totalOwe);
+  document.getElementById("nw-net").textContent=fmtVND(net);
+  document.getElementById("nw-liquid").textContent=fmtVND(totalAcc);
 
   // Accounts
   document.getElementById("acc-list").innerHTML=ACCOUNTS.map(function(a,i){
@@ -2369,9 +2369,9 @@ function renderWealth(){
   }).join("")||'<div class="card" style="text-align:center;padding:24px;color:#94a3b8">Chưa có tài sản.</div>';
 
   // Debt summary
-  document.getElementById("debt-owe").textContent=fmtM(totalOwe);
-  document.getElementById("debt-owed").textContent=fmtM(totalOwed);
-  document.getElementById("debt-monthly").textContent=fmtM(totalInstall);
+  document.getElementById("debt-owe").textContent=fmtVND(totalOwe);
+  document.getElementById("debt-owed").textContent=fmtVND(totalOwed);
+  document.getElementById("debt-monthly").textContent=fmtVND(totalInstall);
 
   // Debt list
   document.getElementById("debt-list").innerHTML=DEBTS.map(function(d,i){
@@ -2381,12 +2381,12 @@ function renderWealth(){
     var dirLabel=d.dir==="owe"?"🔴 Tôi đang nợ":d.dir==="owed"?"🟢 Họ nợ tôi":"🔵 Trả góp định kỳ";
     var dlHtml="";
     if(dl!==null){var dlColor=dl<0?"#ef4444":dl<=30?"#f59e0b":"#94a3b8";dlHtml='<div class="debt-due" style="color:'+dlColor+'">'+(dl<0?"Trễ "+Math.abs(dl)+"ng":dl+"ng nữa")+'</div>';}
-    var monthlyHtml=d.monthly?'<div style="font-size:11px;color:#555;margin-top:6px">Trả góp: <strong>'+fmtM(d.monthly)+'/tháng</strong></div>':"";
+    var monthlyHtml=d.monthly?'<div style="font-size:11px;color:#555;margin-top:6px">Trả góp: <strong>'+fmtVND(d.monthly)+'/tháng</strong></div>':"";
     var noteHtml=d.note?'<div class="debt-note">'+d.note+'</div>':"";
     return '<div class="debt-card" style="background:'+bg+';border-color:'+bc+'">'
       +'<div class="debt-top">'
       +'<div><div class="debt-name">'+d.name+'</div><div class="debt-who">'+(d.who?d.who+" · ":"")+dirLabel+'</div></div>'
-      +'<div style="text-align:right"><div class="debt-amt" style="color:'+c+'">'+fmtM(d.amt)+'</div>'+dlHtml+'</div>'
+      +'<div style="text-align:right"><div class="debt-amt" style="color:'+c+'">'+fmtVND(d.amt)+'</div>'+dlHtml+'</div>'
       +'</div>'
       +monthlyHtml+noteHtml
       +'<div style="margin-top:10px;display:flex;gap:8px">'
