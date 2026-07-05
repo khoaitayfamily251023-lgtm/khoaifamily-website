@@ -1991,7 +1991,11 @@ function renderDashboard(){
 
   // Account list — tính số dư theo công thức: số dư cuối 2025 + thu 2026 - chi 2026
   const BASE_BALANCE_2025 = 56900000; // Số dư ngày 31/12/2025 (TPBank)
-  const totalBal = BASE_BALANCE_2025 + tot.thu - tot.chi;
+  // Số dư tổng luôn tính từ TOÀN BỘ giao dịch 2026 (kể cả chuyển khoản nội bộ), không phụ thuộc bộ lọc
+  const all26 = ALL_TX.filter(t=>t.date.startsWith("2026"));
+  const thu26 = all26.filter(t=>t.type==="thu").reduce((s,t)=>s+t.amt,0);
+  const chi26 = all26.filter(t=>t.type==="chi").reduce((s,t)=>s+t.amt,0);
+  const totalBal = BASE_BALANCE_2025 + thu26 - chi26;
   document.getElementById("dash-balance").textContent = fmtVND(totalBal);
   document.getElementById("dash-opening-balance") && (document.getElementById("dash-opening-balance").textContent = fmtVND(BASE_BALANCE_2025));
   document.getElementById("dash-acc-list").innerHTML = ACCOUNTS.map(a=>`<div style="display:flex;justify-content:space-between;align-items:center"><span style="font-size:12px;color:rgba(255,255,255,.6)">${a.icon} ${a.name}</span><span style="font-size:13px;font-weight:800;color:#4ade80">${fmtM(a.bal)}</span></div>`).join("");
