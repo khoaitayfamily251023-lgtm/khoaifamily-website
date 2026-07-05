@@ -425,7 +425,7 @@ input,select,button,textarea{font-family:'Nunito',sans-serif}
             <div style="font-size:11px;color:rgba(255,255,255,.35);margin-top:3px">Tổng tất cả tài khoản</div>
             <div style="margin-top:8px;font-size:12px;color:rgba(255,255,255,.6);display:flex;justify-content:space-between;align-items:center">
               <span>💰 Số dư đầu kỳ 2026</span>
-              <span id="dash-opening-balance" style="color:#facc15;font-weight:700">56.900.000 VND</span>
+              <span id="dash-opening-balance" style="color:#facc15;font-weight:700">56.850.626 VND</span>
             </div>
             <div style="margin-top:4px;font-size:11px;color:rgba(255,255,255,.4);font-style:italic">Nhập tay · cập nhật khi cần</div>
             <div style="margin-top:12px;display:none;flex-direction:column;gap:6px" id="dash-acc-list"></div>
@@ -1516,6 +1516,7 @@ async function loadAllDataFromSheets(){
 }
 
 const _CY=new Date().getFullYear().toString();
+const OPENING_BALANCE_2026 = 56850626; // Số dư TPBank 31/12/2025 — cập nhật tay đầu mỗi năm
 let dashYear=_CY,dashMonth="all",dashFrom="",dashTo="",dashMode="year",monthYear=_CY,entryType="thu";
 let currentSubTab="transactions";
 let _editMode=null; // {type, index} — dùng chung cho mọi edit modal
@@ -1992,14 +1993,14 @@ function renderDashboard(){
   document.getElementById("dash-chart-title").textContent=chartTitle;
 
   // Account list — tính số dư theo công thức: số dư cuối 2025 + thu 2026 - chi 2026
-  const BASE_BALANCE_2025 = 56900000; // Số dư ngày 31/12/2025 (TPBank)
   // Số dư tổng luôn tính từ TOÀN BỘ giao dịch 2026 (kể cả chuyển khoản nội bộ), không phụ thuộc bộ lọc
   const all26 = ALL_TX.filter(t=>t.date.startsWith("2026"));
   const thu26 = all26.filter(t=>t.type==="thu").reduce((s,t)=>s+t.amt,0);
   const chi26 = all26.filter(t=>t.type==="chi").reduce((s,t)=>s+t.amt,0);
-  const totalBal = BASE_BALANCE_2025 + thu26 - chi26;
+  const totalBal = OPENING_BALANCE_2026 + thu26 - chi26;
+  console.log('[RECON] Đầu kỳ:', OPENING_BALANCE_2026, '| Thu 2026:', thu26, '| Chi 2026:', chi26, '| Số dư app:', totalBal);
   document.getElementById("dash-balance").textContent = fmtVND(totalBal);
-  document.getElementById("dash-opening-balance") && (document.getElementById("dash-opening-balance").textContent = fmtVND(BASE_BALANCE_2025));
+  document.getElementById("dash-opening-balance") && (document.getElementById("dash-opening-balance").textContent = fmtVND(OPENING_BALANCE_2026));
   document.getElementById("dash-acc-list").innerHTML = ACCOUNTS.map(a=>`<div style="display:flex;justify-content:space-between;align-items:center"><span style="font-size:12px;color:rgba(255,255,255,.6)">${a.icon} ${a.name}</span><span style="font-size:13px;font-weight:800;color:#4ade80">${fmtM(a.bal)}</span></div>`).join("");
 
   // Insight
@@ -2089,11 +2090,10 @@ function renderTxTab(){
   // Tính số dư chạy cho từng giao dịch 2026 (dựa trên toàn bộ ALL_TX, không phụ thuộc filter)
   var balMap={};
   if(yr==="2026"){
-    var BASE_BAL=56900000;
     var all26=ALL_TX.filter(function(t){return t.date.startsWith("2026");}).sort(function(a,b){return b.date.localeCompare(a.date);});
     var tot26Thu=all26.filter(function(t){return t.type==="thu";}).reduce(function(s,t){return s+t.amt;},0);
     var tot26Chi=all26.filter(function(t){return t.type==="chi";}).reduce(function(s,t){return s+t.amt;},0);
-    var runBal=BASE_BAL+tot26Thu-tot26Chi;
+    var runBal=OPENING_BALANCE_2026+tot26Thu-tot26Chi;
     all26.forEach(function(tx){
       var idx=ALL_TX.indexOf(tx);
       balMap[idx]=runBal;
