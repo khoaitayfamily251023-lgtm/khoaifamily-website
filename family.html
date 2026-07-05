@@ -304,6 +304,7 @@ input,select,button,textarea{font-family:'Nunito',sans-serif}
 </style>
 </head>
 <body>
+<div id="sync-warn" style="display:none;position:fixed;top:0;left:0;right:0;z-index:9999;background:#dc2626;color:#fff;font-weight:700;font-size:13px;text-align:center;padding:8px">⚠️ DỮ LIỆU CHƯA LƯU LÊN GOOGLE SHEETS — bấm Sync lại. Nếu vẫn lỗi, chụp màn hình báo Ba Hảo.</div>
 
 <!-- ══ HOME ══ -->
 <div id="pg-home" class="hidden">
@@ -1321,6 +1322,7 @@ async function gsRead(range){
   return d.values||[];
 }
 async function gsWrite(range,values){
+  showSyncWarn(); // dirty-flag: chỉ tắt khi ghi + reload thành công trọn vẹn
   const tok=await getGSToken();
   const sheetName=range.split('!')[0];
   const url='https://sheets.googleapis.com/v4/spreadsheets/'+GS_SPREADSHEET_ID+'/values/'+encodeURIComponent(range)+'?valueInputOption=RAW';
@@ -1334,6 +1336,7 @@ async function gsWrite(range,values){
   await fetch(clearUrl,{method:'POST',headers:{Authorization:'Bearer '+tok,'Content-Type':'application/json'}}).catch(()=>{});
   // Reload data từ Sheet về để đồng bộ UI
   await loadAllDataFromSheets();
+  clearSyncWarn();
 }
 async function syncTransactions(){
   await gsWrite('Transactions!A1',[['date','type','cat','desc','amt'],...ALL_TX.map(t=>[t.date,t.type,t.cat,t.desc,t.amt])]);
@@ -1353,7 +1356,7 @@ async function syncGoals(){
 async function syncTasks(){
   await gsWrite('Tasks!A1',[['title','assign','pri','cat','due','note','status'],...TASKS.map(t=>[t.title,t.assign,t.pri,t.cat,t.due,t.note,t.status])]);
 }
-function _syncBg(fn){fn().catch(e=>{console.warn('GS background sync:',e.message);showToast('❌ Sync lỗi: '+e.message,false);});}
+function _syncBg(fn){fn().catch(e=>{console.warn('GS background sync:',e.message);showToast('❌ Lưu Sheets thất bại: '+e.message,false);});}
 // ═══════════════════════════════════════════════════
 // ACTIVITY LOG
 // ═══════════════════════════════════════════════════
@@ -1512,10 +1515,16 @@ async function loadAllDataFromSheets(){
     console.error('[GS] Load lỗi:',e);
     _setSyncStatus('err','⚠️ Chưa kết nối');
     _showSyncError('Tải dữ liệu thất bại',e.message);
+    throw e; // để gsWrite biết bước reload thất bại và giữ banner cảnh báo
   }
 }
 
 const _CY=new Date().getFullYear().toString();
+let PENDING_SYNC=false;
+function showSyncWarn(){PENDING_SYNC=true;document.getElementById('sync-warn').style.display='block';}
+function clearSyncWarn(){PENDING_SYNC=false;document.getElementById('sync-warn').style.display='none';}
+window.addEventListener('unhandledrejection',e=>{if(String(e.reason).includes('Sheet')||String(e.reason).includes('JWT'))showSyncWarn();});
+window.addEventListener('beforeunload',e=>{if(PENDING_SYNC){e.preventDefault();e.returnValue='';}});
 const OPENING_BALANCE_2026 = 56850626; // Số dư TPBank 31/12/2025 — cập nhật tay đầu mỗi năm
 let dashYear=_CY,dashMonth="all",dashFrom="",dashTo="",dashMode="year",monthYear=_CY,entryType="thu";
 let currentSubTab="transactions";
@@ -3142,7 +3151,7 @@ function initApp(){
   switchMonthYear(monthYear); // sync monthly tab buttons + renderMonthly
   renderTxTab();renderGoals();renderWealth();renderTasks();
   showTab("dashboard");
-  loadAllDataFromSheets();
+  loadAllDataFromSheets().catch(()=>{}); // lỗi load ban đầu đã hiển thị qua _showSyncError, không phải dữ liệu chưa lưu
 }
 window.onload=function(){
   var s=localStorage.getItem("kf_session");
