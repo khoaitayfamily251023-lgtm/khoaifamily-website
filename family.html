@@ -1881,6 +1881,7 @@ function _getDashTx(){
   return ALL_TX.filter(t=>t.date.startsWith(pfx));
 }
 function _buildBarData(txs){
+  txs=txs.filter(t=>!_TRANSFER_CATS.includes(t.cat)); // biểu đồ cột khớp với KPI
   if(dashMode==="year"&&dashMonth==="all"){
     return Array.from({length:12},(_,i)=>{
       const mo=(i+1).toString().padStart(2,"0");
@@ -1969,7 +1970,8 @@ function clearDashRange(){
 function renderDashboard(){
   const txs=_getDashTx();
   let tot,bal,savePct,barData,chiTop,chiTot,insightHtml;
-  tot=txs.reduce((s,t)=>{if(t.type==="thu")s.thu+=t.amt;else s.chi+=t.amt;return s;},{thu:0,chi:0});
+  // KPI loại trừ chuyển khoản nội bộ (thu lẫn chi) — riêng totalBal bên dưới vẫn tính đủ
+  tot=txs.filter(t=>!_TRANSFER_CATS.includes(t.cat)).reduce((s,t)=>{if(t.type==="thu")s.thu+=t.amt;else s.chi+=t.amt;return s;},{thu:0,chi:0});
   bal=tot.thu-tot.chi; savePct=tot.thu>0?Math.round((bal/tot.thu)*100):0;
   barData=_buildBarData(txs);
   const cats=_buildChiCats(txs); chiTop=cats.slice(0,5); chiTot=cats.reduce((s,c)=>s+c.amt,0)||1;
@@ -2074,8 +2076,8 @@ function renderTxTab(){
     return true;
   }).sort((a,b)=>b.date.localeCompare(a.date));
 
-  const thu=list.filter(t=>t.type==="thu").reduce((s,t)=>s+t.amt,0);
-  const chi=list.filter(t=>t.type==="chi").reduce((s,t)=>s+t.amt,0);
+  const thu=list.filter(t=>t.type==="thu"&&!_TRANSFER_CATS.includes(t.cat)).reduce((s,t)=>s+t.amt,0);
+  const chi=list.filter(t=>t.type==="chi"&&!_TRANSFER_CATS.includes(t.cat)).reduce((s,t)=>s+t.amt,0);
   document.getElementById("tx-summary-cards").innerHTML=`
     <div style="background:#f0fdf4;border-radius:14px;padding:13px 17px;border:1px solid #bbf7d0"><div style="font-size:10px;color:#059669;font-weight:800;text-transform:uppercase">Tổng thu ${yr}</div><div style="font-size:20px;font-weight:900;color:#059669">${fmt(thu)}</div></div>
     <div style="background:#fff5f5;border-radius:14px;padding:13px 17px;border:1px solid #fecaca"><div style="font-size:10px;color:#dc2626;font-weight:800;text-transform:uppercase">Tổng chi ${yr}</div><div style="font-size:20px;font-weight:900;color:#dc2626">${fmt(chi)}</div></div>`;
